@@ -7,10 +7,10 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "onDetail")
+@Table(name = "importDetail")
 @Getter
 @Setter
-public class On_Order_Detail{
+public class ImportOrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ID;
@@ -18,19 +18,20 @@ public class On_Order_Detail{
     private int quantity;
 
     @ManyToOne
-    @JoinColumn(name = "onOrderID")
-    private Online_Order onlineOrder;
+    @JoinColumn(name = "importID")
+    private ImportOrder importOrder;
+
     @ManyToOne
     @JoinColumn(name = "productID")
     private Product product;
 
-    public On_Order_Detail(Product product, BigDecimal cost, int quantity)
+    public ImportOrderDetail(Product product, BigDecimal cost, int quantity)
     {
         this.product=product;
         this.cost = cost;
         this.quantity = quantity;
     }
 
-    public On_Order_Detail() {
+    public ImportOrderDetail() {
     }
 }

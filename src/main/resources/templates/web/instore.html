@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POS Bán hàng</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f1f3f6;
+    }
+
+    .order-item {
+      background: white;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .order-item > div {
+      margin: 0 8px;
+    }
+
+    .qty {
+      color: red;
+      font-weight: bold;
+    }
+
+    .total {
+      font-weight: bold;
+    }
+
+    .icon-trash {
+      color: rgb(128, 128, 128);
+      cursor: pointer;
+    }
+
+    .order-summary {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-pay {
+      background-color: #007bff;
+      color: white;
+      font-weight: 600;
+    }
+
+    .btn-pay:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-amount {
+      border-radius: 25px;
+      padding: 8px 20px;
+      margin-right: 10px;
+    }
+
+    .form-check-input:checked {
+      background-color: #007bff;
+      border-color: #007bff;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      margin-bottom: 10px;
+    }
+
+    .search-bar input {
+      border: none;
+      outline: none;
+      flex: 1;
+      padding: 8px;
+    }
+
+    .search-bar button {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 8px;
+      color: #007bff;
+    }
+
+    .tabs {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .tab {
+      background-color: #f8f9fa;
+      border-radius: 8px 8px 0 0;
+      padding: 6px 16px;
+      margin-right: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+    }
+
+    .tab.active {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .tab .close-btn {
+      margin-left: 6px;
+      font-size: 14px;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .tab-add {
+      font-size: 20px;
+      color: white;
+      background-color: #007bff;
+      padding: 2px 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      margin-left: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid p-3">
+    <div class="row">
+      <!-- LEFT: Đơn hàng -->
+      <div class="col-md-8">
+        <!-- Thanh tìm kiếm -->
+        <div class="search-bar">
+          <span class="me-2">🔍</span>
+          <input type="text" placeholder="Tìm hàng hóa (F3)">
+        </div>
+
+        <!-- Tabs hóa đơn -->
+        <div class="tabs">
+          <div class="tab active">
+            <i class="fas fa-right-left me-1"></i> Hóa đơn 1 
+            <span class="close-btn ms-1">&times;</span>
+          </div>
+          <div class="tab">
+            Hóa đơn 2 <span class="close-btn">&times;</span>
+          </div>
+          <div class="tab-add">+</div>
+        </div>
+
+        <!-- Sản phẩm trong giỏ hàng -->
+        <div class="order-item">
+          <div>1</div>
+          <i class="fas fa-trash-alt icon-trash"></i>
+          <div>SP000008</div>
+          <div style="flex: 1;">Miếng dán trắng răng Crest 3D White Professional Effects (20 Ngày)</div>
+          <div class="qty">2</div>
+          <div>1,200,000</div>
+          <div class="total">2,400,000</div>
+          <div><i class="fas fa-plus"></i></div>
+        </div>
+
+        <!-- Ghi chú -->
+        <div class="mt-4">
+          <input type="text" class="form-control" placeholder="🖊 Ghi chú đơn hàng">
+        </div>
+      </div>
+
+      <!-- RIGHT: Thanh toán -->
+      <div class="col-md-4">
+        <div class="order-summary">
+            <div class="mb-2 d-flex justify-content-between align-items-center">
+                <span>Ngọc Hân 🔻</span>
+                <span id="datetime" style="font-size: 13px; color: #555;"></span>
+              </div>
+          <div class="mb-2 text-primary">👤 C.Hân 0868672602 ❌</div>
+
+          <div class="d-flex justify-content-between">
+            <span>Tổng tiền hàng</span>
+            <span>1,200,000</span>
+          </div>
+          
+          <div class="d-flex justify-content-between">
+            <span>Giảm giá</span>
+            <span>0</span>
+          </div>
+          <div class="d-flex justify-content-between fw-bold text-primary">
+            <span>Khách cần trả</span>
+            <span>1,200,000</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span>Khách thanh toán</span>
+            <span>1,200,000</span>
+          </div>
+
+          <!-- Hình thức thanh toán -->
+          <div class="my-3">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="payment" id="cash" checked>
+              <label class="form-check-label" for="cash">Tiền mặt</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="payment" id="bank">
+              <label class="form-check-label" for="bank">Chuyển khoản</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="payment" id="card">
+              <label class="form-check-label" for="card">Thẻ</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="payment" id="wallet">
+              <label class="form-check-label" for="wallet">Ví</label>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <button class="btn btn-outline-secondary btn-amount">1,200,000</button>
+            <button class="btn btn-outline-secondary btn-amount">1,500,000</button>
+          </div>
+          <div class="d-flex justify-content-between" style="margin-bottom:200px;">
+            <span>Tiền thừa trả khách</span>
+            <span>1,200,000</span>
+          </div>
+
+          <button class="btn btn-pay w-100 py-2">THANH TOÁN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function updateDateTime() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('vi-VN');
+      const timeStr = now.toLocaleTimeString('vi-VN', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+      document.getElementById('datetime').textContent = `${dateStr} ${timeStr.toLowerCase()}`;
+    }
+  
+    updateDateTime();
+    setInterval(updateDateTime, 60000); // cập nhật mỗi phút
+  </script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

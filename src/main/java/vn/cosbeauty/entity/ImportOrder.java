@@ -13,7 +13,7 @@ import java.util.List;
 @Table(name = "importOrder")
 @Getter
 @Setter
-public class Import_Order
+public class ImportOrder
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,12 +27,12 @@ public class Import_Order
     @JoinColumn(name = "employeeID")
     private Employee employee;
     @OneToMany(mappedBy = "importOrder", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Import_Order_Detail> importDetail = new ArrayList<>();
+    private List<ImportOrderDetail> importDetail = new ArrayList<>();
     @ManyToOne
     @JoinColumn(name = "supID")
     private Supplier supplier;
     
-    public Import_Order(Employee employee, BigDecimal cost, int status, Supplier supplier)
+    public ImportOrder(Employee employee, BigDecimal cost, int status, Supplier supplier)
     {
         this.employee = employee;
         this.cost = cost;
@@ -40,7 +40,7 @@ public class Import_Order
         this.supplier = supplier;
         this.importDate = LocalDateTime.now();
     }
-    public Import_Order ()
+    public ImportOrder()
     {
 
     }

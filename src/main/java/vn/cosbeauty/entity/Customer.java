@@ -3,7 +3,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,13 +20,13 @@ public class Customer{
     private String phone;
     
     @OneToMany(mappedBy = "customer",fetch = FetchType.LAZY)
-    private List<Online_Order> onOrderList=new ArrayList<>();
+    private List<OnlineOrder> onOrderList=new ArrayList<>();
     @OneToMany(mappedBy = "customer",fetch = FetchType.LAZY)
-    private List<Offline_Order> offOrderList=new ArrayList<>();
+    private List<OfflineOrder> offOrderList=new ArrayList<>();
     @OneToMany(mappedBy = "customer",fetch = FetchType.LAZY)
     private List<Comment> commentList=new ArrayList<>();
     @OneToMany(mappedBy = "customer",fetch =FetchType.EAGER)
-    private List<Cart_Item> cartList=new ArrayList<>();
+    private List<CartItem> cartList=new ArrayList<>();
     
     public Customer(String name, String email, String address, String phone){
         this.name=name;

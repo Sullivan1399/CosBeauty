@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "onlineOder")
+@Table(name = "onlineOrder")
 @Getter
 @Setter
-public class Online_Order
+public class OnlineOrder
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,10 +37,10 @@ public class Online_Order
     @JoinColumn(name = "employeeID")
     private Employee employee;
     @OneToMany(mappedBy = "onlineOrder", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<On_Order_Detail> onOrderDetails = new ArrayList<>();
+    private List<OnOrderDetail> onOrderDetails = new ArrayList<>();
     
-    public Online_Order(Customer customer, Employee employee, String name, String address, String phone, 
-    				BigDecimal cost, int deliveryStatus, int confirm, int paymentType)
+    public OnlineOrder(Customer customer, Employee employee, String name, String address, String phone,
+                       BigDecimal cost, int deliveryStatus, int confirm, int paymentType)
     {
         this.customer = customer;
         this.employee = employee;
@@ -53,7 +53,7 @@ public class Online_Order
         this.paymentType = paymentType;
         this.orderDate = LocalDateTime.now();
     }
-    public Online_Order ()
+    public OnlineOrder()
     {
 
     }

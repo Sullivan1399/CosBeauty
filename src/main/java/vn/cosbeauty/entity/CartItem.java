@@ -8,7 +8,7 @@ import lombok.Setter;
 @Table(name="cartItem")
 @Getter
 @Setter
-public class Cart_Item{
+public class CartItem {
     @Id
     private Long customerID;
     @Id
@@ -22,13 +22,13 @@ public class Cart_Item{
     @JoinColumn(name="productID")
     private Product product;
     
-    public Cart_Item(int quantity, Customer customer, Product product)
+    public CartItem(int quantity, Customer customer, Product product)
     {
         this.quantity = quantity;
         this.customer = customer;
         this.product = product;
     }
-    public Cart_Item()
+    public CartItem()
     {
 
     }

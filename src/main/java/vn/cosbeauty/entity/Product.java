@@ -17,10 +17,10 @@ public class Product
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productID;
-    private String product_name;
+    private String productName;
     private BigDecimal price;
     private int quantity;
-    private String image_url;
+    private String imageUrl;
     private int discount;
     
     @Lob // Đánh dấu trường này là Large Object
@@ -36,22 +36,22 @@ public class Product
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<Comment> commentsList=new ArrayList<>();
     @OneToMany(mappedBy = "product",fetch = FetchType.LAZY)
-    private List<On_Order_Detail> onOrderDetails=new ArrayList<>();
+    private List<OnOrderDetail> onOrderDetails=new ArrayList<>();
     @OneToMany(mappedBy = "product",fetch = FetchType.LAZY)
-    private List<Off_Order_Detail> offOrderDetails=new ArrayList<>();
+    private List<OffOrderDetail> offOrderDetails=new ArrayList<>();
     @OneToMany(mappedBy = "product")
-    private List<Import_Order_Detail> importDetails=new ArrayList<>();
+    private List<ImportOrderDetail> importDetails=new ArrayList<>();
     @OneToMany(mappedBy = "product",fetch = FetchType.LAZY)
-    private List<Cart_Item> cartList=new ArrayList<>();
+    private List<CartItem> cartList=new ArrayList<>();
     
     public Product(String product_name, Category category, Supplier brand,
                     BigDecimal price, int quantity, String image_url, int discount) {
-        this.product_name = product_name;
+        this.productName = product_name;
         this.category= category;
         this.supplier = brand;
         this.price = price;
         this.quantity = quantity;
-        this.image_url = image_url;
+        this.imageUrl = image_url;
         this.discount = discount;
     }
 

@@ -24,11 +24,11 @@ public class Employee{
     private LocalDate birthDate;
     private LocalDate recruitDate;
     @OneToMany(mappedBy = "employee",fetch = FetchType.LAZY)
-    private List<Online_Order> onOrderList=new ArrayList<>();
+    private List<OnlineOrder> onOrderList=new ArrayList<>();
     @OneToMany(mappedBy = "employee",fetch = FetchType.LAZY)
-    private List<Offline_Order> offOrderList=new ArrayList<>();
+    private List<OfflineOrder> offOrderList=new ArrayList<>();
     @OneToMany(mappedBy = "employee",fetch = FetchType.LAZY)
-    private List<Import_Order> importList=new ArrayList<>();
+    private List<ImportOrder> importList=new ArrayList<>();
     public Employee(){
 
     }

@@ -13,7 +13,7 @@ import java.util.List;
 @Table(name = "offlineOrder")
 @Getter
 @Setter
-public class Offline_Order
+public class OfflineOrder
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,9 +30,9 @@ public class Offline_Order
     @JoinColumn(name = "employeeID")
     private Employee employee;
     @OneToMany(mappedBy = "offlineOrder", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Off_Order_Detail> offlineDetails=new ArrayList<>();
+    private List<OffOrderDetail> offlineDetails=new ArrayList<>();
     
-    public Offline_Order(Customer customer, Employee employee, String phone, BigDecimal cost, int paymentType)
+    public OfflineOrder(Customer customer, Employee employee, String phone, BigDecimal cost, int paymentType)
     {
         this.customer = customer;
         this.employee = employee;
@@ -41,7 +41,7 @@ public class Offline_Order
         this.paymentType = paymentType;
         this.orderDate = LocalDateTime.now();
     }
-    public Offline_Order ()
+    public OfflineOrder()
     {
 
     }
