@@ -13,6 +13,7 @@ import java.util.List;
 public class Customer{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "customerid")
     private Long customerID;
     private String email;
     private String name;

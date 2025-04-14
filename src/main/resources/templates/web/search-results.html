@@ -1,0 +1,14 @@
+<!-- search-results.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Kết quả tìm kiếm</title></head>
+<body>
+<h2>Kết quả cho từ khóa: "<span th:text="${keyword}"></span>"</h2>
+<ul>
+    <li th:each="p : ${products}">
+        <span th:text="${p.name}">Tên sản phẩm</span> -
+        <span th:text="${p.price}">Giá</span>
+    </li>
+</ul>
+</body>
+</html>

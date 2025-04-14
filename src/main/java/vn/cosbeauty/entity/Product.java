@@ -1,4 +1,5 @@
 package vn.cosbeauty.entity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,10 +17,13 @@ public class Product
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="productid")
     private Long productID;
+    @Column(name = "product_name")
     private String productName;
     private BigDecimal price;
     private int quantity;
+    @Column(name = "image_url")
     private String imageUrl;
     private int discount;
     
@@ -28,9 +32,11 @@ public class Product
     private String detail;
 
     @ManyToOne
+    @JsonManagedReference
     @JoinColumn(name = "catID")
     private Category category;
     @ManyToOne
+    @JsonManagedReference
     @JoinColumn(name = "supID")
     private Supplier supplier;
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
