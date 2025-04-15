@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<title>Login V18</title>
+	<title>Login</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 <!--===============================================================================================-->
@@ -28,25 +28,28 @@
 <!--===============================================================================================-->
 </head>
 <body style="background-color: #666666;">
-
+	<div class="container mt-5">
+		<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+		<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+	</div>
 	<div class="limiter">
 		<div class="container-login100">
 			<div class="wrap-login100">
-				<form class="login100-form validate-form">
+				<form th:action="@{/login}" method="post" class="login100-form validate-form">
 					<span class="login100-form-title p-b-43">
 						Login to continue
 					</span>
 
 
 					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
-						<input class="input100" type="text" name="email">
+						<input class="input100" type="text" name="username">
 						<span class="focus-input100"></span>
 						<span class="label-input100">Email</span>
 					</div>
 
 
 					<div class="wrap-input100 validate-input" data-validate="Password is required">
-						<input class="input100" type="password" name="pass">
+						<input class="input100" type="password" name="password">
 						<span class="focus-input100"></span>
 						<span class="label-input100">Password</span>
 					</div>
@@ -74,9 +77,7 @@
 					</div>
 
 					<div class="text-center p-t-46 p-b-20">
-						<span class="txt2">
-							or sign up using
-						</span>
+						<a th:href="@{/register}">or sign up using</a>
 					</div>
 
 					<div class="login100-form-social flex-c-m">
