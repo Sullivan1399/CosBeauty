@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import vn.cosbeauty.entity.Category;
 import vn.cosbeauty.entity.Product;
 import vn.cosbeauty.service.CategoryService;
@@ -20,8 +22,11 @@ public class HomeController {
     private ProductService productService;
 
     @GetMapping({"/home","/"})
-    public String getAll(Model model) {
-        List<Category> categories = categoryService.getCategories();
+    public String getAll(Model model, @RequestParam(value = "logout", required = false) String logout) {
+    	if (logout != null) {
+            model.addAttribute("message", "Bạn đã đăng xuất thành công!");
+        }
+    	List<Category> categories = categoryService.getCategories();
 
         List<Product> products = productService.getAllProduct();
 //        for (Product p : products) {
