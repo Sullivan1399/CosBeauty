@@ -70,7 +70,7 @@
       </div>
       <nav class="humberger__menu__nav mobile-menu">
         <ul>
-          <li class="active"><a href="./index.html">Home</a></li>
+          <li class="active"><a th:href="@{/}">Home</a></li>
           <li><a href="./shop-grid.html">Shop</a></li>
           <li>
             <a href="#">Pages</a>
@@ -379,7 +379,9 @@
           <div class="col-lg-3 col-md-6 col-sm-6">
             <div class="footer__about">
               <div class="footer__about__logo">
-                <a href="./index.html"><img src="img/logo.png" alt="" /></a>
+                <a th:href="@{/}">Home</a>
+                <img th:src="@{/images/logo.png}" alt="Logo">
+                </a>
               </div>
               <ul>
                 <li>Address: 60-49 Road 11378 New York</li>
