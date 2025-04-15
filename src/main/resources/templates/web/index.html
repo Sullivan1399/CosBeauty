@@ -6,7 +6,7 @@
     <meta name="keywords" content="Ogani, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Ogani | Template</title>
+    <title>CosBeauty Store</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
@@ -30,7 +30,10 @@
     <div id="preloder">
         <div class="loader"></div>
     </div>
-
+    
+	<!-- Thông báo đăng xuất (nếu có) -->
+	<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+	
     <!-- Humberger Begin -->
     <div class="humberger__menu__overlay"></div>
     <div class="humberger__menu__wrapper">
@@ -54,9 +57,44 @@
                     <li><a href="#">English</a></li>
                 </ul>
             </div>
-            <div class="header__top__right__auth">
-                <a href="#"><i class="fa fa-user"></i> Login</a>
-            </div>
+            <div class="container">                
+			    <ul class="header-links pull-right">
+			        <li sec:authorize="isAnonymous()">
+			            <a th:href="@{/login}">
+			                <i class="fa fa-user-o"></i> Đăng nhập
+			            </a>
+			        </li>
+			        <li sec:authorize="hasRole('ROLE_ADMIN')">
+			            <a th:href="@{/admin/crudProducts}">Quản lý sản phẩm</a>
+			        </li>
+			        <li sec:authorize="hasRole('ROLE_ADMIN')">
+			            <a th:href="@{/admin/user}">Quản lý người dùng</a>
+			        </li>
+			        <li sec:authorize="hasRole('ROLE_STAFF')">
+			            <a th:href="@{/staff/bill}">Quản lý hóa đơn</a>
+			        </li>
+			        <li sec:authorize="isAuthenticated()" class="dropdown">
+			            <a sec:authorize="!hasRole('ROLE_ADMIN')" href="#" class="dropdown-toggle" data-toggle="dropdown">
+			                <i class="fa fa-user-o"></i> Thông tin cá nhân
+			            </a>
+			            <ul class="dropdown-menu">
+			                <li>
+			                    <a sec:authorize="hasRole('ROLE_USER')" th:href="@{/user/form_changePassword}" style="color: black;">Đổi mật khẩu</a>
+			                    <a sec:authorize="hasRole('ROLE_STAFF')" th:href="@{/staff/form_changePassword}" style="color: black;">Đổi mật khẩu</a>
+			                </li>
+			                <li>
+			                    <a sec:authorize="hasRole('ROLE_USER')" th:href="@{/user/formProfile}" style="color: black;">Hồ sơ của bạn</a>
+			                    <a sec:authorize="hasRole('ROLE_STAFF')" th:href="@{/staff/formProfile}" style="color: black;">Hồ sơ của bạn</a>
+			                </li>
+			            </ul>
+			            <form th:action="@{/logout}" method="post" style="display: inline">
+			                <button type="submit" style="color: white; background: none; border: none;">
+			                    Đăng xuất <i class="fa fa-sign-out"></i>
+			                </button>
+			            </form>
+			        </li>
+			    </ul>
+			</div>
         </div>
         <nav class="humberger__menu__nav mobile-menu">
             <ul>
@@ -83,7 +121,11 @@
         </div>
         <div class="humberger__menu__contact">
             <ul>
-                <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
+                <li>
+	                <i class="fa fa-envelope"></i>
+	                <span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
+	                <span sec:authorize="isAnonymous()">mailcongviec1399@gmail.com</span>
+	            </li>
                 <li>Free Shipping for all Order of $99</li>
             </ul>
         </div>
@@ -98,7 +140,11 @@
                     <div class="col-lg-6 col-md-6">
                         <div class="header__top__left">
                             <ul>
-                                <li><i class="fa fa-envelope"></i> nnhan10@gmail.com</li>
+                                <li>
+					                <i class="fa fa-envelope"></i>
+					                <span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
+					                <span sec:authorize="isAnonymous()">mailcongviec1399@gmail.com</span>
+					            </li>
                                 <li>Miễn phí vận chuyển cho đơn hàng tại TP.Hồ Chí Minh.</li>
                             </ul>
                         </div>
@@ -117,9 +163,44 @@
                                 <img src="img/image.png" style="height: 20px; width: auto" alt="" />
                                 <div>VietNam</div>
                             </div>
-                            <div class="header__top__right__auth">
-                                <a href="#"><i class="fa fa-user"></i> Login</a>
-                            </div>
+                            <div class="container">                
+							    <ul class="header-links pull-right">
+							        <li sec:authorize="isAnonymous()">
+							            <a th:href="@{/login}">
+							                <i class="fa fa-user-o"></i> Đăng nhập
+							            </a>
+							        </li>
+							        <li sec:authorize="hasRole('ROLE_ADMIN')">
+							            <a th:href="@{/admin/crudProducts}">Quản lý sản phẩm</a>
+							        </li>
+							        <li sec:authorize="hasRole('ROLE_ADMIN')">
+							            <a th:href="@{/admin/user}">Quản lý người dùng</a>
+							        </li>
+							        <li sec:authorize="hasRole('ROLE_STAFF')">
+							            <a th:href="@{/staff/bill}">Quản lý hóa đơn</a>
+							        </li>
+							        <li sec:authorize="isAuthenticated()" class="dropdown">
+							            <a sec:authorize="!hasRole('ROLE_ADMIN')" href="#" class="dropdown-toggle" data-toggle="dropdown">
+							                <i class="fa fa-user-o"></i> Thông tin cá nhân
+							            </a>
+							            <ul class="dropdown-menu">
+							                <li>
+							                    <a sec:authorize="hasRole('ROLE_USER')" th:href="@{/user/form_changePassword}" style="color: black;">Đổi mật khẩu</a>
+							                    <a sec:authorize="hasRole('ROLE_STAFF')" th:href="@{/staff/form_changePassword}" style="color: black;">Đổi mật khẩu</a>
+							                </li>
+							                <li>
+							                    <a sec:authorize="hasRole('ROLE_USER')" th:href="@{/user/formProfile}" style="color: black;">Hồ sơ của bạn</a>
+							                    <a sec:authorize="hasRole('ROLE_STAFF')" th:href="@{/staff/formProfile}" style="color: black;">Hồ sơ của bạn</a>
+							                </li>
+							            </ul>
+							            <form th:action="@{/logout}" method="post" style="display: inline">
+							                <button type="submit" style="color: black; background: none; border: none;">
+							                    Đăng xuất <i class="fa fa-sign-out"></i>
+							                </button>
+							            </form>
+							        </li>
+							    </ul>
+							</div>
                         </div>
                     </div>
                 </div>

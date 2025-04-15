@@ -18,6 +18,9 @@ public class Account{
     private String username;
     private String password;
     private String role; // CUSTOMER, EMPLOYEE, ADMIN
+    private boolean enabled = false;
+    private String verificationToken;
+    
     public Account(String username, String password){
     	this.username = username;
         this.password = password;
