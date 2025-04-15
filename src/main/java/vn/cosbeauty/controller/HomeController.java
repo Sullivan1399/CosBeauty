@@ -32,6 +32,8 @@ public class HomeController {
 //        for (Product p : products) {
 //            System.out.println("- " + p.getImageUrl() + " | " + p.getProductName());
 //        }
+        Long customerId = 1L; // hoặc lấy từ session, user login
+        model.addAttribute("customerId", customerId);
         model.addAttribute("categories", categories);
         model.addAttribute("products", products);
         return "web/index";
@@ -41,13 +43,23 @@ public class HomeController {
         return "web/instore";
     }
 
- 
+
+    @GetMapping("/shop-grid")
+    public String shopgrid() {
+        return "web/shop-grid";
+    }
+
+
+    @GetMapping({"/index"})
+    public String index() {
+        return "web/index";
+    }
     @GetMapping({"/shoping-cart"})
     public String cart() {
         return "web/shoping-cart";
     }
-    @GetMapping({"/index"})
-    public String index() {
-        return "web/index";
+    @GetMapping({"/shop-details"})
+    public String shopDetails() {
+        return "web/shop-details";
     }
 }
