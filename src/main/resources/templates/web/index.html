@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="description" content="Ogani Template">
@@ -57,7 +57,7 @@
                     <li><a href="#">English</a></li>
                 </ul>
             </div>
-            <div class="container">                
+            <div class="header__top__right__auth">                
 			    <ul class="header-links pull-right">
 			        <li sec:authorize="isAnonymous()">
 			            <a th:href="@{/login}">
@@ -163,7 +163,7 @@
                                 <img src="img/image.png" style="height: 20px; width: auto" alt="" />
                                 <div>VietNam</div>
                             </div>
-                            <div class="container">                
+                            <div class="header__top__right__auth">                
 							    <ul class="header-links pull-right">
 							        <li sec:authorize="isAnonymous()">
 							            <a th:href="@{/login}">
