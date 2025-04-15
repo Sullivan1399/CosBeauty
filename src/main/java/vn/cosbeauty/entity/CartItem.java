@@ -32,4 +32,10 @@ public class CartItem {
     {
 
     }
+    // Constructor với CartID và số lượng
+    public CartItem(CartID cartID, int quantity) {
+        this.customerID = cartID.getCustomerID();
+        this.productID = cartID.getProductID();
+        this.quantity = quantity;
+    }
 }

@@ -1,4 +1,5 @@
 package vn.cosbeauty.service;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.cosbeauty.DTO.ProductDTO;
@@ -25,5 +26,8 @@ public class ProductService {
 
     public Product getProductById(Long productID) {
         return productRepository.findById(productID).orElse(null);
+    }
+    public List<Product> getRelatedProducts(Integer categoryId) {
+        return productRepository.findTop4ByCategoryId(categoryId);
     }
 }

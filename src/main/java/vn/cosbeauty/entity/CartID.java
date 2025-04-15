@@ -1,7 +1,13 @@
 package vn.cosbeauty.entity;
 
-import java.io.Serializable;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.io.Serializable;
+import java.util.Objects;
+
+@Getter
+@Setter
 public class CartID implements Serializable {
     private Long customerID;
 
@@ -14,6 +20,18 @@ public class CartID implements Serializable {
         this.productID = productID;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CartID cartID = (CartID) o;
+        return Objects.equals(customerID, cartID.customerID) && Objects.equals(productID, cartID.productID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(customerID, productID);
+    }
     // equals() and hashCode()
 }
 
