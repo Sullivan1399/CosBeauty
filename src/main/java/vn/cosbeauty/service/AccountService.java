@@ -1,0 +1,111 @@
+package vn.cosbeauty.service;
+
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import vn.cosbeauty.entity.Account;
+import vn.cosbeauty.repository.AccountRepository;
+
+@Service
+public class AccountService implements UserDetailsService{
+
+    @Autowired
+    private AccountRepository accountRepository;
+    
+    @Autowired
+    private JavaMailSender mailSender;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Account account = accountRepository.findByUsername(username);
+        if (account == null) {
+            throw new UsernameNotFoundException("Tài khoản không tồn tại: " + username);
+        }
+        if (!account.isEnabled()) {
+            throw new RuntimeException("Email chưa được xác thực!");
+        }
+        return User
+                .withUsername(account.getUsername())
+                .password(account.getPassword())
+                .roles(account.getRole().replace("ROLE_", "")) // Loại bỏ tiền tố ROLE_ vì Spring Security tự động thêm
+                .build();
+    }
+    
+    public void registerAccount(Account account) {
+//    	if (accountRepository.findByUsername(account.getUsername()) != null)
+//    		
+//    	}
+    	account.setPassword(passwordEncoder.encode(account.getPassword()));
+    	account.setRole("ROLE_CUSTOMER");
+    	String token = UUID.randomUUID().toString();
+    	account.setVerificationToken(token);
+    	account.setEnabled(false);
+    	accountRepository.save(account);
+    	sendVerificationEmail(account.getUsername(), token);
+    }
+    
+    private void sendVerificationEmail(String email, String token) {
+//    	SimpleMailMessage message = new SimpleMailMessage();
+//    	message.setTo(email);
+//    	message.setSubject("Xác thực email cho tài khoản của bạn");
+//        message.setText("Vui lòng xác thực email bằng cách nhấp vào liên kết: " +
+//                "http://localhost:9090/verify?token=" + token);
+//        mailSender.send(message);
+        
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setTo(email);
+            helper.setSubject("Xác thực email cho tài khoản của bạn");
+            String verificationUrl = "http://localhost:9090/verify?token=" + token;
+            String content = "<html>" +
+                    "<body>" +
+                    "<p + style=\"font-size: 16px; \">Vui lòng xác thực email bằng cách nhấp vào nút dưới đây:</p>" +
+                    "<a href=\"" + verificationUrl + "\" " +
+                    "style=\"display: inline-block; padding: 8px 15px; font-size: 14px; " +
+                    "color: #fff; background-color: #28a745; text-decoration: none; border-radius: 5px;\">" +
+                    "Xác thực email</a>" +
+                    "</body>" +
+                    "</html>";
+
+            helper.setText(content, true);
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void verifyEmail(String token) {
+        Account account = accountRepository.findByVerificationToken(token);
+        if (account != null) {
+            account.setEnabled(true);
+            account.setVerificationToken(null); // Xóa token sau khi xác thực
+            accountRepository.save(account);
+        }
+    }
+//    
+//    public Account authenticate(String email, String password) {
+//        // Tìm tài khoản theo email
+//        Account account = accountRepository.findByUsername(email);
+//        if (account != null && account.getPassword().equals(password)) {
+//            return account;  // Nếu mật khẩu đúng, trả về tài khoản
+//        }
+//        return null;  // Nếu không tìm thấy tài khoản hoặc mật khẩu sai, trả về null
+//    }
+}

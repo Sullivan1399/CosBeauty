@@ -1,4 +1,5 @@
 package vn.cosbeauty.entity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,11 +17,14 @@ public class Product
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="productid")
     private Long productID;
-    private String product_name;
+    @Column(name = "product_name")
+    private String productName;
     private BigDecimal price;
     private int quantity;
-    private String image_url;
+    @Column(name = "image_url")
+    private String imageUrl;
     private int discount;
     
     @Lob // Đánh dấu trường này là Large Object
@@ -28,30 +32,32 @@ public class Product
     private String detail;
 
     @ManyToOne
+    @JsonManagedReference
     @JoinColumn(name = "catID")
     private Category category;
     @ManyToOne
+    @JsonManagedReference
     @JoinColumn(name = "supID")
     private Supplier supplier;
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<Comment> commentsList=new ArrayList<>();
     @OneToMany(mappedBy = "product",fetch = FetchType.LAZY)
-    private List<On_Order_Detail> onOrderDetails=new ArrayList<>();
+    private List<OnOrderDetail> onOrderDetails=new ArrayList<>();
     @OneToMany(mappedBy = "product",fetch = FetchType.LAZY)
-    private List<Off_Order_Detail> offOrderDetails=new ArrayList<>();
+    private List<OffOrderDetail> offOrderDetails=new ArrayList<>();
     @OneToMany(mappedBy = "product")
-    private List<Import_Order_Detail> importDetails=new ArrayList<>();
+    private List<ImportOrderDetail> importDetails=new ArrayList<>();
     @OneToMany(mappedBy = "product",fetch = FetchType.LAZY)
-    private List<Cart_Item> cartList=new ArrayList<>();
+    private List<CartItem> cartList=new ArrayList<>();
     
     public Product(String product_name, Category category, Supplier brand,
                     BigDecimal price, int quantity, String image_url, int discount) {
-        this.product_name = product_name;
+        this.productName = product_name;
         this.category= category;
         this.supplier = brand;
         this.price = price;
         this.quantity = quantity;
-        this.image_url = image_url;
+        this.imageUrl = image_url;
         this.discount = discount;
     }
 
