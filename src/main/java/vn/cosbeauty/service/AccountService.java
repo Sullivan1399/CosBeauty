@@ -1,5 +1,6 @@
 package vn.cosbeauty.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +18,17 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import vn.cosbeauty.entity.Account;
+import vn.cosbeauty.entity.Customer;
 import vn.cosbeauty.repository.AccountRepository;
+import vn.cosbeauty.repository.CustomerRepository;
 
 @Service
 public class AccountService implements UserDetailsService{
 
     @Autowired
     private AccountRepository accountRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
     
     @Autowired
     private JavaMailSender mailSender;
@@ -47,16 +52,20 @@ public class AccountService implements UserDetailsService{
                 .build();
     }
     
-    public void registerAccount(Account account) {
-//    	if (accountRepository.findByUsername(account.getUsername()) != null)
-//    		
-//    	}
+    public void registerAccount(Account account, Customer customer) {
+    	if (accountRepository.findByUsername(account.getUsername()) != null) {
+            throw new RuntimeException("Email đã được sử dụng!");
+        }
+    	if (customerRepository.findByPhone(customer.getPhone()) != null) {
+            throw new RuntimeException("Số điện thoại đã được sử dụng!");
+        }
     	account.setPassword(passwordEncoder.encode(account.getPassword()));
     	account.setRole("ROLE_CUSTOMER");
     	String token = UUID.randomUUID().toString();
     	account.setVerificationToken(token);
     	account.setEnabled(false);
     	accountRepository.save(account);
+    	customerRepository.save(customer);
     	sendVerificationEmail(account.getUsername(), token);
     }
     
@@ -92,12 +101,24 @@ public class AccountService implements UserDetailsService{
     }
     
     public void verifyEmail(String token) {
-        Account account = accountRepository.findByVerificationToken(token);
+    	Account account = accountRepository.findByVerificationToken(token);
         if (account != null) {
             account.setEnabled(true);
-            account.setVerificationToken(null); // Xóa token sau khi xác thực
+            account.setVerificationToken(null);
             accountRepository.save(account);
+        } else {
+            throw new RuntimeException("Token không hợp lệ!");
         }
+    }
+    
+    public List<String> findAllEmail()
+    {
+        List<String> listEmail = accountRepository.findAllEmail();
+        if (listEmail.isEmpty())
+        {
+            return null;
+        }
+        return listEmail;
     }
 //    
 //    public Account authenticate(String email, String password) {
