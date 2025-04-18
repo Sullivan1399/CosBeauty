@@ -14,4 +14,14 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 	
 	 @Query("SELECT a.username FROM Account a")
 	 List<String> findAllEmail();
+
+
+	// Tìm kiếm tài khoản theo vai trò
+	List<Account> findByRole(String role);
+
+	// Tìm kiếm tài khoản theo email (username)
+	List<Account> findByUsernameContaining(String username);
+
+	// Tìm kiếm tài khoản theo vai trò và trạng thái
+	List<Account> findByRoleAndStatus(String role, Boolean status);
 }

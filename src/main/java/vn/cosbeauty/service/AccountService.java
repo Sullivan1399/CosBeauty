@@ -129,4 +129,21 @@ public class AccountService implements UserDetailsService{
 //        }
 //        return null;  // Nếu không tìm thấy tài khoản hoặc mật khẩu sai, trả về null
 //    }
+    public List<Account> getAllAccounts() {
+        return accountRepository.findAll();
+    }
+
+        // Tìm theo tên đăng nhập
+        public List<Account> searchByUsername(String username) {
+            return accountRepository.findByUsernameContaining(username);
+        }
+
+     // Thêm hoặc cập nhật tài khoản
+        public void save(Account account) {
+            accountRepository.save(account);  // Lưu hoặc cập nhật tài khoản
+        }
+
+        public List<Account> findByRole(String role) {
+            return accountRepository.findByRole(role);
+        }
 }

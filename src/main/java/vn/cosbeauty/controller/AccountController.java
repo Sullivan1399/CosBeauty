@@ -100,4 +100,35 @@ public class AccountController {
         }
         return "/web/login";
     }
+
+    @GetMapping("/admin/users")
+    public String listUsers(@RequestParam(name = "keyword", required = false) String keyword,
+                            @RequestParam(name = "role", required = false) String role,
+                            @RequestParam(name = "page", defaultValue = "1") int page,
+                            Model model) {
+
+        List<Account> users;
+
+        if (keyword != null && !keyword.isEmpty()) {
+            users = accountService.searchByUsername(keyword);
+        } else if (role != null && !role.isEmpty()) {
+            users = accountService.findByRole("ROLE_" + role.toUpperCase());
+        } else {
+            users = accountService.getAllAccounts();
+        }
+
+        model.addAttribute("users", users);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", 1); // Giả sử chưa phân trang
+        return "user/update-useraccount";
+    }
+
+    @PostMapping("/save")
+    public String saveUser(@ModelAttribute Account account) {
+        accountService.save(account);  // Lưu thông tin tài khoản sau khi sửa
+        return "redirect:/admin/users";
+    }
+
+
 }
