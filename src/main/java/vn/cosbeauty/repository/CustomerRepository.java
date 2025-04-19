@@ -11,6 +11,7 @@ import vn.cosbeauty.entity.Customer;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long>{
+	Customer findByCustomerID(Long customerID);
 	Customer findByEmail(String email);
 	Customer findByPhone(String phone);
 	@Query("SELECT c.phone FROM Customer c")

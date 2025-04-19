@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zxx">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content="Ogani Template" />
@@ -19,14 +19,14 @@
     />
 
     <!-- Css Styles -->
-    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
-    <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css" />
-    <link rel="stylesheet" href="css/elegant-icons.css" type="text/css" />
-    <link rel="stylesheet" href="css/nice-select.css" type="text/css" />
-    <link rel="stylesheet" href="css/jquery-ui.min.css" type="text/css" />
-    <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css" />
-    <link rel="stylesheet" href="css/slicknav.min.css" type="text/css" />
-    <link rel="stylesheet" href="css/style.css" type="text/css" />
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/css/font-awesome.min.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/css/elegant-icons.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/css/jquery-ui.min.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/css/slicknav.min.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/css/nice-select.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css">
   </head>
 
   <body>
@@ -39,15 +39,12 @@
     <div class="humberger__menu__overlay"></div>
     <div class="humberger__menu__wrapper">
       <div class="humberger__menu__logo">
-        <a href="#"
-          ><img src="img/logo.png" alt="" style="max-height: 20px; width: auto"
-        /></a>
+        <a th:href="@{/}">
+          <img th:src="@{/img/logo.png}" alt="" style="max-height: 100px; width: auto" />
+        </a>
       </div>
       <div class="humberger__menu__cart">
         <ul>
-          <li>
-            <a href="#"><i class="fa fa-heart"></i> <span>1</span></a>
-          </li>
           <li>
             <a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a>
           </li>
@@ -56,7 +53,7 @@
       </div>
       <div class="humberger__menu__widget">
         <div class="header__top__right__language">
-          <img src="img/language.png" alt="" />
+          <img th:src="@{/img/language.png}" alt="Language">
           <div>English</div>
           <span class="arrow_carrot-down"></span>
           <ul>
@@ -71,18 +68,17 @@
       <nav class="humberger__menu__nav mobile-menu">
         <ul>
           <li class="active"><a th:href="@{/}">Home</a></li>
-          <li><a href="./shop-grid.html">Shop</a></li>
-          <li>
-            <a href="#">Pages</a>
+          <li><a href="#">Shop</a></li>
+          <li><a href="#">Pages</a>
             <ul class="header__menu__dropdown">
-              <li><a href="./shop-details.html">Shop Details</a></li>
-              <li><a href="./shoping-cart.html">Shoping Cart</a></li>
-              <li><a href="./checkout.html">Check Out</a></li>
-              <li><a href="./blog-details.html">Blog Details</a></li>
+              <li><a href="#">Shop Details</a></li>
+              <li><a href="#">Shoping Cart</a></li>
+              <li><a href="#">Check Out</a></li>
+              <li><a href="#">Blog Details</a></li>
             </ul>
           </li>
-          <li><a href="./blog.html">Blog</a></li>
-          <li><a href="./contact.html">Contact</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Contact</a></li>
         </ul>
       </nav>
       <div id="mobile-menu-wrap"></div>
@@ -94,7 +90,11 @@
       </div>
       <div class="humberger__menu__contact">
         <ul>
-          <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
+          <li>
+            <i class="fa fa-envelope"></i>
+            <span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
+            <span sec:authorize="isAnonymous()">mailcongviec1399@gmail.com</span>
+          </li>
           <li>Free Shipping for all Order of $99</li>
         </ul>
       </div>
@@ -125,7 +125,7 @@
                   <a href="#"><i class="fa fa-pinterest-p"></i></a>
                 </div>
                 <div class="header__top__right__language">
-                  <img src="img/image.png" style="height: 20px; width: auto" alt="" />
+                  <img th:src="@{/img/image.png}" style="height: 20px; width: auto" alt="" />
                   <div>VietNam</div>
                 </div>
                 <div class="header__top__right__auth">
@@ -140,12 +140,7 @@
         <div class="row">
           <div class="col-lg-3">
             <div class="header__logo">
-              <a href="./index.html"
-                ><img
-                  src="img/logo.png"
-                  alt=""
-                  style="max-height: 100px; width: auto"
-              /></a>
+              <a href="#"><img th:src="@{/img/logo.png}" alt="Logo"></a>
             </div>
           </div>
           <div class="col-lg-6">
@@ -244,7 +239,7 @@
     <!-- Hero Section End -->
 
     <!-- Breadcrumb Section Begin -->
-    <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
+    <section class="breadcrumb-section set-bg" th:attr="data-setbg=@{/img/hero/banner2.png}">
       <div class="container">
         <div class="row">
           <div class="col-lg-12 text-center">
@@ -278,56 +273,25 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
+                  <tr th:each="item : ${cartItems}">
                     <td class="shoping__cart__item">
-                      <img src="img/cart/cart-1.jpg" alt="" />
-                      <h5>Vegetable’s Package</h5>
+                      <img th:src="${'/' + item.product.getImageUrl()}" style="height: 100px; width: auto" alt="" />
+                      <h5 th:text="${item.product.getProductName()}">> </h5>
                     </td>
-                    <td class="shoping__cart__price">$55.00</td>
+                    <td class="shoping__cart__price" th:text="${@formatter.formatPrice(item.getProduct().getPrice())}"
+                        th:attr="data-price=${item.getProduct().getPrice()}"></td>
                     <td class="shoping__cart__quantity">
                       <div class="quantity">
                         <div class="pro-qty">
-                          <input type="text" value="1" />
+<!--                          <input type="text" th:value="${item.getQuantity()}" />-->
+                          <input type="number" th:value="${item.getQuantity()}" th:id="'quantity-' + ${item.getProduct().getProductID()}"
+                                 class="quantity-input" min="0" />
                         </div>
                       </div>
                     </td>
-                    <td class="shoping__cart__total">$110.00</td>
-                    <td class="shoping__cart__item__close">
-                      <span class="icon_close"></span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="shoping__cart__item">
-                      <img src="img/cart/cart-2.jpg" alt="" />
-                      <h5>Fresh Garden Vegetable</h5>
-                    </td>
-                    <td class="shoping__cart__price">$39.00</td>
-                    <td class="shoping__cart__quantity">
-                      <div class="quantity">
-                        <div class="pro-qty">
-                          <input type="text" value="1" />
-                        </div>
-                      </div>
-                    </td>
-                    <td class="shoping__cart__total">$39.99</td>
-                    <td class="shoping__cart__item__close">
-                      <span class="icon_close"></span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="shoping__cart__item">
-                      <img src="img/cart/cart-3.jpg" alt="" />
-                      <h5>Organic Bananas</h5>
-                    </td>
-                    <td class="shoping__cart__price">$69.00</td>
-                    <td class="shoping__cart__quantity">
-                      <div class="quantity">
-                        <div class="pro-qty">
-                          <input type="text" value="1" />
-                        </div>
-                      </div>
-                    </td>
-                    <td class="shoping__cart__total">$69.99</td>
+
+
+                    <td class="shoping__cart__total" th:text="${@formatter.formatPrice(item.product.getPrice() * item.getQuantity())}"></td>
                     <td class="shoping__cart__item__close">
                       <span class="icon_close"></span>
                     </td>
@@ -340,31 +304,23 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="shoping__cart__btns">
-              <a href="#" class="primary-btn cart-btn">Tiếp tục mua sắm</a>
-              <a href="#" class="primary-btn cart-btn cart-btn-right"
-                ><span class="icon_loading"></span> Cập nhật giỏ hàng</a
-              >
+              <form id="update-cart-form" th:action="@{/api/cart/update}" method="post">
+                <input type="hidden" name="redirect" value="home" />
+                <button type="submit" class="primary-btn cart-btn">Tiếp tục mua sắm</button>
+              </form>
             </div>
           </div>
-          <div class="col-lg-6">
-            <div class="shoping__continue">
-              <div class="shoping__discount">
-                <h5>Mã giảm giá</h5>
-                <form action="#">
-                  <input type="text" placeholder="Nhập mã giảm giá của bạn" />
-                  <button type="submit" class="site-btn">APPLY</button>
-                </form>
-              </div>
-            </div>
           </div>
           <div class="col-lg-6">
             <div class="shoping__checkout">
-              <h5>Cart Total</h5>
+              <h5>Tổng giỏ hàng</h5>
               <ul>
-                <li>Subtotal <span>$454.98</span></li>
-                <li>Total <span>$454.98</span></li>
+                <li>Tổng tiền hàng <span id="checkout-total"></span></li>
               </ul>
-              <a href="#" class="primary-btn">PROCEED TO CHECKOUT</a>
+              <form th:action="@{/api/cart/goCheckout}" method="post">
+                <button type="submit" class="primary-btn">PROCEED TO CHECKOUT</button>
+              </form>
+
             </div>
           </div>
         </div>
@@ -380,7 +336,7 @@
             <div class="footer__about">
               <div class="footer__about__logo">
                 <a th:href="@{/}">Home</a>
-                <img th:src="@{/images/logo.png}" alt="Logo">
+                <img th:src="@{/images/logo.png}" style="height: 20px; width: auto" alt="" />
                 </a>
               </div>
               <ul>
@@ -447,7 +403,7 @@
                 </p>
               </div>
               <div class="footer__copyright__payment">
-                <img src="img/payment-item.png" alt="" />
+                <img th:src="@{/img/payment-item.png}" style="height: 20px; width: auto" alt="" />
               </div>
             </div>
           </div>
@@ -457,13 +413,13 @@
     <!-- Footer Section End -->
 
     <!-- Js Plugins -->
-    <script src="js/jquery-3.3.1.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery.nice-select.min.js"></script>
-    <script src="js/jquery-ui.min.js"></script>
-    <script src="js/jquery.slicknav.js"></script>
-    <script src="js/mixitup.min.js"></script>
-    <script src="js/owl.carousel.min.js"></script>
-    <script src="js/main.js"></script>
+    <script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <script th:src="@{/js/jquery.nice-select.min.js}"></script>
+    <script th:src="@{/js/jquery-ui.min.js}"></script>
+    <script th:src="@{/js/jquery.slicknav.js}"></script>
+    <script th:src="@{/js/mixitup.min.js}"></script>
+    <script th:src="@{/js/owl.carousel.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
   </body>
 </html>
