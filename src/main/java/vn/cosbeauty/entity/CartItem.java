@@ -1,7 +1,9 @@
 package vn.cosbeauty.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 @Entity
 @IdClass(CartID.class)
@@ -16,12 +18,12 @@ public class CartItem {
     private int quantity;
 
     @ManyToOne
-    @JoinColumn (name="customerID")
+    @JoinColumn (name="customerID", insertable = false, updatable = false)
     private Customer customer;
     @ManyToOne
-    @JoinColumn(name="productID")
+    @JoinColumn(name="productID", insertable = false, updatable = false)
     private Product product;
-    
+
     public CartItem(int quantity, Customer customer, Product product)
     {
         this.quantity = quantity;
@@ -32,10 +34,11 @@ public class CartItem {
     {
 
     }
+
     // Constructor với CartID và số lượng
-    public CartItem(CartID cartID, int quantity) {
-        this.customerID = cartID.getCustomerID();
-        this.productID = cartID.getProductID();
+
+    public CartItem(Long productID, int quantity) {
+        this.productID = productID;
         this.quantity = quantity;
     }
 }
