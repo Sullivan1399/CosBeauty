@@ -200,6 +200,14 @@
     });
 
     /*-------------------
+		Register form
+	--------------------- */
+    $('.form-holder').delegate("input", "focus", function(){
+		$('.form-holder').removeClass("active");
+		$(this).parent().addClass("active");
+	})
+
+    /*-------------------
 		Quantity change
 	--------------------- */
     var proQty = $('.pro-qty');
