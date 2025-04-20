@@ -2,10 +2,13 @@ package vn.cosbeauty.repository;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import vn.cosbeauty.entity.Account;
+import org.springframework.data.repository.query.Param;
+
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
     Account findByUsername(String username);
@@ -19,9 +22,33 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 	// Tìm kiếm tài khoản theo vai trò
 	List<Account> findByRole(String role);
 
-	// Tìm kiếm tài khoản theo email (username)
-	List<Account> findByUsernameContaining(String username);
+	@Query("SELECT a FROM Account a WHERE " +
+			"CAST(a.ID AS string) LIKE %:keyword% OR " +
+			"LOWER(a.username) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+	List<Account> searchByIdOrUsername(@Param("keyword") String keyword);
 
-	// Tìm kiếm tài khoản theo vai trò và trạng thái
-	List<Account> findByRoleAndStatus(String role, Boolean status);
+
+
+
+	@EntityGraph(attributePaths = {"customer", "employee"})
+	@Query("SELECT a FROM Account a")
+	List<Account> findAllWithDetails();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

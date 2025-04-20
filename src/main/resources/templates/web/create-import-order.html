@@ -29,22 +29,28 @@
 
 <h2 class="mb-4">Tạo đơn nhập hàng mới</h2>
 
+<!-- Thông báo thành công -->
+<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+  <span th:text="${successMessage}"></span>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
 <!-- Form tạo đơn -->
-<form th:action="@{/employee/import-orders/save}" method="post" class="row g-3">
+<form th:action="@{/employee/import-orders/create}" method="post" class="row g-3">
 
   <!-- Nhà cung cấp -->
   <div class="col-md-6">
     <label for="supplier" class="form-label">Nhà cung cấp</label>
     <select id="supplier" name="supplierId" class="form-select" required>
       <option value="" disabled selected>-- Chọn nhà cung cấp --</option>
-      <option th:each="sup : ${suppliers}" th:value="${sup.id}" th:text="${sup.name}"></option>
+      <option th:each="sup : ${suppliers}" th:value="${sup.supID}" th:text="${sup.supName}"></option>
     </select>
   </div>
 
   <!-- Tổng chi phí -->
   <div class="col-md-6">
     <label for="totalCost" class="form-label">Tổng chi phí</label>
-    <input type="number" id="totalCost" name="cost" step="0.01" class="form-control" placeholder="Nhập tổng chi phí..." required>
+    <input type="number" id="totalCost" name="cost" step="1000" class="form-control" placeholder="Nhập tổng chi phí..." required>
   </div>
 
   <!-- Chi tiết sản phẩm -->
@@ -56,6 +62,7 @@
         <th>Sản phẩm</th>
         <th>Số lượng</th>
         <th>Giá nhập</th>
+        <th>Thao tác</th>
       </tr>
       </thead>
       <tbody>
@@ -63,11 +70,14 @@
         <td>
           <select name="productIds" class="form-select" required>
             <option value="" disabled selected>-- Chọn sản phẩm --</option>
-            <option th:each="p : ${products}" th:value="${p.id}" th:text="${p.name}"></option>
+            <option th:each="p : ${products}" th:value="${p.productID}" th:text="${p.productName}"></option>
           </select>
         </td>
         <td><input type="number" name="quantities" class="form-control" min="1" required></td>
-        <td><input type="number" name="costs" class="form-control" step="0.01" required></td>
+        <td><input type="number" name="costs" class="form-control" step="1000" required></td>
+        <td class="text-center">
+          <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(this)">X</button>
+        </td>
       </tr>
       </tbody>
     </table>
@@ -76,7 +86,7 @@
 
   <!-- Nút Lưu -->
   <div class="col-12 text-end mt-3">
-    <button type="submit" class="btn btn-success">Lưu đơn nhập</button>
+    <button type="submit" class="btn btn-success">Tạo đơn nhập</button>
     <a href="/employee/import-orders" class="btn btn-secondary ms-2">Quay lại</a>
   </div>
 
@@ -85,10 +95,10 @@
 <!-- Template option sản phẩm -->
 <div id="product-options-template" hidden>
   <option value="" disabled selected>-- Chọn sản phẩm --</option>
-  <option th:each="p : ${products}" th:value="${p.id}" th:text="${p.name}"></option>
+  <option th:each="p : ${products}" th:value="${p.productID}" th:text="${p.productName}"></option>
 </div>
 
-<!-- Script thêm dòng sản phẩm -->
+<!-- Script thêm & xóa dòng sản phẩm -->
 <script>
   function addProductRow() {
     const container = document.querySelector('#product-details tbody');
@@ -97,12 +107,23 @@
     // Clear input values
     newRow.querySelectorAll('input').forEach(el => el.value = '');
 
-    // Gán lại option cho select
+    // Reset select
     const productSelect = newRow.querySelector('select[name="productIds"]');
     const optionTemplate = document.getElementById('product-options-template').innerHTML;
     productSelect.innerHTML = optionTemplate;
 
     container.appendChild(newRow);
+  }
+
+  function removeProductRow(button) {
+    const row = button.closest('tr');
+    const table = document.querySelector('#product-details tbody');
+
+    if (table.rows.length > 1) {
+      row.remove();
+    } else {
+      alert("Phải có ít nhất một dòng sản phẩm.");
+    }
   }
 </script>
 

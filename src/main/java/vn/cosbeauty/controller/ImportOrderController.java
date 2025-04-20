@@ -1,5 +1,6 @@
 package vn.cosbeauty.controller;
 
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.cosbeauty.repository.*;
 import vn.cosbeauty.service.ImportOrderService;
 
@@ -27,18 +28,22 @@ public class ImportOrderController {
     public String showCreateForm(Model model) {
         model.addAttribute("suppliers", supplierRepository.findAll());
         model.addAttribute("products", productRepository.findAll());
-        return "create-import-order"; // tên file HTML
+        return "web/create-import-order"; // tên file HTML
     }
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public String saveImportOrder(
             @RequestParam Long supplierId,
             @RequestParam double cost,
             @RequestParam List<Long> productIds,
             @RequestParam List<Integer> quantities,
-            @RequestParam List<Double> costs
+            @RequestParam List<Double> costs,
+            RedirectAttributes redirectAttributes
     ) {
         importOrderService.createImportOrder(supplierId, cost, productIds, quantities, costs);
-        return "redirect:/employee/import-orders";
+        redirectAttributes.addFlashAttribute("successMessage", "Tạo đơn nhập hàng thành công!");
+        return "redirect:/employee/import-orders/create";
+
     }
+
 }

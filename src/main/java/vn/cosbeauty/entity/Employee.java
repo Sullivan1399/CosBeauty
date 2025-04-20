@@ -42,4 +42,9 @@ public class Employee{
         this.birthDate = birthDate;
         this.recruitDate = recruitDate;
     }
+
+    @OneToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
+
 }
