@@ -69,10 +69,11 @@
           <input type="hidden" name="id" th:value="${account.ID}" />
           <span th:text="${account.ID}"></span>
       </td>
+
       <td>
         <input type="email"
-               name="newEmail"
-               th:value="${account.username}"
+               name="Name"
+               th:value="${account.displayName}"
                class="form-control form-control-sm"
                readonly />
       </td>
