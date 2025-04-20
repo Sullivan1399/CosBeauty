@@ -1,6 +1,7 @@
 package vn.cosbeauty.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +26,15 @@ public class CustomerService {
         }
         return listPhone;
     }
+
+    public Customer save(Customer customer) {
+        return customerRepository.save(customer);
+    }
+
+    public Optional<Customer> findById(Long id) {
+        return customerRepository.findById(id);
+    }
+  
     public Long getCurrentCustomerID() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username;

@@ -65,4 +65,5 @@ public class HomeController {
     public String shopDetails() {
         return "web/shop-details";
     }
+
 }

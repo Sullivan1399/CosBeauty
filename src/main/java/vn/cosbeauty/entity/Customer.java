@@ -18,6 +18,7 @@ public class Customer{
     private String email;
     private String name;
     private String address;
+    @Column(name = "phone")
     private String phone;
     
     @OneToMany(mappedBy = "customer",fetch = FetchType.LAZY)
@@ -39,4 +40,10 @@ public class Customer{
     {
 
     }
+    @OneToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
+
+
+
 }
