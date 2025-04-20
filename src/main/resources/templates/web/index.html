@@ -52,7 +52,6 @@
         </div>
         <div class="humberger__menu__cart">
             <ul>
-                <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
                 <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
             </ul>
             <div class="header__cart__price">item: <span>$150.00</span></div>
@@ -247,7 +246,7 @@
                 <div class="col-lg-3">
                     <div class="header__cart">
                         <ul>
-                            <li><a th:href="@{/shoping-cart}"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                            <li><a th:href="@{/api/cart/view}"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
                         </ul>
                         <div class="header__cart__price">item: <span>$150.00</span></div>
                     </div>
@@ -346,14 +345,17 @@
                     </div>
                 </div>
             </div>
+            <div th:if="${message}" class="alert alert-success">
+                <span th:text="${message}"></span>
+            </div>
             <div class="row featured__filter">
                 <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat" th:each="product : ${products}">
                     <div class="featured__item">
-                        <a th:href="@{/product/{id}(id=${product.getProductID()})}" style="text-decoration: none; color: inherit;">
+                        <a th:href="@{/product/{id}(id=${product.getProductID()})}"  style="text-decoration: none; color: inherit;">
                             <div class="featured__item__pic set-bg" th:attr="data-setbg=${product.getImageUrl()}">
                                 <ul class="featured__item__pic__hover">
                                     <li>
-                                        <form th:action="@{api/cart/add}" method="post" style="display:inline;">
+                                        <form th:action="@{api/cart/add/{id}(id=${product.getProductID()})}" method="post" style="display:inline;">
                                             <input type="hidden" name="productId" th:value="${product.getProductID()}" />
                                             <input type="hidden" name="customerId" th:value="${customerId}" />
                                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -367,7 +369,7 @@
                         </a>
                         <div class="featured__item__text">
                             <h6><a href="#" th:text="${product.getProductName()}"></a></h6>
-                            <h5 th:text="${product.price}+ '₫'"></h5>
+                            <h5 th:text="${product.getPrice()}+ '₫'"></h5>
                         </div>
                     </div>
                 </div>
