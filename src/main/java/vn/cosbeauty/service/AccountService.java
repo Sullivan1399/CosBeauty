@@ -194,8 +194,7 @@ public class AccountService implements UserDetailsService{
 
             customer.setName(dto.getNewName());
             customer.setPhone(dto.getNewPhone()); // ✅ cập nhật số điện thoại
-            customer.setAccount(acc);
-            acc.setCustomer(customer);
+            customerRepository.save(customer);
 
         } else if ("EMPLOYEE".equalsIgnoreCase(dto.getRole())) {
             Employee emp = employeeRepository.findByEmail(acc.getUsername());
@@ -205,8 +204,7 @@ public class AccountService implements UserDetailsService{
 
             emp.setName(dto.getNewName());
             emp.setPhone(dto.getNewPhone()); // ✅ cập nhật số điện thoại
-            emp.setAccount(acc);
-            acc.setEmployee(emp);
+            employeeRepository.save(emp);
         }
 
         accountRepository.save(acc);

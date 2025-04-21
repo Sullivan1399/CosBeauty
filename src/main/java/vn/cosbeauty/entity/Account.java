@@ -26,12 +26,6 @@ public class Account{
     public Account(){
     }
 
-    @OneToOne(mappedBy = "account", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Customer customer;
-
-    @OneToOne(mappedBy = "account", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Employee employee;
-
     @Transient
     private String displayName;
 

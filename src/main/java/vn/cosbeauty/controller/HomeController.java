@@ -23,7 +23,7 @@ public class HomeController {
     @Autowired
     private CustomerService customerService;
 
-    @GetMapping({"/home","/"})
+    @GetMapping({"/"})
     public String getAll(Model model, @RequestParam(value = "logout", required = false) String logout) {
     	if (logout != null) {
             model.addAttribute("message", "Bạn đã đăng xuất thành công!");
