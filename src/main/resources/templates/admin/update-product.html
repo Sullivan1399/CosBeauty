@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <title>Update Sản Phẩm</title>
+</head>
+<body>
+    <div id="header">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <!-- LOGO -->
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a href="/" class="logo">
+                            <h2 style="color: white; margin:5px 0 5px 0">CosBeauty</h2>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-container">
+        <div class="container py-5 h-100">
+            <div class="row d-flex align-items-center justify-content-center h-100">
+                <div class="col-md-8 col-lg-7 col-xl-6">
+                    <img src="https://i.imgur.com/uNGdWHi.png"
+                         class="img-fluid" alt="Phone image">
+                </div>
+                <div class="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
+                    <h1 style="text-align:center">Update sản phẩm</h1>
+                    <form  th:action="@{/admin/updateProduct}" th:object="${product}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" id="ID" th:field="*{ID}" />
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="text" id="name" th:field="*{product_name}" class="form-control form-control-lg" required />
+                            <label class="form-label" for="name">Tên sản phẩm</label>
+                        </div>
+
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="text" id="type" th:field="*{product_type}" class="form-control form-control-lg" required />
+                            <label class="form-label" for="type" >Loại sản phẩm</label>
+                        </div>
+
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="text" id="brand" th:field="*{brand}" class="form-control" required/>
+                            <label class="form-label" for="brand">Hãng</label>
+                        </div>
+
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="text" id="cost" th:field="*{cost}" class="form-control" required>
+                            <label class="form-label" for="cost">Giá</label>
+                        </div>
+
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="text" id="quantity" th:field="*{quantity}" class="form-control" required />
+                            <label class="form-label" for="quantity">Số lượng</label>
+                        </div>
+
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="text" id="discount" th:field="*{discount}" class="form-control" required />
+                            <label class="form-label" for="discount">Giảm giá</label>
+                        </div>
+
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <label class="form-label" for="full-featured">Chi tiết sản phẩm</label>
+                            <textarea id="full-featured" th:field="*{detail}"></textarea>
+                        </div>
+
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <label class="form-label">Image</label>
+                            <input type="file" id="imageInput" name="imageInput" class="form-control" accept="image/*"
+                                   th:attr="required=${product.ID == null}"
+                                   onchange="document.getElementById('blah').src = window.URL.createObjectURL(this.files[0])">
+                            <input type="hidden" th:field="*{image_url}" th:value="${product.image_url}">
+                            <br>
+                            <img id="blah" width="400" height="350" th:src="@{'/images/' + ${product.image_url}}">
+                        </div>
+                        <div style="display: flex;">
+                            <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg btn-block" style="height: 50px;margin-top: 8px">
+                                Submit
+                            </button>
+                            <a th:href="@{/admin/crudProducts}" class="btn btn-danger btn-lg btn-block d-inline-flex align-items-center justify-content-center" style="height: 50px;">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script src="https://cdn.tiny.cloud/1/r8226os7isr15nd2do3haozn6kltnglphv882mluiz26uz2w/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+	<script th:src="@{/js/product-detail.js}"></script>
+</body>
+</html>

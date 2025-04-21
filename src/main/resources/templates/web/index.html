@@ -74,7 +74,7 @@
 			            </a>
 			        </li>
 			        <li sec:authorize="hasRole('ROLE_ADMIN')">
-			            <a th:href="@{/admin/crudProducts}">Quản lý sản phẩm</a>
+			            <a th:href="@{/admin/dashboard}">Dashboard</a>
 			        </li>
 			        <li sec:authorize="hasRole('ROLE_ADMIN')">
 			            <a th:href="@{/admin/user}">Quản lý người dùng</a>
@@ -180,7 +180,10 @@
 							            </a>
 							        </li>
 							        <li sec:authorize="hasRole('ROLE_ADMIN')">
-							            <a th:href="@{/admin/crudProducts}">Quản lý sản phẩm</a>
+							            <a th:href="@{/admin/dashboard}">Dashboard</a>
+							        </li>
+							        <li sec:authorize="hasRole('ROLE_ADMIN')">
+							            <a th:href="@{/admin/ManageProducts}">Quản lý sản phẩm</a>
 							        </li>
 							        <li sec:authorize="hasRole('ROLE_ADMIN')">
 							            <a th:href="@{/admin/user}">Quản lý người dùng</a>

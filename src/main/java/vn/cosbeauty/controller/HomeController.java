@@ -1,6 +1,7 @@
 package vn.cosbeauty.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,26 +24,35 @@ public class HomeController {
     @Autowired
     private CustomerService customerService;
 
-    @GetMapping({"/home","/"})
-    public String getAll(Model model, @RequestParam(value = "logout", required = false) String logout) {
+    @GetMapping("/")
+    public String getAll(Model model, 
+    		@RequestParam(value = "logout", required = false) String logout,
+    		@RequestParam(value = "keyword",defaultValue = "") String keyword,
+            @RequestParam(value="page", required=false, defaultValue="1") int page,
+            @RequestParam(value="listCategory",required = false) List<String> listCate,
+            @RequestParam(value="listSupplier",required = false) List<String> listSup) {
     	if (logout != null) {
             model.addAttribute("message", "Bạn đã đăng xuất thành công!");
+            System.out.println("Đang Logout neh ba!");
         }
     	List<Category> categories = categoryService.getCategories();
+    	Page<Product> products = productService.getProductHome(page, 10);
 
-        List<Product> products = productService.getAllProduct();
+//        List<Product> products = productService.getAllProduct();
         model.addAttribute("categories", categories);
         model.addAttribute("products", products);
         return "web/index";
     }
     @GetMapping("/shop-grid")
-    public String shopGrid(Model model, @RequestParam(value = "logout", required = false) String logout) {
+    public String shopGrid(Model model, 
+    		@RequestParam(value="page", required=false, defaultValue="1") int page,
+    		@RequestParam(value = "logout", required = false) String logout) {
         if (logout != null) {
             model.addAttribute("message", "Bạn đã đăng xuất thành công!");
         }
         List<Category> categories = categoryService.getCategories();
 
-        List<Product> products = productService.getAllProduct();
+        Page<Product> products = productService.getProductHome(page, 10);
         Long customerId = 1L; // hoặc lấy từ session, user login
         model.addAttribute("customerId", customerId);
         model.addAttribute("categories", categories);
