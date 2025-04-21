@@ -43,8 +43,4 @@ public class Employee{
         this.recruitDate = recruitDate;
     }
 
-    @OneToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
-
 }

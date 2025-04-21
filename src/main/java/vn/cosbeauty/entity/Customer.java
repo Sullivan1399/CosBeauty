@@ -40,9 +40,7 @@ public class Customer{
     {
 
     }
-    @OneToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
+
 
 
 

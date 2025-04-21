@@ -30,24 +30,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
 
 
-	@EntityGraph(attributePaths = {"customer", "employee"})
 	@Query("SELECT a FROM Account a")
 	List<Account> findAllWithDetails();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
