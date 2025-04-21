@@ -27,7 +27,7 @@ public class Customer{
     private List<OfflineOrder> offOrderList=new ArrayList<>();
     @OneToMany(mappedBy = "customer",fetch = FetchType.LAZY)
     private List<Comment> commentList=new ArrayList<>();
-    @OneToMany(mappedBy = "customer",fetch =FetchType.EAGER)
+    @OneToMany(mappedBy = "customer",fetch =FetchType.LAZY)
     private List<CartItem> cartList=new ArrayList<>();
     
     public Customer(String name, String email, String address, String phone){

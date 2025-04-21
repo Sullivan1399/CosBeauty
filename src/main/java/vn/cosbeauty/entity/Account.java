@@ -26,7 +26,6 @@ public class Account{
     public Account(){
     }
 
-
     @Transient
     private String displayName;
 
