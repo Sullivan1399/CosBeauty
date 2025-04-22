@@ -18,6 +18,7 @@ public class Customer{
     private String email;
     private String name;
     private String address;
+    @Column(name = "phone")
     private String phone;
     
     @OneToMany(mappedBy = "customer",fetch = FetchType.LAZY)
@@ -26,7 +27,7 @@ public class Customer{
     private List<OfflineOrder> offOrderList=new ArrayList<>();
     @OneToMany(mappedBy = "customer",fetch = FetchType.LAZY)
     private List<Comment> commentList=new ArrayList<>();
-    @OneToMany(mappedBy = "customer",fetch =FetchType.EAGER)
+    @OneToMany(mappedBy = "customer",fetch =FetchType.LAZY)
     private List<CartItem> cartList=new ArrayList<>();
     
     public Customer(String name, String email, String address, String phone){
@@ -39,4 +40,8 @@ public class Customer{
     {
 
     }
+
+
+
+
 }
