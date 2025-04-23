@@ -1,14 +1,8 @@
 package vn.cosbeauty.controller;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import jakarta.servlet.http.HttpSession;
-import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,9 +14,9 @@ import vn.cosbeauty.DTO.RegisterDTO;
 import vn.cosbeauty.entity.Account;
 import vn.cosbeauty.entity.Customer;
 import vn.cosbeauty.entity.Employee;
-import vn.cosbeauty.repository.AccountRepository;
 import vn.cosbeauty.service.AccountService;
 import vn.cosbeauty.service.CustomerService;
+import vn.cosbeauty.service.EmployeeService;
 
 @Controller
 public class AccountController {
@@ -31,8 +25,11 @@ public class AccountController {
 	private AccountService accountService;
 	@Autowired
 	private CustomerService customerService;
-	
-	@GetMapping("/register")
+    @Autowired
+    private EmployeeService employeeService;
+
+
+    @GetMapping("/register")
 	public String showRegisterForm(Model model) {
 		model.addAttribute("registerDTO", new RegisterDTO());
         return "web/register";
@@ -110,7 +107,7 @@ public class AccountController {
         return "/web/login";
     }
 
-    @GetMapping("/admin/users")
+    @GetMapping("/admin/manage")
     public String listUsers(@RequestParam(name = "keyword", required = false) String keyword,
                             @RequestParam(name = "role", required = false) String role,
                             @RequestParam(name = "page", defaultValue = "1") int page,
@@ -135,13 +132,13 @@ public class AccountController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", 1); // nếu chưa có phân trang
 
-        return "web/update-user-account";
+        return "/web/Manage-admin";
     }
 
 
 
 
-    @PostMapping("/admin/users")
+    @PostMapping("/admin/manage")
     public String updateAccountAndCustomer(@RequestParam("id") Long id,
                                            @RequestParam("newName") String newName,
                                            @RequestParam("role") String role,
@@ -160,27 +157,27 @@ public class AccountController {
             redirectAttributes.addFlashAttribute("error", "Lỗi cập nhật: " + e.getMessage());
             e.printStackTrace();
         }
-        return "redirect:/admin/users";
+        return "redirect:/admin/manage";
     }
 
 
+    @GetMapping("/admin/manage/create-employee")
+    public String showCreateEmployeeForm(Model model) {
+        List<Employee> employees = employeeService.findEmployeesWithoutAccount();
+        model.addAttribute("employees", employees);
+        return "web/create-employee-account";
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    @PostMapping("/admin/manage/create-employee")
+    public String saveEmployee(@ModelAttribute("account") Account account,
+                               @RequestParam("employeeEmail") String email) {
+        Employee employee = employeeService.findByEmail(email);
+        // Dùng email làm username
+        account.setUsername(employee.getEmail());
+        // Gán thông tin khác nếu cần (VD: account.setDisplayName(employee.getName()))
+        account.setRole("ROLE_EMPLOYEE");
+        accountService.save(account);
+        return "redirect:/admin/manage";
+    }
 
 }

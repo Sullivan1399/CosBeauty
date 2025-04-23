@@ -49,7 +49,7 @@ public class SecurityConfig {
 						for (GrantedAuthority authority : authentication.getAuthorities()) {
 							String role = authority.getAuthority();
 							if (role.equals("ROLE_ADMIN")) {
-								response.sendRedirect("/admin/users");
+								response.sendRedirect("/admin/manage");
 								return;
 							} else if (role.equals("ROLE_EMPLOYEE")) {
 								response.sendRedirect("/employee/import-orders/create");

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Thêm Tài Khoản Nhân Viên</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+  <style>
+    .rounded-select {
+    height: 48px;
+    font-size: 16px;
+    border-radius: 12px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+  }
+  </style>
+</head>
+<body>
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Thêm Tài Khoản Nhân Viên</h2>
+  <form th:action="@{/admin/manage/create-employee}" method="post">
+    <div class="mb-3">
+      <label class="form-label">Chọn nhân viên</label>
+      <select class="form-select rounded-select" id="employeeSelect" name="employeeEmail" required>
+        <option value="" disabled selected>-- Chọn nhân viên --</option>
+        <option th:each="emp : ${employees}"
+                th:value="${emp.email}"
+                th:text="${emp.name}"
+                th:selected="${emp.email == selectedEmail}">
+        </option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Username</label>
+      <input type="text" id="usernameField" name="username" class="form-control" placeholder="Email nhân viên" readonly />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Mật khẩu</label>
+      <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required />
+    </div>
+
+    <button type="submit" class="btn btn-success">Tạo tài khoản</button>
+    <a th:href="@{/admin/manage}" class="btn btn-secondary ms-2">Quay lại</a>
+  </form>
+
+</div>
+<script>
+  const select = document.getElementById('employeeSelect');
+  const usernameInput = document.getElementById('usernameField');
+
+  select.addEventListener('change', function () {
+    usernameInput.value = this.value;
+  });
+
+  // Khi load lại trang với giá trị được chọn sẵn
+  window.addEventListener('DOMContentLoaded', () => {
+    if (select.value) {
+      usernameInput.value = select.value;
+    }
+  });
+</script>
+
+</body>
+</html>
