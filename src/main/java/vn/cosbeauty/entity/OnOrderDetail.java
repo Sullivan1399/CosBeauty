@@ -31,6 +31,13 @@ public class OnOrderDetail {
         this.quantity = quantity;
     }
 
+//    public OnOrderDetail(BigDecimal cost, int quantity, OnlineOrder onlineOrder, Product product) {
+//        this.cost = cost;
+//        this.quantity = quantity;
+//        this.onlineOrder = onlineOrder;
+//        this.product = product;
+//    }
+
     public OnOrderDetail() {
     }
 }

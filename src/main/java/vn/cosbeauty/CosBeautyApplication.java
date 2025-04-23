@@ -6,11 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.ui.Model;
 import vn.cosbeauty.DTO.ProductDTO;
-import vn.cosbeauty.entity.Category;
-import vn.cosbeauty.entity.Product;
-import vn.cosbeauty.repository.CartRepository;
-import vn.cosbeauty.repository.CategoryRepository;
-import vn.cosbeauty.repository.ProductRepository;
+import vn.cosbeauty.entity.*;
+import vn.cosbeauty.repository.*;
+import vn.cosbeauty.service.OnlineService;
 
 import java.util.List;
 import java.util.Locale;
@@ -22,21 +20,24 @@ public class CosBeautyApplication {
 		SpringApplication.run(CosBeautyApplication.class, args);
 	}
 	@Bean
-	CommandLineRunner run(ProductRepository productRepository, CategoryRepository categories) {
+	CommandLineRunner run(OnlineService onlineService, CustomerRepository customerRepository) {
 		return args -> {
-////			String keyword = "Vi"; // giá trị mặc định để test
-//
-////			List<Product> result = productRepository.findByProductNameContainingIgnoreCase(keyword);
-//			List<Product> result = productRepository.findAll();
-//			List<Category> result = categories.findAll();
-//			List<Product> products = productRepository.findAll();
-//			System.out.println("🔍 Kết quả tìm kiếm với keyword: " + products);
-//			for (Product p : products) {
-//				System.out.println("- " + p.getImageUrl() + " | " + p.getProductName());
-//			}
-//
-//			if (products.isEmpty()) {
-//				System.out.println("⚠️ Không tìm thấy sản phẩm nào.");
+//			Customer customer = customerRepository.findByCustomerID(1L);
+//			List<OnlineOrder> allOrders = onlineService.getAllOrdersByCustomerId(customer);
+//			System.out.println("Số lượng đơn hàng: " + allOrders.size());
+//			for (OnlineOrder order : allOrders) {
+//				System.out.println("Mã đơn hàng: " + order.getOnOrderID());
+//				System.out.println("Khách hàng ID: " + order.getCustomer().getCustomerID());
+//				System.out.println("Tên khách hàng: " + order.getName());
+//				System.out.println("Tổng tiền: " + order.getCost());
+//				System.out.println("Trạng thái: " + order.getDeliveryStatus());
+//				System.out.println("Chi tiết đơn hàng: ");
+//				for (OnOrderDetail detail : order.getOnOrderDetails()) {
+//					System.out.println("  - Sản phẩm: " + detail.getProduct().getProductName() +
+//							", Số lượng: " + detail.getQuantity() +
+//							", Giá: " + detail.getProduct().getPrice());
+//				}
+//				System.out.println("------------------------");
 //			}
 		};
 	}

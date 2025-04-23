@@ -1,6 +1,8 @@
 package vn.cosbeauty.controller;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.cosbeauty.entity.CartItem;
+import vn.cosbeauty.entity.Category;
 import vn.cosbeauty.entity.Product;
 import vn.cosbeauty.service.CartService;
+import vn.cosbeauty.service.CategoryService;
 import vn.cosbeauty.service.CustomerService;
 import vn.cosbeauty.service.ProductService;
 import java.util.List;
@@ -27,6 +31,8 @@ public class CartController {
     private ProductService productService;
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private CategoryService categoryService;
 
     @PostMapping("/update")
     public String updateCart(@RequestParam Map<String, String> quantities,
@@ -82,10 +88,14 @@ public class CartController {
     public String showCart(Model model) {
         Long customerId = customerService.getCurrentCustomerID();
         List<CartItem> cartItems = cartService.getCartItemsByCustomerId(customerId);
-        for (CartItem c : cartItems){
-            System.out.println(c.getCustomer().getPhone());
-        }
+        BigDecimal totalAmount = cartItems.stream()
+                .map(item -> item.getProduct().getPrice().multiply(new BigDecimal(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add); // Tính tổng giá trị
+        List<Category> categories = categoryService.getCategories();
+        model.addAttribute("categories", categories);
+
         model.addAttribute("cartItems", cartItems);
+        model.addAttribute("totalAmount", totalAmount);
         return "web/shoping-cart";
     }
     @GetMapping("/search")
@@ -107,5 +117,19 @@ public class CartController {
         List<CartItem> cartItems = cartService.getCartItemsByCustomerID(customerID);
         return ResponseEntity.ok(cartItems);
     }
+    @PostMapping("/remove")
+    public String removeCartItem(@RequestParam Long productID, RedirectAttributes attributes) {
+        Long customerID = customerService.getCurrentCustomerID();
+        boolean removed = cartService.removeCartItem(customerID, productID);
+
+        if (removed) {
+            attributes.addFlashAttribute("message", "Sản phẩm đã được xóa khỏi giỏ hàng thành công");
+        } else {
+            attributes.addFlashAttribute("error", "Không tồn tại sản phẩm trong xóa hàng");
+        }
+        return "redirect:/api/cart/view";
+
+    }
+
 }
 
