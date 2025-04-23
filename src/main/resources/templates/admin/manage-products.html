@@ -1,182 +1,493 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>Manage Products</title>
-        <!-- <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" /> -->
-        <link href="/css/admin-styles.css" rel="stylesheet" />
-        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    </head>
-    <body class="sb-nav-fixed">
-        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-            <!-- Navbar Brand-->
-            <a class="navbar-brand ps-3" th:href="@{/}">CosBeauty</a>
-            <!-- Sidebar Toggle-->
-            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
-            <!-- Navbar Search-->
-            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-                <div class="input-group">
-                    <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
-                    <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
-                </div>
-            </form>
-            <!-- Navbar-->
-            <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#!">Settings</a></li>
-                        <li><a class="dropdown-item" href="#!">Activity Log</a></li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="#!">Logout</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </nav>
-        <div id="layoutSidenav">
-            <div id="layoutSidenav_nav">
-                <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-                    <div class="sb-sidenav-menu">
-                        <div class="nav">
-                            <div class="sb-sidenav-menu-heading">Core</div>
-                            <a class="nav-link" th:href="@{/admin/dashboard}">
-                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                                Dashboard
-                            </a>
-                            <a class="nav-link" th:href="@{/admin/ManageProducts}">
-                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                                Manage Product
-                            </a>
-                            <div class="sb-sidenav-menu-heading">Orders</div>
-                            <a class="nav-link" href="charts.html">
-                                <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                                Sale Orders
-                            </a>
-                            <a class="nav-link" href="tables.html">
-                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                                Import Orders
-                            </a>
-                            <div class="sb-sidenav-menu-heading">User</div>
-                            <a class="nav-link" href="charts.html">
-                                <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                                Customer
-                            </a>
-                            <a class="nav-link" href="tables.html">
-                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                                Employee
-                            </a>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Quản Lý Sản Phẩm - Admin</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+        .container-fluid {
+            padding: 0;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #fff3e6; /* Cam nhạt */
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-header {
+            padding: 20px;
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+            text-align: center;
+            font-weight: 700;
+        }
+        .sidebar-nav {
+            padding: 10px 0;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar-nav a:hover {
+            background-color: #ffe6cc; /* Cam nhạt hơn */
+        }
+        .sidebar-nav a.active {
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+        }
+        .sidebar-nav a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        /* Main content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+        h2 {
+            color: #ff6200; /* Cam */
+            font-weight: 700;
+        }
+        .table-container {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .table th {
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+            font-weight: 600;
+        }
+        .table tr:hover {
+            background-color: #fff3e6; /* Cam nhạt */
+            transition: background-color 0.3s;
+        }
+        .status-pending { color: #ffc107; font-weight: 500; }
+        .status-confirmed { color: #317546; font-weight: 500; } /* Xanh lá đậm */
+        .status-cancelled { color: #dc3545; font-weight: 500; }
+        .status-processing { color: #17a2b8; font-weight: 500; }
+        .status-delivering { color: #007bff; font-weight: 500; }
+        .status-success { color: #ff6200; font-weight: 500; } /* Cam */
+        .status-failed { color: #dc3545; font-weight: 500; }
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        .modal-header {
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        .modal-body table { width: 100%; }
+        .modal-body th, .modal-body td { padding: 12px; }
+        .btn-info {
+            background-color: #317546; /* Xanh lá đậm */
+            border-color: #317546;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .btn-info:hover {
+            background-color: #2a643c;
+            border-color: #2a643c;
+        }
+        .btn-success {
+            background-color: #317546; /* Xanh lá đậm */
+            border-color: #317546;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .btn-success:hover {
+            background-color: #2a643c;
+            border-color: #2a643c;
+        }
+        .btn-primary {
+            background-color: #ff6200; /* Cam */
+            border-color: #ff6200;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #e65b00;
+            border-color: #e65b00;
+        }
+        .form-control, .form-select {
+            border-radius: 20px;
+            border: 1px solid #ced4da;
+            font-weight: 400;
+        }
+        .status-select {
+            width: 220px;
+            display: inline-block;
+        }
+        .status-icon { margin-right: 8px; }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+        .toast-header {
+            background-color: #317546; /* Xanh lá đậm */
+            color: #fff;
+        }
+        .action-column {
+            white-space: nowrap;
+            width: 120px;
+        }
+        /* Cấu trúc bảng từ manage-products.html */
+        .table th:nth-child(1), .table td:nth-child(1) { min-width: 100px; } /* Hình ảnh */
+        .table th:nth-child(2), .table td:nth-child(2) { min-width: 200px; } /* Tên */
+        .table th:nth-child(3), .table td:nth-child(3) { min-width: 80px; } /* Giá */
+        .table th:nth-child(4), .table td:nth-child(4) { min-width: 100px; } /* Loại sản phẩm */
+        .table th:nth-child(5), .table td:nth-child(5) { min-width: 100px; } /* Hãng */
+        .table th:nth-child(6), .table td:nth-child(6) { min-width: 60px; } /* Giảm giá */
+        .table th:nth-child(7), .table td:nth-child(7) { min-width: 60px; } /* Số lượng */
+        .table th:nth-child(8), .table td:nth-child(8) { min-width: 50px; } /* Actions */
+        .form-group {
+            margin-bottom: 20px; /* Khoảng cách giữa các form */
+        }
+        /* Hamburger menu */
+        .navbar-toggler {
+            display: none;
+            margin: 15px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .pagination .page-link {
+            color: #ff6200;
+            border-color: #ffe6cc;
+        }
+        .pagination .page-link.active {
+            background-color: #ff6200;
+            border-color: #ff6200;
+            color: white;
+        }
+        .pagination .page-link:hover {
+            background-color: #ffe6cc;
+            color: #ff6200;
+        }
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .navbar-toggler {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                Admin Dashboard
+            </div>
+            <div class="sidebar-nav">
+                <a href="#" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
+                <!-- Chỉ giữ lại mục sản phẩm trong nav bar -->
+                <a href="#" data-section="products" class="active"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Hamburger Menu -->
+            <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div id="overview" class="section" style="display: none;">
+                <h2 class="text-center mb-4">Tổng Quan</h2>
+                <p>Chào mừng đến với bảng điều khiển quản trị. Đây là trang tổng quan.</p>
+            </div>
+
+            <!-- Quản lý sản phẩm -->
+            <div id="products" class="section">
+                <h2 class="text-center mb-4">Quản Lý Sản Phẩm</h2>
+                
+                <div class="row">
+                    <div class="col-12 col-lg-9 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <h6 class="mr-2"><span>Danh sách sản phẩm</span></h6>
+                                </div>
+                                <div class="table-responsive mt-3">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Hình ảnh</th>
+                                                <th>Tên</th>
+                                                <th>Giá</th>
+                                                <th>Loại sản phẩm</th>
+                                                <th>Hãng</th>
+                                                <th>Giảm giá</th>
+                                                <th>Số lượng</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="p : ${products}">
+                                                <td><img th:src="@{'/images/' + ${p.imageUrl}}" alt="" style="width: 100px; height: 100px; border: 1px solid #ddd; padding: 0.5px;"></td>
+                                                <td th:text="${p.getProductName()}"></td>
+                                                <td th:text="${p.getPrice()}"></td>
+                                                <td th:text="${p.getCategory.cateName}"></td>
+                                                <td th:text="${p.getSupplier.supName}"></td>
+                                                <td th:text="${p.getDiscount()}"></td>
+                                                <td th:text="${p.getQuantity()}"></td>
+                                                <td class="text-center align-middle">
+                                                    <div class="btn-group align-top">
+                                                        <a th:href="@{/admin/editProduct/{id}(id=${p.getProductID()})}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- Phân trang từ manage-products.html với Thymeleaf -->
+                                <div class="d-flex justify-content-center">
+                                    <ul class="pagination mt-3 mb-0">
+                                        <a th:href="@{${requestURI}(page=${currentPage - 1})}" th:if="${currentPage > 1}">« Previous</a>
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPage)}">
+                                            <a class="page-link" th:href="@{${requestURI}(page=${i})}" th:text="${i}" th:classappend="${i == currentPage} ? 'active' : ''"></a>
+                                        </li>
+                                        <a th:href="@{${requestURI}(page=${currentPage + 1})}" th:if="${currentPage < totalPage}">Next »</a>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="sb-sidenav-footer">
-                        <div class="small">Logged in as:</div>
-                        Administrator
+                    <div class="col-12 col-lg-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center px-xl-3 mb-3">
+                                    <a th:href="@{/admin/createProduct}" class="btn btn-primary" type="button">Thêm sản phẩm</a>
+                                </div>
+                                <hr class="my-3">
+                                <div class="nav flex-column mb-3">
+                                    <a th:href="@{/admin/ManageProducts}" class="nav-link active"><span>Tất cả</span> <small th:text="'('+${totalProduct}+')'"></small></a>
+                                    <a th:href="@{/admin/ManageProducts/inStock}" class="nav-link"><span>Còn hàng</span> <small th:text="'('+${countInStock}+')'"></small></a>
+                                    <a th:href="@{/admin/ManageProducts/outOfStock}" class="nav-link"><span>Hết hàng</span> <small th:text="'('+${countOutOfStock}+')'"></small></a>
+                                </div>
+                                <hr class="my-3">
+                                <div>
+                                    <!-- Form tìm kiếm từ manage-products.html với Thymeleaf -->
+                                    <form th:action="@{/admin/searchByName}" method="get">
+                                        <div class="form-group">
+                                            <label>Tìm kiếm theo tên:</label>
+                                            <input class="form-control w-100" th:name="keyword" type="text" placeholder="Tên sản phẩm">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                                    </form>
+                                    <form th:action="@{/admin/searchProductByCategory}" method="get">
+                                        <div class="form-group">
+                                            <label>Tìm kiếm theo thể loại:</label>
+                                            <select class="form-control select2 w-100" th:name="category">
+                                                <option th:each="category, iter : ${listCategory}" th:value="${category.getCateName()}" th:text="${category.getCateName()}" th:selected="${iter.index == 0}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="d-flex gap-2 mb-3">
+                                            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                                            <a href="#" class="btn btn-success">Thêm thể loại</a>
+                                        </div>
+                                    </form>
+                                    <form th:action="@{/admin/searchProductBySupplier}" method="get">
+                                        <div class="form-group">
+                                            <label>Tìm kiếm theo hãng:</label>
+                                            <select class="form-control select2 w-100" th:name="supplier">
+                                                <option th:each="supplier, iter : ${listSupplier}" th:value="${supplier.getSupName()}" th:text="${supplier.getSupName()}" th:selected="${iter.index == 0}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                                            <a href="#" class="btn btn-success">Thêm hãng</a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </nav>
+                </div>
             </div>
-            <div id="layoutSidenav_content">
-		    <main>
-		        <div class="container-fluid px-4">
-		            <div class="row">
-		                <div class="col-12 col-lg-9 mb-3">
-		                    <div class="card">
-		                        <div class="card-body">
-		                            <div class="card-title">
-		                                <h6 class="mr-2"><span>Danh sách sản phẩm</span></h6>
-		                            </div>
-		                            <div class="table-responsive mt-3">
-		                                <table class="table table-bordered table-hover">
-		                                    <thead>
-		                                        <tr>
-		                                            <th>Hình ảnh</th>
-		                                            <th>Tên</th>
-		                                            <th>Giá</th>
-		                                            <th>Loại sản phẩm</th>
-		                                            <th>Giảm giá</th>
-		                                            <th>Số lượng</th>
-		                                            <th>Actions</th>
-		                                        </tr>
-		                                    </thead>
-		                                    <tbody>
-		                                        <tr th:each="p : ${listProducts}">
-		                                            <td><img th:src="@{'/images/' + ${p.image_url}}" alt="" style="width: 200px; height: 150px; object-fit: contain; border: 1px solid #ddd; padding: 5px;"></td>
-		                                            <td th:text="${p.getProduct_name()}"></td>
-		                                            <td th:text="${p.getCost()}"></td>
-		                                            <td th:text="${p.getProduct_type()}"></td>
-		                                            <td th:text="${p.getDiscount()}"></td>
-		                                            <td th:text="${p.getQuantity()}"></td>
-		                                            <td class="text-center align-middle">
-		                                                <div class="btn-group align-top">
-		                                                    <a th:href="@{/admin/editProduct/{id}(id=${p.getID()})}" class="btn btn-sm btn-outline-secondary">Edit</a>
-		                                                    <form th:action="@{/admin/deleteProduct}" th:id="'deleteProduct_'+${p.ID}" method="POST" style="display:inline;font-size: 14px">
-		                                                        <input type="hidden" name="productID" th:value="${p.ID}" th:data-id="${p.ID}">
-		                                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="confirmDelete(event)">
-		                                                            <i class="fa fa-trash"></i>
-		                                                        </button>
-		                                                    </form>
-		                                                </div>
-		                                            </td>
-		                                        </tr>
-		                                    </tbody>
-		                                </table>
-		                            </div>
-		                            <div class="d-flex justify-content-center">
-		                                <ul class="pagination mt-3 mb-0">
-		                                    <a th:href="@{${requestURI}(page=${currentPage - 1})}" th:if="${currentPage > 1}">« Previous</a>
-		                                    <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}">
-		                                        <a class="page-link" th:href="@{${requestURI}(page=${i})}" th:text="${i}" th:classappend="${i == currentPage} ? 'active' : ''"></a>
-		                                    </li>
-		                                    <a th:href="@{${requestURI}(page=${currentPage + 1})}" th:if="${currentPage < totalPages}">Next »</a>
-		                                </ul>
-		                            </div>
-		                        </div>
-		                    </div>
-		                </div>
-		                <div class="col-12 col-lg-3">
-		                    <div class="card">
-		                        <div class="card-body">
-		                            <div class="text-center px-xl-3">
-		                                <a th:href="@{/admin/createProducts}" class="btn btn-success" type="button">Thêm sản phẩm</a>
-		                            </div>
-		                            <hr class="my-3">
-		                            <div class="nav flex-column">
-		                                <a th:href="@{/admin/crudProducts}" class="nav-link active"><span>Tất cả</span> <small th:text="'('+${countAll}+')'"></small></a>
-		                                <a th:href="@{/admin/crudProducts/inStock}" class="nav-link"><span>Còn hàng</span> <small th:text="'('+${count_inStock}+')'"></small></a>
-		                                <a th:href="@{/admin/crudProducts/outOfStock}" class="nav-link"><span>Hết hàng</span> <small th:text="'('+${count_outOfStock}+')'"></small></a>
-		                            </div>
-		                            <hr class="my-3">
-		                            <div>
-		                                <form th:action="@{/admin/searchByName}" method="get">
-		                                    <div class="form-group">
-		                                        <label>Tìm kiếm theo tên:</label>
-		                                        <input class="form-control w-100" th:name="keyword" type="text" placeholder="Tên sản phẩm">
-		                                    </div>
-		                                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-		                                </form>
-		                                <form th:action="@{/admin/searchByProductType}" method="get">
-		                                    <div class="form-group">
-		                                        <label>Tìm kiếm theo loại:</label>
-		                                        <select class="form-control w-100" th:name="productType">
-		                                            <option th:each="type, iter : ${listType}" th:value="${type}" th:text="${type}" th:selected="${iter.index == 0}"></option>
-		                                        </select>
-		                                    </div>
-		                                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-		                                </form>
-		                            </div>
-		                        </div>
-		                    </div>
-		                </div>
-		            </div>
-		        </div>
-		    </main>
-		</div>
-		</div>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <script src="js/scripts.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
-    </body>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container">
+        <div id="actionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Thông báo</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </div>
+
+    <!-- Modal thêm/sửa sản phẩm -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">Thông tin sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="productName" class="form-label">Tên sản phẩm</label>
+                                <input type="text" class="form-control" id="productName">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="productPrice" class="form-label">Giá</label>
+                                <input type="number" class="form-control" id="productPrice">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="productCategory" class="form-label">Loại sản phẩm</label>
+                                <select class="form-select" id="productCategory">
+                                    <option th:each="category : ${listCategory}" th:value="${category.getCateName()}" th:text="${category.getCateName()}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="productBrand" class="form-label">Hãng</label>
+                                <select class="form-select" id="productBrand">
+                                    <option th:each="supplier : ${listSupplier}" th:value="${supplier.getSupName()}" th:text="${supplier.getSupName()}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="productDiscount" class="form-label">Giảm giá (%)</label>
+                                <input type="number" class="form-control" id="productDiscount">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="productQuantity" class="form-label">Số lượng</label>
+                                <input type="number" class="form-control" id="productQuantity">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productImage" class="form-label">Hình ảnh</label>
+                            <input type="file" class="form-control" id="productImage">
+                        </div>
+                        <div class="mb-3">
+                            <label for="productDescription" class="form-label">Mô tả</label>
+                            <textarea class="form-control" id="productDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script th:src="@{/js/scripts.js}"></script>
+    <script>
+        // Function to toggle sidebar on mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Function to show section
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = section.id === sectionId ? 'block' : 'none';
+            });
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
+            });
+        }
+
+        // Sidebar navigation
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionId = link.getAttribute('data-section');
+                showSection(sectionId);
+                if (window.innerWidth <= 992) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+        // Function to show toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('actionToast');
+            const toastBody = toast.querySelector('.toast-body');
+            toastBody.textContent = message;
+            toast.classList.remove('bg-success', 'bg-danger');
+            toast.classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+    </script>
+</body>
 </html>

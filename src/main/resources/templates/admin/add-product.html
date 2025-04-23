@@ -1,99 +1,408 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="UTF-8">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-	<link rel="stylesheet" th:href="@{/css/style.css}"/>
-	<title>Thêm Sản Phẩm</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Sản Phẩm</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+        .container-fluid {
+            padding: 0;
+        }
+        .main-content {
+            padding: 30px;
+            min-height: 100vh;
+        }
+        h1, h2 {
+            color: #ff6200; /* Cam */
+            font-weight: 700;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: none;
+            margin-bottom: 30px;
+        }
+        .card-header {
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+            border-top-left-radius: 15px !important;
+            border-top-right-radius: 15px !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        .card-body {
+            padding: 25px;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        /* .form-control, .select2-container--default .select2-selection--single {
+            border-radius: 20px;
+            border: 1px solid #ced4da;
+            padding: 10px 15px;
+            font-weight: 400;
+            margin-bottom: 15px;
+            height: auto;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100%;
+            top: 0;
+            right: 10px;
+        }
+        .form-control:focus, .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #ff6200;
+            box-shadow: 0 0 0 0.2rem rgba(255, 98, 0, 0.25);
+        } */
+        .form-control, .form-select {
+            border-radius: 20px;
+            border: 1px solid #ced4da;
+            font-weight: 400;
+        }
+        .btn-primary {
+            background-color: #ff6200; /* Cam */
+            border-color: #ff6200;
+            border-radius: 20px;
+            font-weight: 500;
+            padding: 10px 20px;
+        }
+        .btn-primary:hover {
+            background-color: #e65b00;
+            border-color: #e65b00;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            border-radius: 20px;
+            font-weight: 500;
+            padding: 10px 20px;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+        .btn-success {
+            background-color: #317546; /* Xanh lá đậm */
+            border-color: #317546;
+            border-radius: 20px;
+            font-weight: 500;
+            padding: 8px 12px;
+        }
+        .btn-success:hover {
+            background-color: #2a643c;
+            border-color: #2a643c;
+        }
+        .image-preview {
+            border: 2px dashed #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .image-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-top: 15px;
+            object-fit: contain;
+        }
+        .image-preview-text {
+            color: #999;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .image-upload-btn {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .image-upload-btn input[type=file] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-width: 100%;
+            min-height: 100%;
+            font-size: 100px;
+            text-align: right;
+            filter: alpha(opacity=0);
+            opacity: 0;
+            outline: none;
+            cursor: pointer;
+            display: block;
+        }
+        .header-logo {
+            background-color: #ff6200;
+            padding: 15px 0;
+        }
+        .header-logo h2 {
+            color: white;
+            margin: 0;
+        }
+        .tox-tinymce {
+            border-radius: 15px !important;
+            overflow: hidden;
+        }
+        .input-group-append {
+            margin-left: 10px;
+        }
+        .select-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .select-container .select2-container {
+            flex-grow: 1;
+        }
+        .select-container .btn {
+            margin-left: 10px;
+            height: 38px;
+            width: 38px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .select2-container {
+            width: 100% !important;
+        }
+    </style>
 </head>
 <body>
-	<div id="header">
-		<!-- container -->
-		<div class="container">
-			<!-- row -->
-			<div class="row">
-				<!-- LOGO -->
-				<div class="col-md-3">
-					<div class="header-logo">
-						<a href="/" class="logo">
-							<h2 style="color: white; margin:5px 0 5px 0">CosBeauty</h2>
-						</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="form-container">
-		<div class="container py-5 h-100">
-			<div class="row d-flex align-items-center justify-content-center h-100">
-    			<div class="col-md-8 col-lg-7 col-xl-6">
-					<img src="https://i.imgur.com/uNGdWHi.png"
-						class="img-fluid" alt="Phone image">
-    			</div>
-	    		<div class="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
-	    			<h1 style="text-align:center">Thêm sản phẩm</h1>
-	    			<form th:action="@{/admin/saveProducts}" th:object="${product}" method="post" enctype="multipart/form-data">
-						<input type="hidden" id="ID" th:field="*{ID}" />
-					    <div data-mdb-input-init class="form-outline mb-4">
-					        <input type="text" id="name" th:field="*{product_name}" class="form-control form-control-lg" required />
-					        <label class="form-label" for="name">Tên sản phẩm</label>
-					    </div>
-					    
-					    <div data-mdb-input-init class="form-outline mb-4">
-					        <input type="text" id="type" th:field="*{product_type}" class="form-control form-control-lg" required />
-					        <label class="form-label" for="type" >Loại sản phẩm</label>
-					    </div>
-					                
-					    <div data-mdb-input-init class="form-outline mb-4">
-					        <input type="text" id="brand" th:field="*{brand}" class="form-control" required/>
-					        <label class="form-label" for="brand" >Hãng</label>
-					    </div>
-					
-					    <div data-mdb-input-init class="form-outline mb-4">
-					        <input type="text" id="cost" th:field="*{cost}" class="form-control" required>
-					        <label class="form-label" for="cost" >Giá</label>
-					    </div>
-					
-					    <div data-mdb-input-init class="form-outline mb-4">
-					        <input type="text" id="quantity" th:field="*{quantity}" class="form-control" required />
-					        <label class="form-label" for="quantity">Số lượng</label>
-					    </div>
+    <div class="header-logo">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a href="/" class="logo">
+                            <h2>CosBeauty</h2>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-						<div data-mdb-input-init class="form-outline mb-4">
-							<input type="text" id="discount" th:field="*{discount}" class="form-control" required />
-							<label class="form-label" for="discount">Giảm giá</label>
-						</div>
+    <div class="main-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="text-center mb-4">Thêm Sản Phẩm</h1>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Phần upload hình ảnh (bên trái) -->
+                <div class="col-md-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-image me-2"></i> Hình Ảnh Sản Phẩm
+                        </div>
+                        <div class="card-body">
+                            <div class="image-preview">
+                                <div class="image-preview-text" id="upload-text">
+                                    <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                                    <p>Kéo thả hoặc nhấp để tải lên hình ảnh sản phẩm</p>
+                                </div>
+                                <img id="blah" th:src="${product.imageUrl != null ? '/images/' + product.imageUrl : ''}" 
+                                     th:alt="${product.productName}" style="display: none;">
+                            </div>
+                            <div class="text-center">
+                                <div class="image-upload-btn">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fas fa-upload me-2"></i> Chọn Hình Ảnh
+                                    </button>
+                                    <input type="file" id="imageInput" name="imageInput" accept="image/*"
+                                           th:attr="required=${product.productID == null}"
+                                           onchange="previewImage(this)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Phần thông tin sản phẩm (bên phải) -->
+                <div class="col-md-7">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-info-circle me-2"></i> Thông Tin Sản Phẩm
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/addProduct}" th:object="${product}" method="post" enctype="multipart/form-data">
+                                <input type="hidden" id="productID" th:field="*{productID}" />
+                                <input type="hidden" th:field="*{imageUrl}" th:value="${product.imageUrl}">
+                                
+                                <div class="row">
+                                    <!-- Cột trái -->
+                                    <div class="col-md-6">
+                                        <!-- Tên sản phẩm -->
+                                        <div class="mb-3">
+                                            <label for="name" class="form-label">Tên sản phẩm</label>
+                                            <input type="text" id="name" th:field="*{productName}" class="form-control" required />
+                                        </div>
+                                        
+                                        <!-- Loại sản phẩm với select2 và nút thêm -->
+                                        <div class="mb-3">
+                                            <label for="category" class="form-label">Loại sản phẩm</label>
+                                            <div class="select-container">
+                                            	<!-- <select class="form-select" id="productCategory">
+				                                    <option th:each="category : ${listCategory}" th:value="${category.catID}" th:text="${category.getCateName()}"></option>
+				                                </select> -->
+				                                <select class="form-control select2 w-100" th:name="category">
+	                                                <option th:each="category, iter : ${listCategory}" th:value="${category.catID}" th:text="${category.getCateName()}" th:selected="${iter.index == 0}"></option>
+	                                            </select>
+                                                <!-- <select id="category"  class="form-control select2" required>
+                                                    <option value="">Chọn loại sản phẩm</option>
+                                                    <option value="Chăm sóc da">Chăm sóc da</option>
+                                                    <option value="Trang điểm">Trang điểm</option>
+                                                    <option value="Chăm sóc tóc">Chăm sóc tóc</option>
+                                                    <option value="Nước hoa">Nước hoa</option>
+                                                </select> -->
+                                                <button type="button" class="btn btn-success" title="Thêm loại sản phẩm">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Số lượng -->
+                                        <div class="mb-3">
+                                            <label for="quantity" class="form-label">Số lượng</label>
+                                            <input type="text" id="quantity" th:field="*{quantity}" class="form-control" required />
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Cột phải -->
+                                    <div class="col-md-6">
+                                        <!-- Giá -->
+                                        <div class="mb-3">
+                                            <label for="price" class="form-label">Giá</label>
+                                            <input type="text" id="price" th:field="*{price}" class="form-control" required />
+                                        </div>
+                                        
+                                        <!-- Hãng với select2 và nút thêm -->
+                                        <div class="mb-3">
+                                            <label for="supplier" class="form-label">Hãng</label>
+                                            <div class="select-container">
+                                            	<select class="form-control select2 w-100" th:name="supplier">
+	                                                <option th:each="supplier, iter : ${listSupplier}" th:value="${supplier.supID}" th:text="${supplier.getSupName()}" th:selected="${iter.index == 0}"></option>
+	                                            </select>
+                                                <!-- <select id="brand" th:field="*{brand}" class="form-control select2" required>
+                                                    <option value="">Chọn hãng</option>
+                                                    <option value="The Face Shop">The Face Shop</option>
+                                                    <option value="Innisfree">Innisfree</option>
+                                                    <option value="3CE">3CE</option>
+                                                    <option value="Laneige">Laneige</option>
+                                                </select> -->
+                                                <button type="button" class="btn btn-success" title="Thêm hãng">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Giảm giá -->
+                                        <div class="mb-3">
+                                            <label for="discount" class="form-label">Giảm giá</label>
+                                            <input type="text" id="discount" th:field="*{discount}" class="form-control" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Chi tiết sản phẩm (chiếm toàn bộ chiều rộng) -->
+                                <div class="mb-4">
+                                    <label for="full-featured" class="form-label">Chi tiết sản phẩm</label>
+                                    <textarea id="full-featured" th:field="*{detail}"></textarea>
+                                </div>
+                                
+                                <!-- Nút hành động -->
+                                <div class="d-flex justify-content-end gap-3">
+                                    <a th:href="@{/admin/crudProducts}" class="btn btn-danger">
+                                        <i class="fas fa-times me-2"></i> Hủy
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i> Lưu
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-						<div data-mdb-input-init class="form-outline mb-4">
-							<div data-mdb-input-init class="form-outline mb-4">
-								<label class="form-label" for="full-featured">Chi tiết sản phẩm</label>
-								<textarea id="full-featured" th:field="*{detail}"></textarea>
-							</div>
-						</div>
+    <!-- Bootstrap JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- TinyMCE -->
+    <script src="https://cdn.tiny.cloud/1/r8226os7isr15nd2do3haozn6kltnglphv882mluiz26uz2w/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+    <script th:src="@{/js/product-detail.js}"></script>
+    <script>
+        // Hàm xem trước hình ảnh
+        function previewImage(input) {
+            const preview = document.getElementById('blah');
+            const uploadText = document.getElementById('upload-text');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    uploadText.style.display = 'none';
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        // Kiểm tra nếu đã có hình ảnh
+        document.addEventListener('DOMContentLoaded', function() {
+            const preview = document.getElementById('blah');
+            const uploadText = document.getElementById('upload-text');
+            
+            if (preview.src && preview.src !== window.location.href) {
+                preview.style.display = 'block';
+                uploadText.style.display = 'none';
+            }
 
-						<div data-mdb-input-init class="form-outline mb-4">
-							<label class="form-label">Image</label>
-							<input type="file" id="imageInput" name="imageInput" class="form-control" accept="image/*"
-								   th:attr="required=${product.ID == null}"
-								   onchange="document.getElementById('blah').src = window.URL.createObjectURL(this.files[0])">
-							<input type="hidden" th:field="*{image_url}" th:value="${product.image_url}">
-							<br>
-							<img id="blah" width="400" height="350" th:src="@{'/images/' + ${product.image_url}}" th:alt="${product.product_name}">
-						</div>
-						<div style="display:flex ">
-							<button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg btn-block" style="height: 50px;margin-top: 8px">Submit</button>
-							<a th:href="@{/admin/crudProducts}" class="btn btn-danger btn-lg btn-block d-inline-flex align-items-center justify-content-center" style="height: 50px;">
-								Cancel
-							</a>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.js"></script>
-	<script src="https://cdn.tiny.cloud/1/r8226os7isr15nd2do3haozn6kltnglphv882mluiz26uz2w/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-	<script th:src="@{/js/product-detail.js}"></script>
+            // Xử lý nút thêm loại sản phẩm và thêm hãng
+            $('.btn-success').click(function() {
+                const buttonTitle = $(this).attr('title');
+                let modalTitle = 'Thêm mới';
+                
+                if (buttonTitle === 'Thêm loại sản phẩm') {
+                    modalTitle = 'Thêm loại sản phẩm mới';
+                    // Xử lý thêm loại sản phẩm
+                    alert('Chức năng thêm loại sản phẩm sẽ được triển khai');
+                } else if (buttonTitle === 'Thêm hãng') {
+                    modalTitle = 'Thêm hãng mới';
+                    // Xử lý thêm hãng
+                    alert('Chức năng thêm hãng sẽ được triển khai');
+                }
+            });
+        });
+        
+    </script>
 </body>
 </html>

@@ -26,16 +26,16 @@ public class HomeController {
 
     @GetMapping("/")
     public String getAll(Model model, 
-    		@RequestParam(value = "logout", required = false) String logout,
+//    		@RequestParam(value = "logout", required = false) String logout,
     		@RequestParam(value = "keyword",defaultValue = "") String keyword,
             @RequestParam(value="page", required=false, defaultValue="1") int page,
             @RequestParam(value="listCategory",required = false) List<String> listCate,
             @RequestParam(value="listSupplier",required = false) List<String> listSup) {
-    	if (logout != null) {
-            model.addAttribute("message", "Bạn đã đăng xuất thành công!");
-            System.out.println("Đang Logout neh ba!");
-        }
-    	List<Category> categories = categoryService.getCategories();
+//    	if (logout != null) {
+//            model.addAttribute("message", "Bạn đã đăng xuất thành công!");
+//            System.out.println("Đang Logout neh ba!");
+//        }
+    	List<Category> categories = categoryService.getAllCategory();
     	Page<Product> products = productService.getProductHome(page, 10);
 
 //        List<Product> products = productService.getAllProduct();
@@ -45,12 +45,8 @@ public class HomeController {
     }
     @GetMapping("/shop-grid")
     public String shopGrid(Model model, 
-    		@RequestParam(value="page", required=false, defaultValue="1") int page,
-    		@RequestParam(value = "logout", required = false) String logout) {
-        if (logout != null) {
-            model.addAttribute("message", "Bạn đã đăng xuất thành công!");
-        }
-        List<Category> categories = categoryService.getCategories();
+    		@RequestParam(value="page", required=false, defaultValue="1") int page) {
+        List<Category> categories = categoryService.getAllCategory();
 
         Page<Product> products = productService.getProductHome(page, 10);
         Long customerId = 1L; // hoặc lấy từ session, user login

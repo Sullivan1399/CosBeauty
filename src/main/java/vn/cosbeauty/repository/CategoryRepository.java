@@ -1,11 +1,15 @@
 package vn.cosbeauty.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import vn.cosbeauty.entity.Category;
-import vn.cosbeauty.entity.Product;
-
 import java.util.List;
 
-public interface  CategoryRepository extends JpaRepository<Category, Long> {
-    List<Category> findAll();
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import vn.cosbeauty.entity.Category;
+
+public interface  CategoryRepository extends JpaRepository<Category, Integer> {
+	@Query("SELECT c FROM Category c WHERE LOWER(c.cateName) LIKE LOWER(CONCAT('%',:keyword,'%'))")
+	List<Category> findCategoryByCateName(@Param("keyword") String keyword);
+    
 }
