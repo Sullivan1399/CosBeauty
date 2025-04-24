@@ -292,14 +292,14 @@
                         <button type="submit" class="icon_close"></button>
                       </form>
                     </td>
-                    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-
                   </tr>
                 </tbody>
+                <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
               </table>
             </div>
           </div>
+
         </div>
         <div class="row">
           <div class="col-lg-12">
