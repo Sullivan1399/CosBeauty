@@ -19,13 +19,21 @@ public class SupplierService {
         return supplierRepository.findAll();
     }
     
-    public List<Supplier> findSupplierBySupName(Supplier supplier) {
-    	return supplierRepository.findSuppierBySupName(supplier.getSupName());
+    public boolean isCategoryExists(String supName) {
+    	return supplierRepository.findBySupNameIgnoreCase(supName).isPresent();
     }
     
     public Supplier findByID(int supID) {
     	Supplier supplier = supplierRepository.findById(supID)
     		    .orElseThrow(() -> new EntityNotFoundException("Category not found"));
     	return supplier;
+    }
+    
+    public void addSupplier(Supplier supplier) {
+    	supplierRepository.save(supplier);
+    }
+    
+    public void updateSupplier(Supplier supplier) {
+    	supplierRepository.save(supplier);
     }
 }

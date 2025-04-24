@@ -19,13 +19,21 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
     
-    public List<Category> findCategoryByCateName(Category category) {
-    	return categoryRepository.findCategoryByCateName(category.getCateName());
-    }
-    
     public Category findByID(int catID) {
     	Category category = categoryRepository.findById(catID)
     		    .orElseThrow(() -> new EntityNotFoundException("Category not found"));
     	return category;
+    }
+    
+    public boolean isCategoryExists(String cateName) {
+    	return categoryRepository.findByCateNameIgnoreCase(cateName).isPresent();
+    }
+    
+    public void addCategory(Category category) {
+    	categoryRepository.save(category);
+    }
+    
+    public void updateCategory(Category category) {
+    	categoryRepository.save(category);
     }
 }

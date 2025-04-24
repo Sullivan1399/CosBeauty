@@ -18,7 +18,6 @@ import vn.cosbeauty.service.ProductService;
 import vn.cosbeauty.service.SupplierService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -65,7 +64,7 @@ public class ProductController {
     	return "admin/add-product";
     }
     
-    @GetMapping("admin/editProduct/{id}")
+    @GetMapping("/admin/editProduct/{id}")
     public String showFormUpdateProduct(@PathVariable(value = "id") long id, Model model) {
     	Product product = productService.getProductById(id);
     	model.addAttribute("product", product);
@@ -130,7 +129,7 @@ public class ProductController {
     	return "admin/manage-products";
     }
     
-    @GetMapping("admin/searchProductByCategory")
+    @GetMapping("/admin/searchProductByCategory")
     public String searchProductByCategory(Model model,
                                       @RequestParam(value = "category") String category,
                                       @RequestParam(value="page", required=false, defaultValue="1") int page,
@@ -149,7 +148,7 @@ public class ProductController {
     	return "admin/manage-products";
     }
     
-    @GetMapping("admin/searchProductBySupplier")
+    @GetMapping("/admin/searchProductBySupplier")
     public String searchProductBySupplier(Model model,
                                       @RequestParam(value = "supplier") String supplier,
                                       @RequestParam(value="page", required=false, defaultValue="1") int page,
@@ -192,37 +191,36 @@ public class ProductController {
     
  
     @PostMapping("/admin/addProduct")
-    public String addProduct(Model model,
-                             @ModelAttribute("product") Product product,
-                             @RequestParam(value = "imageInput", required = false) MultipartFile imageFile,
+    public String addProduct(@ModelAttribute("product") Product product,
+                             @RequestParam("imageInput") MultipartFile imageFile,
                              @RequestParam("catID") int catID,
                              @RequestParam("supID") int supID) {
-    	if (imageFile != null && !imageFile.isEmpty()) {
+    	if (!imageFile.isEmpty()) {
     	    String image = fileService.upload(imageFile, "media");
     	    product.setImageUrl(image);
     	}
-
-        // Lấy Category và Supplier từ ID
         Category category = categoryService.findByID(catID);
         Supplier supplier = supplierService.findByID(supID);
-
-        // Thiết lập vào product
         product.setCategory(category);
         product.setSupplier(supplier);
-
-        // Lưu sản phẩm (có thể dùng saveProduct để hỗ trợ cả add và update)
         productService.addProduct(product);
-
         return "redirect:/admin/ManageProducts";
     }
     
-    @PostMapping("admin/updateProduct")
-    public String updateProduct(@ModelAttribute("product") Product product, @RequestParam("imageInput") MultipartFile imageFile) {
+    @PostMapping("/admin/updateProduct")
+    public String updateProduct(@ModelAttribute("product") Product product,
+    							@RequestParam("imageInput") MultipartFile imageFile,
+    							@RequestParam("catID") int catID,
+                                @RequestParam("supID") int supID) {
     	if (!imageFile.isEmpty()) {
             String image = fileService.upload(imageFile,"media");
             product.setImageUrl(image);
         }
+    	Category category = categoryService.findByID(catID);
+        Supplier supplier = supplierService.findByID(supID);
+        product.setCategory(category);
+        product.setSupplier(supplier);
         productService.updateProduct(product);
-    	return "rediredct:/admin/ManageProducts";
+    	return "redirect:/admin/ManageProducts";
     }
 }
