@@ -17,6 +17,7 @@ import vn.cosbeauty.service.CustomerService;
 import vn.cosbeauty.service.ProductService;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -28,7 +29,7 @@ public class HomeController {
     @Autowired
     private CustomerService customerService;
     @Autowired
-    private CartService cartService;   
+    private CartService cartService;
 
     @GetMapping("/")
     public String getAll(Model model, 
@@ -37,24 +38,30 @@ public class HomeController {
             @RequestParam(value="page", required=false, defaultValue="1") int page,
             @RequestParam(value="listCategory",required = false) List<String> listCate,
             @RequestParam(value="listSupplier",required = false) List<String> listSup) {
-        if (logout != null) {
-               model.addAttribute("message", "Bạn đã đăng xuất thành công!");
-               System.out.println("Đang Logout neh ba!");
-           }
-          List<Category> categories = categoryService.getAllCategory();
-          Page<Product> products = productService.getProductHome(page, 10); 
+        	if (logout != null) {
+        		model.addAttribute("message", "Bạn đã đăng xuất thành công!");
+        		System.out.println("Đang Logout neh ba!");
+        	}
+	        List<Category> categories = categoryService.getAllCategory();
+	        Page<Product> products = productService.getProductHome(page, 10);
+	        List<CartItem> cartItems;
+	        BigDecimal totalAmount = BigDecimal.ZERO;
 
-//        List<Product> products = productService.getAllProduct();
-        Long id = customerService.getCurrentCustomerID();
-        List<CartItem> cartItems = cartService.getCartItemsByCustomerId(id);
-        BigDecimal totalAmount = cartItems.stream()
-                .map(item -> BigDecimal.valueOf(item.getProduct().getPrice()).multiply(new BigDecimal(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add); // Tính tổng giá trị
-        model.addAttribute("categories", categories);
-        model.addAttribute("cartItems", cartItems);
-        model.addAttribute("totalAmount", totalAmount);
-        model.addAttribute("products", products);
-        return "web/index";
+	        if (customerService.isCustomer()) {
+	            Long id = customerService.getCurrentCustomerID();
+	            cartItems = cartService.getCartItemsByCustomerId(id);
+	            totalAmount = cartItems.stream()
+		                .map(item -> BigDecimal.valueOf(item.getProduct().getPrice()).multiply(new BigDecimal(item.getQuantity())))
+		                .reduce(BigDecimal.ZERO, BigDecimal::add); // Tính tổng giá trị
+	        } else {
+	            cartItems = Collections.emptyList();
+	        }
+
+	        model.addAttribute("cartItems", cartItems);
+	        model.addAttribute("totalAmount", totalAmount);
+	        model.addAttribute("categories", categories);
+	        model.addAttribute("products", products);
+	        return "web/index";
     }
     
     @GetMapping("/web/shop-grid")

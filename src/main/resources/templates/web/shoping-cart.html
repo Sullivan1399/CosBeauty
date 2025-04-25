@@ -172,7 +172,7 @@
                   </a>
                 </li>
               </ul>
-              <div class="header__cart__price" th:text="${@formatter.formatPrice(totalAmount)}"></div>
+              <div class="header__cart__price" th:if="${totalAmount != null}" th:text="${@formatter.formatPrice(totalAmount)}"></div>
             </div>
           </div>
         </div>
