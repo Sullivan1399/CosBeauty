@@ -16,5 +16,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Query("SELECT e FROM Employee e WHERE e.email NOT IN (SELECT a.username FROM Account a)")
     List<Employee> findEmployeesWithoutAccount();
     Employee findByPhone(String phone);
-
+    List<Employee> findByNameContainingIgnoreCase(String name);
 }

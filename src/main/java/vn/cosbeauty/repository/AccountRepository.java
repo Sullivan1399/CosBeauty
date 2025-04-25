@@ -1,5 +1,6 @@
 package vn.cosbeauty.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -33,6 +34,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 	@Query("SELECT a FROM Account a")
 	List<Account> findAllWithDetails();
 
-
+	List<Account> findByUsernameContainingIgnoreCase(String username);
+	List<Account> findByUsernameIn(Collection<String> usernames);
 
 }

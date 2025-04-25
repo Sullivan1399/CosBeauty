@@ -22,7 +22,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>{
 	@Query("SELECT c.phone FROM Customer c")
 	List<String> listPhone();
 
-
+	List<Customer> findByNameContainingIgnoreCase(String name);
 
 
 }

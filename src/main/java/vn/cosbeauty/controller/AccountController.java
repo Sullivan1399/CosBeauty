@@ -123,6 +123,7 @@ public class AccountController {
     public String manageAdmin(
             @RequestParam(name = "type", defaultValue = "users") String type,
             @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "searchType", defaultValue = "username") String searchType,
             @RequestParam(name = "role", required = false) String role,
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(value = "importDate", required = false) String importDate,
@@ -130,11 +131,16 @@ public class AccountController {
             Model model) {
 
         if ("users".equalsIgnoreCase(type)) {
-            // Quản lý tài khoản
             List<Account> accounts;
 
             if (keyword != null && !keyword.isEmpty()) {
-                accounts = accountService.searchAccounts(keyword);
+                if ("name".equalsIgnoreCase(searchType)) {
+                    // Tìm kiếm theo tên (Customer hoặc Employee)
+                    accounts = accountService.searchAccountsByName(keyword);
+                } else {
+                    // Tìm kiếm theo username (giữ nguyên logic ban đầu)
+                    accounts = accountService.searchAccounts(keyword);
+                }
             } else if (role != null && !role.isEmpty()) {
                 accounts = accountService.findByRole("ROLE_" + role.toUpperCase());
             } else {
@@ -146,15 +152,14 @@ public class AccountController {
             model.addAttribute("accounts", accounts);
             model.addAttribute("phoneMap", accountService.getPhoneMap(accounts));
             model.addAttribute("keyword", keyword);
+            model.addAttribute("searchType", searchType);
+            model.addAttribute("role", role);
             model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", 1); // Nếu có phân trang thì sửa
+            model.addAttribute("totalPages", 1); // TODO: Cập nhật nếu triển khai phân trang
             model.addAttribute("activeSection", "account");
-
         }
         return "web/Manage-account";
     }
-
-
 
     @PostMapping("/admin/accounts")
     public String updateAccountAndCustomer(

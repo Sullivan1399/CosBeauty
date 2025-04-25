@@ -1,6 +1,7 @@
 package vn.cosbeauty.service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -251,6 +252,23 @@ public class AccountService implements UserDetailsService{
         accountRepository.save(account);
         employeeRepository.save(employee);
     }
+
+    // Tìm kiếm theo tên (Customer hoặc Employee)
+    public List<Account> searchAccountsByName(String keyword) {
+        // Tìm Customer theo tên
+        List<Customer> customers = customerRepository.findByNameContainingIgnoreCase(keyword);
+        // Tìm Employee theo tên
+        List<Employee> employees = employeeRepository.findByNameContainingIgnoreCase(keyword);
+
+        // Lấy danh sách email từ Customer và Employee
+        Set<String> emails = new HashSet<>();
+        emails.addAll(customers.stream().map(Customer::getEmail).collect(Collectors.toList()));
+        emails.addAll(employees.stream().map(Employee::getEmail).collect(Collectors.toList()));
+
+        // Tìm Account có username khớp với email
+        return accountRepository.findByUsernameIn(emails);
+    }
+
     
 }
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -172,19 +172,76 @@
     .action-column {
       white-space: nowrap;
       width: 120px;
+      text-align: center; /* Căn giữa nút trong cột Hành động */
     }
-    .table th:nth-child(1), .table td:nth-child(1) { width: 8%; } /* Mã ĐH */
-    .table th:nth-child(2), .table td:nth-child(2) { width: 15%; } /* Khách Hàng */
-    .table th:nth-child(3), .table td:nth-child(3) { width: 20%; } /* Địa Chỉ */
-    .table th:nth-child(4), .table td:nth-child(4) { width: 12%; } /* SĐT */
-    .table th:nth-child(5), .table td:nth-child(5) { width: 12%; } /* Tổng Tiền */
-    .table th:nth-child(6), .table td:nth-child(6) { width: 12%; } /* Trạng Thái Xác Nhận */
-    .table th:nth-child(7), .table td:nth-child(7) { width: 12%; } /* Trạng Thái Giao */
-    .table th:nth-child(8), .table td:nth-child(8) { width: 14%; } /* Ngày Đặt */
+    .role-column {
+      text-align: center; /* Căn giữa cột Vai trò */
+    }
+    .table th:nth-child(1), .table td:nth-child(1) { width: 8%; } /* ID */
+    .table th:nth-child(2), .table td:nth-child(2) { width: 15%; } /* Tên người dùng */
+    .table th:nth-child(3), .table td:nth-child(3) { width: 22%; } /* Email */
+    .table th:nth-child(4), .table td:nth-child(4) { width: 10%; } /* Số điện thoại */
+    .table th:nth-child(5), .table td:nth-child(5) { width: 9%; } /* Vai trò */
+    .table th:nth-child(6), .table td:nth-child(6) { width: 10%; } /* Hành động */
+    /* Nút Lưu */
+    .btn-save {
+      background-color: #ff6200; /* Cam */
+      border-color: #ff6200;
+      color: #fff;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 6px 12px;
+      transition: all 0.3s ease;
+    }
+    .btn-save:hover {
+      background-color: #e65b00; /* Cam đậm */
+      border-color: #e65b00;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .btn-save i {
+      margin-right: 5px;
+    }
     /* Hamburger menu */
     .navbar-toggler {
       display: none;
       margin: 15px;
+    }
+    /* Pagination */
+    .pagination-container {
+      margin-top: 30px;
+    }
+    .pagination {
+      gap: 8px;
+    }
+    .page-item .page-link {
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 8px 14px;
+      color: #333;
+      border: 1px solid #ced4da;
+      background-color: #fff;
+      transition: all 0.3s ease;
+    }
+    .page-item.active .page-link {
+      background-color: #ff6200; /* Cam */
+      border-color: #ff6200;
+      color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .page-item:not(.disabled) .page-link:hover {
+      background-color: #ffe6cc; /* Cam nhạt */
+      border-color: #ff6200;
+      color: #ff6200;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .page-item.disabled .page-link {
+      color: #6c757d;
+      background-color: #f8f9fa;
+      border-color: #ced4da;
+      opacity: 0.6;
+      cursor: not-allowed;
     }
     @media (max-width: 992px) {
       .sidebar {
@@ -199,6 +256,14 @@
       .navbar-toggler {
         display: block;
       }
+      .page-item .page-link {
+        font-size: 14px;
+        padding: 6px 12px;
+      }
+      .btn-save {
+        font-size: 13px;
+        padding: 5px 10px;
+      }
     }
   </style>
 </head>
@@ -211,10 +276,10 @@
     </div>
     <div class="sidebar-nav">
       <a href="#" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
-      <a href="#" data-section="orders" class="active"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
-      <a th:href="@{/admin/accounts}" ><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
-      <a href="#" data-section="products" ><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
-      <a th:href="@{/admin/import-orders}" ><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
+      <a href="#" data-section="orders"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
+      <a th:href="@{/admin/accounts}" class="active"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
+      <a href="#" data-section="products"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+      <a th:href="@{/admin/import-orders}"><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
       <a href="#" data-section="settings"><i class="fas fa-cog"></i> Cài Đặt</a>
     </div>
   </div>
@@ -226,27 +291,28 @@
       <i class="fas fa-bars"></i>
     </button>
 
-
     <div id="overview" class="section" style="display: none;">
       <h2 class="text-center mb-4">Tổng Quan</h2>
       <p>Chào mừng đến với bảng điều khiển quản trị. Đây là trang tổng quan.</p>
     </div>
 
-    <!-- // Quan Lý Tài Khoản -->
-    <div id="account" class="section" style="display: none;">
+    <!-- Quản Lý Tài Khoản -->
+    <div id="account" class="section" style="display: block;">
       <h2 class="text-center mb-4">Quản Lý Tài Khoản</h2>
 
       <!-- Search Form -->
-      <form th:action="@{/admin/accounts}" method="get" class="d-flex align-items-center me-3" style="max-width: 400px;">
+      <form th:action="@{/admin/accounts}" method="get" class="d-flex align-items-center mb-4" style="max-width: 500px;">
+        <select name="searchType" class="form-select me-2" style="width: 150px;">
+          <option value="username" th:selected="${searchType == 'username'}">Theo email</option>
+          <option value="name" th:selected="${searchType == 'name'}">Theo tên</option>
+        </select>
         <input type="text" name="keyword" class="form-control me-2"
-               placeholder="Tìm kiếm theo..."
+               placeholder="Nhập email hoặc tên để tìm kiếm"
                th:value="${keyword}" />
         <button type="submit" class="btn btn-primary px-3">Tìm</button>
       </form>
 
       <div class="content" id="mainContent">
-
-
         <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
@@ -260,14 +326,12 @@
             <input type="hidden" name="role" value="customer" />
             <button type="submit" class="btn btn-info text-white">Danh sách Khách hàng</button>
           </form>
-
           <form method="get" action="/admin/accounts" class="d-inline ms-2">
             <input type="hidden" name="role" value="employee" />
             <button type="submit" class="btn btn-info text-white">Danh sách Nhân viên</button>
           </form>
-
           <form method="get" action="/admin/accounts" class="d-inline ms-2">
-            <button type="submit" class="btn btn-info text-white">ALL</button>
+            <button type="submit" class="btn btn-info text-white">Tất cả</button>
           </form>
         </div>
 
@@ -275,12 +339,12 @@
         <table class="table table-bordered table-striped align-middle">
           <thead class="table-light">
           <tr>
-            <th>ID</th>
-            <th>Tên người dùng</th>
-            <th>Email</th>
-            <th>Số điện thoại</th>
-            <th>Vai trò</th>
-            <th>Hành động</th>
+            <th class="role-column">ID</th>
+            <th class="role-column">Tên người dùng</th>
+            <th class="role-column">Email</th>
+            <th class="role-column">Số điện thoại</th>
+            <th class="role-column">Vai trò</th>
+            <th class="role-column">Hành động</th>
           </tr>
           </thead>
           <tbody>
@@ -292,38 +356,46 @@
                   <input type="hidden" name="id" th:value="${account.ID}" />
                   <span th:text="${account.ID}"></span>
               </td>
-
               <td><input type="text" name="newName" th:value="${account.displayName}" class="form-control form-control-sm" /></td>
               <td><span th:text="${account.username}" class="form-control form-control-sm"></span></td>
               <td><input type="text" name="newPhone" th:value="${phoneMap[account.username]}" class="form-control form-control-sm" required /></td>
-              <td>
+              <td class="role-column">
                 <span th:text="${account.role == 'ROLE_CUSTOMER' ? 'Khách hàng' : account.role == 'ROLE_EMPLOYEE' ? 'Nhân viên' : 'Quản trị'}"></span>
                 <input type="hidden" name="role" th:value="${account.role.replace('ROLE_', '')}" />
               </td>
-              <td><button type="submit" class="btn btn-warning btn-sm">Lưu</button></form></td>
+              <td class="action-column">
+                <button type="submit" class="btn btn-save">Lưu
+                </button>
+                </form>
+              </td>
             </tr>
           </th:block>
           </tbody>
         </table>
 
         <!-- Pagination -->
-        <div class="d-flex justify-content-center">
+        <div class="pagination-container d-flex justify-content-center">
           <nav>
             <ul class="pagination">
-              <li class="page-item" th:if="${currentPage > 1}">
-                <a class="page-link" th:href="@{/admin/accounts(page=${currentPage - 1})}">Trước</a>
+              <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/admin/accounts(page=${currentPage - 1}, searchType=${searchType}, keyword=${keyword}, role=${role})}" aria-label="Previous">
+                  <span aria-hidden="true">« Trước</span>
+                </a>
               </li>
               <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
                   th:classappend="${i == currentPage} ? 'active'">
-                <a class="page-link" th:href="@{/admin/accounts(page=${i})}" th:text="${i}"></a>
+                <a class="page-link" th:href="@{/admin/accounts(page=${i}, searchType=${searchType}, keyword=${keyword}, role=${role})}" th:text="${i}"></a>
               </li>
-              <li class="page-item" th:if="${currentPage < totalPages}">
-                <a class="page-link" th:href="@{/admin/accounts(page=${currentPage + 1})}">Tiếp</a>
+              <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+                <a class="page-link" th:href="@{/admin/accounts(page=${currentPage + 1}, searchType=${searchType}, keyword=${keyword}, role=${role})}" aria-label="Next">
+                  <span aria-hidden="true">Tiếp »</span>
+                </a>
               </li>
             </ul>
           </nav>
         </div>
       </div>
+    </div>
   </div>
 </div>
 
@@ -338,114 +410,112 @@
   </div>
 </div>
 
-
-
 <!-- Bootstrap JS and Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // Function to toggle sidebar on mobile
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('active');
-    }
+<script>
+  // Function to toggle sidebar on mobile
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('active');
+  }
 
-    // Function to show section
-    function showSection(sectionId) {
-      document.querySelectorAll('.section').forEach(section => {
-        section.style.display = section.id === sectionId ? 'block' : 'none';
-      });
-      document.querySelectorAll('.sidebar-nav a').forEach(link => {
-        link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
-      });
-
-      // Cập nhật URL dựa trên sectionId
-      let newUrl;
-      switch (sectionId) {
-        case 'overview':
-          newUrl = '/admin/dashboard';
-          break;
-        case 'orders':
-          newUrl = '/admin/orders';
-          break;
-        case 'account':
-          newUrl = '/admin/accounts';
-          break;
-        case 'products':
-          newUrl = '/admin/products';
-          break;
-        case 'import':
-          newUrl = '/admin/import-orders';
-          break;
-        case 'settings':
-          newUrl = '/admin/settings';
-          break;
-        default:
-          newUrl = '/admin/dashboard';
-      }
-      window.history.pushState({ sectionId: sectionId }, '', newUrl);
-
-      // Lưu section hiện tại vào localStorage
-      localStorage.setItem('currentSection', sectionId);
-    }
-
-    // Sidebar navigation
+  // Function to show section
+  function showSection(sectionId) {
+    document.querySelectorAll('.section').forEach(section => {
+      section.style.display = section.id === sectionId ? 'block' : 'none';
+    });
     document.querySelectorAll('.sidebar-nav a').forEach(link => {
-      link.addEventListener('click', (e) => {
-        const sectionId = link.getAttribute('data-section');
-        const href = link.getAttribute('href');
-
-        // Nếu liên kết có href và không phải là "#", để trình duyệt xử lý chuyển hướng
-        if (href && href !== '#') {
-          return;
-        }
-
-        e.preventDefault(); // Ngăn tải lại trang cho các liên kết không có href thực
-        showSection(sectionId);
-        if (window.innerWidth <= 992) {
-          toggleSidebar();
-        }
-      });
+      link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
     });
 
-    // Xử lý khi tải trang: Kiểm tra URL để hiển thị section đúng
-    window.addEventListener('DOMContentLoaded', () => {
-      const path = window.location.pathname;
-      let sectionId = localStorage.getItem('currentSection') || 'overview';
+    // Cập nhật URL dựa trên sectionId
+    let newUrl;
+    switch (sectionId) {
+      case 'overview':
+        newUrl = '/admin/dashboard';
+        break;
+      case 'orders':
+        newUrl = '/admin/orders';
+        break;
+      case 'account':
+        newUrl = '/admin/accounts';
+        break;
+      case 'products':
+        newUrl = '/admin/products';
+        break;
+      case 'import':
+        newUrl = '/admin/import-orders';
+        break;
+      case 'settings':
+        newUrl = '/admin/settings';
+        break;
+      default:
+        newUrl = '/admin/dashboard';
+    }
+    window.history.pushState({ sectionId: sectionId }, '', newUrl);
 
-      // Kiểm tra URL để xác định section
-      if (path.includes('/admin/accounts')) {
-        sectionId = 'account';
-      } else if (path.includes('/admin/orders')) {
-        sectionId = 'orders';
-      } else if (path.includes('/admin/products')) {
-        sectionId = 'products';
-      } else if (path.includes('/admin/import-orders')) {
-        sectionId = 'import';
-      } else if (path.includes('/admin/settings')) {
-        sectionId = 'settings';
-      } else if (path.includes('/admin/dashboard')) {
-        sectionId = 'overview';
+    // Lưu section hiện tại vào localStorage
+    localStorage.setItem('currentSection', sectionId);
+  }
+
+  // Sidebar navigation
+  document.querySelectorAll('.sidebar-nav a').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const sectionId = link.getAttribute('data-section');
+      const href = link.getAttribute('href');
+
+      // Nếu liên kết có href và không phải là "#", để trình duyệt xử lý chuyển hướng
+      if (href && href !== '#') {
+        return;
       }
 
+      e.preventDefault(); // Ngăn tải lại trang cho các liên kết không có href thực
       showSection(sectionId);
+      if (window.innerWidth <= 992) {
+        toggleSidebar();
+      }
     });
+  });
 
-    // Xử lý nút Back/Forward
-    window.addEventListener('popstate', (event) => {
-      const sectionId = event.state ? event.state.sectionId : localStorage.getItem('currentSection') || 'overview';
-      showSection(sectionId);
-    });
+  // Xử lý khi tải trang: Kiểm tra URL để hiển thị section đúng
+  window.addEventListener('DOMContentLoaded', () => {
+    const path = window.location.pathname;
+    let sectionId = localStorage.getItem('currentSection') || 'overview';
 
-    // Function to show toast
-    function showToast(message, type = 'success') {
-      const toast = document.getElementById('actionToast');
-      const toastBody = toast.querySelector('.toast-body');
-      toastBody.textContent = message;
-      toast.classList.remove('bg-success', 'bg-danger');
-      toast.classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
-      const bsToast = new bootstrap.Toast(toast);
-      bsToast.show();
+    // Kiểm tra URL để xác định section
+    if (path.includes('/admin/accounts')) {
+      sectionId = 'account';
+    } else if (path.includes('/admin/orders')) {
+      sectionId = 'orders';
+    } else if (path.includes('/admin/products')) {
+      sectionId = 'products';
+    } else if (path.includes('/admin/import-orders')) {
+      sectionId = 'import';
+    } else if (path.includes('/admin/settings')) {
+      sectionId = 'settings';
+    } else if (path.includes('/admin/dashboard')) {
+      sectionId = 'overview';
     }
-  </script>
+
+    showSection(sectionId);
+  });
+
+  // Xử lý nút Back/Forward
+  window.addEventListener('popstate', (event) => {
+    const sectionId = event.state ? event.state.sectionId : localStorage.getItem('currentSection') || 'overview';
+    showSection(sectionId);
+  });
+
+  // Function to show toast
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('actionToast');
+    const toastBody = toast.querySelector('.toast-body');
+    toastBody.textContent = message;
+    toast.classList.remove('bg-success', 'bg-danger');
+    toast.classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+  }
+</script>
 </body>
 </html>

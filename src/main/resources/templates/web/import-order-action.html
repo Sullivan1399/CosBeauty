@@ -5,6 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi Tiết Đơn Hàng</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Tùy chỉnh nút */
+        .action-buttons {
+            margin-top: 20px;
+        }
+        .btn-custom {
+            border-radius: 20px;
+            font-weight: 500;
+            padding: 8px 20px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .btn-approve {
+            background-color: #317546; /* Xanh lá đậm */
+            border-color: #317546;
+            color: #fff;
+        }
+        .btn-approve:hover {
+            background-color: #2a643c;
+            border-color: #2a643c;
+        }
+        .btn-cancel {
+            background-color: #dc3545; /* Đỏ */
+            border-color: #dc3545;
+            color: #fff;
+        }
+        .btn-cancel:hover {
+            background-color: #c82333;
+            border-color: #c82333;
+        }
+        .btn-back {
+            background-color: #6c757d; /* Xám */
+            border-color: #6c757d;
+            color: #fff;
+        }
+        .btn-back:hover {
+            background-color: #5a6268;
+            border-color: #5a6268;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
@@ -28,7 +67,7 @@
                 <p><strong>Mã ĐH:</strong> <span th:text="${importOrder.importID}"></span></p>
                 <p><strong>Nhân Viên:</strong> <span th:text="${importOrder.employee?.name ?: 'Không có'}"></span></p>
                 <p><strong>Nhà Cung Cấp:</strong> <span th:text="${importOrder.supplier?.supName ?: 'Không có'}"></span></p>
-                <p><strong>Ngày Đặt:</strong> <span th:text="${importOrder.importDate}"></span></p>
+                <p><strong>Ngày Tạo:</strong> <span th:text="${importOrder.importDate != null ? #temporals.format(importOrder.importDate, 'dd/MM/yyyy HH:mm:ss') : 'N/A'}"></span></p>
             </div>
             <div class="col-6 text-end">
                 <p><strong>Trạng Thái:</strong>
@@ -63,17 +102,22 @@
             </tbody>
         </table>
 
-        <!-- Nút Duyệt và Hủy: chỉ hiển thị nếu trạng thái là Chưa duyệt -->
-        <div th:if="${importOrder.status == 0}" class="d-flex gap-2">
-            <!-- Form Duyệt -->
-            <form th:action="@{/admin/import-orders/action}" method="post">
-                <input type="hidden" name="importID" th:value="${importOrder.importID}"/>
-                <input type="hidden" name="action" value="approve"/>
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <button type="submit" class="btn btn-success">Duyệt</button>
-            </form>
-            <!-- Nút Hủy: Mở modal -->
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">Hủy Đơn</button>
+        <!-- Nút Duyệt, Hủy và Quay lại -->
+        <div class="action-buttons d-flex justify-content-end gap-2">
+            <!-- Nút Duyệt và Hủy: chỉ hiển thị nếu trạng thái là Chưa duyệt -->
+            <div th:if="${importOrder.status == 0}" class="d-flex gap-2">
+                <!-- Form Duyệt -->
+                <form th:action="@{/admin/import-orders/action}" method="post">
+                    <input type="hidden" name="importID" th:value="${importOrder.importID}"/>
+                    <input type="hidden" name="action" value="approve"/>
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-custom btn-approve">Duyệt</button>
+                </form>
+                <!-- Nút Hủy: Mở modal -->
+                <button type="button" class="btn btn-custom btn-cancel" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">Hủy Đơn</button>
+            </div>
+            <!-- Nút quay lại danh sách -->
+            <a href="/admin/import-orders" class="btn btn-custom btn-back">Quay lại</a>
         </div>
 
         <!-- Modal để nhập lý do hủy -->
@@ -91,7 +135,7 @@
                                 <textarea class="form-control" id="cancelReason" name="cancelReason" rows="4" required></textarea>
                             </div>
                             <input type="hidden" name="importID" th:value="${importOrder.importID}"/>
-                            <input type="hidden" name="action" value="cancel"/> <!-- 🔥 THÊM DÒNG NÀY -->
+                            <input type="hidden" name="action" value="cancel"/>
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                         </div>
                         <div class="modal-footer">
@@ -99,13 +143,9 @@
                             <button type="submit" class="btn btn-danger">Xác Nhận Hủy</button>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
-
-        <!-- Nút quay lại danh sách -->
-        <a href="/admin/import-orders" class="btn btn-secondary mt-3">Quay lại</a>
     </div>
 </div>
 
