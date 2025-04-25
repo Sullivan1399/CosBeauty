@@ -14,16 +14,6 @@
             href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap"
             rel="stylesheet"
     />
-    <!-- Css Styles -->
-<!--    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">-->
-<!--    <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">-->
-<!--    <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">-->
-<!--    <link rel="stylesheet" href="css/nice-select.css" type="text/css">-->
-<!--    <link rel="stylesheet" href="css/jquery-ui.min.css" type="text/css">-->
-<!--    <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">-->
-<!--    <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">-->
-<!--    <link rel="stylesheet" href="css/style.css" type="text/css">-->
-
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" type="text/css">
     <link rel="stylesheet" th:href="@{/css/font-awesome.min.css}" type="text/css">
     <link rel="stylesheet" th:href="@{/css/elegant-icons.css}" type="text/css">
@@ -249,9 +239,14 @@
                 <div class="col-lg-3">
                     <div class="header__cart">
                         <ul>
-                            <li><a th:href="@{/api/cart/view}"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                            <li>
+                                <a th:href="@{/api/cart/view}">>
+                                    <i class="fa fa-shopping-bag"></i>
+                                    <span th:text="${cartItems != null ? cartItems.size() : 0}"></span>
+                                </a>
+                            </li>
                         </ul>
-                        <div class="header__cart__price">item: <span>$150.00</span></div>
+                        <div class="header__cart__price" th:text="${@formatter.formatPrice(totalAmount)}"></div>
                     </div>
                 </div>
             </div>
@@ -297,7 +292,7 @@
                             </div>
                             <div class="hero__search__phone__text">
                                 <h5>+086-867-2602</h5>
-                                <span>support 24/7 time</span>
+                                <span>Hỗ trợ 24/7 time</span>
                             </div>
                         </div>
                     </div>
