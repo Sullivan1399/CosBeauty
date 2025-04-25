@@ -2,6 +2,7 @@ package vn.cosbeauty.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.cosbeauty.entity.Customer;
 import vn.cosbeauty.entity.Employee;
 import vn.cosbeauty.repository.EmployeeRepository;
 
@@ -24,5 +25,13 @@ public class EmployeeService {
 
     public List<Employee> findEmployeesWithoutAccount() {
         return employeeRepository.findEmployeesWithoutAccount();
+    }
+    public Employee save(Employee employee) {
+        return employeeRepository.save(employee);
+    }
+    public List<String> listPhone() {
+        return employeeRepository.findAll().stream()
+                .map(Employee::getPhone)
+                .toList();
     }
 }

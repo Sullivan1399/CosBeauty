@@ -1,6 +1,11 @@
 package vn.cosbeauty.controller;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,9 +19,11 @@ import vn.cosbeauty.DTO.RegisterDTO;
 import vn.cosbeauty.entity.Account;
 import vn.cosbeauty.entity.Customer;
 import vn.cosbeauty.entity.Employee;
+import vn.cosbeauty.entity.ImportOrder;
 import vn.cosbeauty.service.AccountService;
 import vn.cosbeauty.service.CustomerService;
 import vn.cosbeauty.service.EmployeeService;
+import vn.cosbeauty.service.ImportOrderService;
 
 @Controller
 public class AccountController {
@@ -27,6 +34,8 @@ public class AccountController {
 	private CustomerService customerService;
     @Autowired
     private EmployeeService employeeService;
+    @Autowired
+    private ImportOrderService importOrderService;
 
 
     @GetMapping("/register")
@@ -106,50 +115,60 @@ public class AccountController {
         }
         return "/web/login";
     }
+    public AccountController(AccountService accountService, ImportOrderService importOrderService) {
+        this.accountService = accountService;
+        this.importOrderService = importOrderService;
+    }
+    @GetMapping("/admin/accounts")
+    public String manageAdmin(
+            @RequestParam(name = "type", defaultValue = "users") String type,
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "role", required = false) String role,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(value = "importDate", required = false) String importDate,
+            @RequestParam(value = "status", required = false) String status,
+            Model model) {
 
-    @GetMapping("/admin/manage")
-    public String listUsers(@RequestParam(name = "keyword", required = false) String keyword,
-                            @RequestParam(name = "role", required = false) String role,
-                            @RequestParam(name = "page", defaultValue = "1") int page,
-                            Model model) {
+        if ("users".equalsIgnoreCase(type)) {
+            // Quản lý tài khoản
+            List<Account> accounts;
 
-        List<Account> accounts;
+            if (keyword != null && !keyword.isEmpty()) {
+                accounts = accountService.searchAccounts(keyword);
+            } else if (role != null && !role.isEmpty()) {
+                accounts = accountService.findByRole("ROLE_" + role.toUpperCase());
+            } else {
+                accounts = accountService.findAllWithDetails();
+            }
 
-        if (keyword != null && !keyword.isEmpty()) {
-            accounts = accountService.searchAccounts(keyword);
-        } else if (role != null && !role.isEmpty()) {
-            accounts = accountService.findByRole("ROLE_" + role.toUpperCase());
-        } else {
-            accounts = accountService.findAllWithDetails();
+            accounts = accountService.enrichDisplayNames(accounts);
+
+            model.addAttribute("accounts", accounts);
+            model.addAttribute("phoneMap", accountService.getPhoneMap(accounts));
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", 1); // Nếu có phân trang thì sửa
+            model.addAttribute("activeSection", "account");
+
         }
-
-        accounts = accountService.enrichDisplayNames(accounts);
-
-
-        model.addAttribute("accounts", accounts);
-        model.addAttribute("phoneMap", accountService.getPhoneMap(accounts));
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", 1); // nếu chưa có phân trang
-
-        return "/web/Manage-admin";
+        return "web/Manage-account";
     }
 
 
 
-
-    @PostMapping("/admin/manage")
-    public String updateAccountAndCustomer(@RequestParam("id") Long id,
-                                           @RequestParam("newName") String newName,
-                                           @RequestParam("role") String role,
-                                           @RequestParam("newPhone") String newPhone,
-                                           RedirectAttributes redirectAttributes) {
+    @PostMapping("/admin/accounts")
+    public String updateAccountAndCustomer(
+            @RequestParam("id") Long id,
+            @RequestParam("newName") String newName,
+            @RequestParam("role") String role,
+            @RequestParam("newPhone") String newPhone,
+            RedirectAttributes redirectAttributes) {
         try {
             AccountDTO accountDTO = new AccountDTO();
             accountDTO.setId(id);
             accountDTO.setNewName(newName);
             accountDTO.setRole(role);
-            accountDTO.setNewPhone(newPhone);  // nếu bạn cũng cập nhật số điện thoại
+            accountDTO.setNewPhone(newPhone);
 
             accountService.updateAccountAndCustomer(accountDTO);
             redirectAttributes.addFlashAttribute("success", "Cập nhật thành công!");
@@ -157,27 +176,7 @@ public class AccountController {
             redirectAttributes.addFlashAttribute("error", "Lỗi cập nhật: " + e.getMessage());
             e.printStackTrace();
         }
-        return "redirect:/admin/manage";
-    }
-
-
-    @GetMapping("/admin/manage/create-employee")
-    public String showCreateEmployeeForm(Model model) {
-        List<Employee> employees = employeeService.findEmployeesWithoutAccount();
-        model.addAttribute("employees", employees);
-        return "web/create-employee-account";
-    }
-
-    @PostMapping("/admin/manage/create-employee")
-    public String saveEmployee(@ModelAttribute("account") Account account,
-                               @RequestParam("employeeEmail") String email) {
-        Employee employee = employeeService.findByEmail(email);
-        // Dùng email làm username
-        account.setUsername(employee.getEmail());
-        // Gán thông tin khác nếu cần (VD: account.setDisplayName(employee.getName()))
-        account.setRole("ROLE_EMPLOYEE");
-        accountService.save(account);
-        return "redirect:/admin/manage";
+        return "redirect:/admin/accounts";
     }
 
 }

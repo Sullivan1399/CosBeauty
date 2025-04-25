@@ -193,7 +193,7 @@ public class AccountService implements UserDetailsService{
             }
 
             customer.setName(dto.getNewName());
-            customer.setPhone(dto.getNewPhone()); // ✅ cập nhật số điện thoại
+            customer.setPhone(dto.getNewPhone()); // cập nhật số điện thoại
             customerRepository.save(customer);
 
         } else if ("EMPLOYEE".equalsIgnoreCase(dto.getRole())) {
@@ -203,7 +203,7 @@ public class AccountService implements UserDetailsService{
             }
 
             emp.setName(dto.getNewName());
-            emp.setPhone(dto.getNewPhone()); // ✅ cập nhật số điện thoại
+            emp.setPhone(dto.getNewPhone()); //  cập nhật số điện thoại
             employeeRepository.save(emp);
         }
 
@@ -238,11 +238,19 @@ public class AccountService implements UserDetailsService{
         return phoneMap;
     }
 
-
-
-
-
-
-
+    public void registerEmployeeAccount(Account account, Employee employee) {
+        if (accountRepository.findByUsername(account.getUsername()) != null) {
+            throw new RuntimeException("Email đã được sử dụng!");
+        }
+        if (employeeRepository.findByPhone(employee.getPhone()) != null) {
+            throw new RuntimeException("Số điện thoại đã được sử dụng!");
+        }
+        account.setPassword(passwordEncoder.encode(account.getPassword()));
+        account.setRole("ROLE_EMPLOYEE");
+        account.setEnabled(true); // Enable account immediately (no email verification)
+        accountRepository.save(account);
+        employeeRepository.save(employee);
+    }
+    
 }
 

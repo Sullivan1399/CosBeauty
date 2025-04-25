@@ -1,12 +1,12 @@
 package vn.cosbeauty.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import vn.cosbeauty.entity.*;
 import vn.cosbeauty.repository.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,12 +41,8 @@ public class ImportOrderService {
             double cost,
             List<Long> productIds,
             List<Integer> quantities,
-            List<Double> costs
-    ) {
-        // Lấy username đang đăng nhập
+            List<Double> costs) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        // Tìm tài khoản
         Account account = accountRepository.findByUsername(username);
         if (account == null) {
             throw new RuntimeException("Không tìm thấy tài khoản");
@@ -56,8 +52,6 @@ public class ImportOrderService {
         if (employee == null) {
             throw new RuntimeException("Không tìm thấy nhân viên với email = " + account.getUsername());
         }
-
-
 
         Supplier supplier = supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy nhà cung cấp"));
@@ -89,8 +83,58 @@ public class ImportOrderService {
         importOrderRepository.save(savedOrder);
     }
 
+    /**
+     * Lấy tất cả đơn nhập hàng
+     */
+    public List<ImportOrder> getAllImportOrders() {
+        return importOrderRepository.findAll();
+    }
 
+    /**
+     * Lấy đơn nhập hàng theo ID
+     */
+    public ImportOrder getOrderById(Long importID) {
+        return importOrderRepository.findById(importID).orElse(null);
+    }
 
+    /**
+     * Lưu hoặc cập nhật đơn nhập hàng
+     */
+    public void saveOrder(ImportOrder order) {
+        importOrderRepository.save(order);
+    }
 
+    /**
+     * Lấy danh sách đơn nhập hàng với phân trang và bộ lọc
+     */
+    public Page<ImportOrder> getFilteredImportOrders(LocalDate importDate, Integer status, Pageable pageable) {
+        if (importDate != null && status != null) {
+            return importOrderRepository.findByImportDateAndStatus(importDate, status, pageable);
+        } else if (importDate != null) {
+            return importOrderRepository.findByImportDate(importDate, pageable);
+        } else if (status != null) {
+            return importOrderRepository.findByStatus(status, pageable);
+        } else {
+            return importOrderRepository.findAll(pageable);
+        }
+    }
 
+    /**
+     * Các phương thức phân trang cụ thể
+     */
+    public Page<ImportOrder> getAllImportOrders(Pageable pageable) {
+        return importOrderRepository.findAll(pageable);
+    }
+
+    public Page<ImportOrder> findByImportDate(LocalDate importDate, Pageable pageable) {
+        return importOrderRepository.findByImportDate(importDate, pageable);
+    }
+
+    public Page<ImportOrder> findByStatus(int status, Pageable pageable) {
+        return importOrderRepository.findByStatus(status, pageable);
+    }
+
+    public Page<ImportOrder> findByImportDateAndStatus(LocalDate importDate, int status, Pageable pageable) {
+        return importOrderRepository.findByImportDateAndStatus(importDate, status, pageable);
+    }
 }

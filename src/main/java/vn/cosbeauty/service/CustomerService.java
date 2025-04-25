@@ -50,4 +50,12 @@ public class CustomerService {
 
         return customer.getCustomerID();
     }
+    public Customer getCustomerByEmail(String email) {
+        return customerRepository.findByEmail(email);
+    }
+
+    public CustomerService(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
+    }
+
 }
