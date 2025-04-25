@@ -21,7 +21,7 @@ public class Product
     private Long productID;
     @Column(name = "product_name")
     private String productName;
-    private BigDecimal price;
+    private Long price;
     private int quantity;
     @Column(name = "image_url")
     private String imageUrl;
@@ -51,7 +51,7 @@ public class Product
     private List<CartItem> cartList=new ArrayList<>();
     
     public Product(String product_name, Category category, Supplier brand,
-                    BigDecimal price, int quantity, String image_url, int discount) {
+                    Long price, int quantity, String image_url, int discount) {
         this.productName = product_name;
         this.category= category;
         this.supplier = brand;

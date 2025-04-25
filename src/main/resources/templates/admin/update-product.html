@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Sản Phẩm</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+        .container-fluid {
+            padding: 0;
+        }
+        .main-content {
+            padding: 30px;
+            min-height: 100vh;
+        }
+        h1, h2 {
+            color: #ff6200; /* Cam */
+            font-weight: 700;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: none;
+            margin-bottom: 30px;
+        }
+        .card-header {
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+            border-top-left-radius: 15px !important;
+            border-top-right-radius: 15px !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        .card-body {
+            padding: 25px;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        .form-control, .form-select {
+            border-radius: 20px;
+            border: 1px solid #ced4da;
+            font-weight: 400;
+        }
+        .btn-primary {
+            background-color: #ff6200; /* Cam */
+            border-color: #ff6200;
+            border-radius: 20px;
+            font-weight: 500;
+            padding: 10px 20px;
+        }
+        .btn-primary:hover {
+            background-color: #e65b00;
+            border-color: #e65b00;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            border-radius: 20px;
+            font-weight: 500;
+            padding: 10px 20px;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+        .btn-success {
+            background-color: #317546; /* Xanh lá đậm */
+            border-color: #317546;
+            border-radius: 20px;
+            font-weight: 500;
+            padding: 8px 12px;
+        }
+        .btn-success:hover {
+            background-color: #2a643c;
+            border-color: #2a643c;
+        }
+        .image-preview {
+            border: 2px dashed #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: relative;
+        }
+        .image-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-top: 15px;
+            object-fit: contain;
+        }
+        .image-preview-text {
+            color: #999;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .image-upload-btn {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .image-upload-btn input[type=file] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-width: 100%;
+            min-height: 100%;
+            font-size: 100px;
+            text-align: right;
+            filter: alpha(opacity=0);
+            opacity: 0;
+            outline: none;
+            cursor: pointer;
+            display: block;
+        }
+        .header-logo {
+            background-color: #ff6200;
+            padding: 15px 0;
+        }
+        .header-logo h2 {
+            color: white;
+            margin: 0;
+        }
+        .tox-tinymce {
+            border-radius: 15px !important;
+            overflow: hidden;
+        }
+        .input-group-append {
+            margin-left: 10px;
+        }
+        .select-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .select-container .select2-container {
+            flex-grow: 1;
+        }
+        .select-container .btn {
+            margin-left: 10px;
+            height: 38px;
+            width: 38px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .select2-container {
+            width: 100% !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-logo">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a href="/" class="logo">
+                            <h2>CosBeauty</h2>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="row">
+            	<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+                <div class="col-12">
+                    <h1 class="text-center mb-4">Thêm Sản Phẩm</h1>
+                </div>
+            </div>
+            
+            <!-- Bắt đầu form từ đây, bao gồm cả hai cột -->
+            <form th:action="@{/admin/updateProduct}" th:object="${product}" method="post" enctype="multipart/form-data">
+                <input type="hidden" id="productID" th:field="*{productID}" />
+                <input type="hidden" th:field="*{imageUrl}" th:value="${product.imageUrl}">
+                
+                <div class="row">
+                    <!-- Phần upload hình ảnh (bên trái) - đã đưa vào trong form -->
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-image me-2"></i> Hình Ảnh Sản Phẩm
+                            </div>
+                            <div class="card-body">
+                                <div class="image-preview" id="imagePreviewContainer">
+                                    <div class="image-preview-text" id="upload-text">
+                                        <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                                        <p>Kéo thả hoặc nhấp để tải lên hình ảnh sản phẩm</p>
+                                    </div>
+                                    <img id="blah" th:src="${product.imageUrl != null ? '/images/' + product.imageUrl : ''}" 
+                                         th:alt="${product.productName}" style="display: none;">
+                                </div>
+                                <div class="text-center">
+                                    <div class="image-upload-btn">
+                                        <button type="button" class="btn btn-primary">
+                                            <i class="fas fa-upload me-2"></i> Chọn Hình Ảnh
+                                        </button>
+                                        <input type="file" id="imageInput" name="imageInput" accept="image/*"
+                                               th:attr="required=${product.productID == null}"
+                                               onchange="previewImage(this)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Phần thông tin sản phẩm (bên phải) -->
+                    <div class="col-md-7">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-info-circle me-2"></i> Thông Tin Sản Phẩm
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Cột trái -->
+                                    <div class="col-md-6">
+                                        <!-- Tên sản phẩm -->
+                                        <div class="mb-3">
+                                            <label for="name" class="form-label">Tên sản phẩm</label>
+                                            <input type="text" id="name" th:field="*{productName}" class="form-control" required />
+                                        </div>
+                                        
+                                        <!-- Loại sản phẩm với select2 và nút thêm -->
+                                        <div class="mb-3">
+                                            <label for="category" class="form-label">Loại sản phẩm</label>
+                                            <div class="select-container">
+                                                <select class="form-control select2 w-100" th:name="catID">
+                                                    <option th:each="category, iter : ${listCategory}" th:value="${category.getCatID()}" th:text="${category.getCateName()}" th:selected="${iter.index == 0}"></option>
+                                                </select>
+                                                <button type="button" class="btn btn-success" title="Thêm loại sản phẩm" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Số lượng -->
+                                        <div class="mb-3">
+                                            <label for="quantity" class="form-label">Số lượng</label>
+                                            <input type="text" id="quantity" th:field="*{quantity}" class="form-control" required />
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Cột phải -->
+                                    <div class="col-md-6">
+                                        <!-- Giá -->
+                                        <div class="mb-3">
+                                            <label for="price" class="form-label">Giá</label>
+                                            <input type="text" id="price" th:field="*{price}" class="form-control" required />
+                                        </div>
+                                        
+                                        <!-- Hãng với select2 và nút thêm -->
+                                        <div class="mb-3">
+                                            <label for="supplier" class="form-label">Hãng</label>
+                                            <div class="select-container">
+                                                <select class="form-control select2 w-100" th:name="supID">
+                                                    <option th:each="supplier, iter : ${listSupplier}" th:value="${supplier.getSupID()}" th:text="${supplier.getSupName()}" th:selected="${iter.index == 0}"></option>
+                                                </select>
+                                                <button type="button" class="btn btn-success" title="Thêm hãng" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Giảm giá -->
+                                        <div class="mb-3">
+                                            <label for="discount" class="form-label">Giảm giá</label>
+                                            <input type="text" id="discount" th:field="*{discount}" class="form-control" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Chi tiết sản phẩm (chiếm toàn bộ chiều rộng) -->
+                                <div class="mb-4">
+                                    <label for="full-featured" class="form-label">Chi tiết sản phẩm</label>
+                                    <textarea id="full-featured" th:field="*{detail}"></textarea>
+                                </div>
+                                
+                                <!-- Nút hành động -->
+                                <div class="d-flex justify-content-end gap-3">
+                                    <a th:href="@{/admin/ManageProducts}" class="btn btn-danger">
+                                        <i class="fas fa-times me-2"></i> Hủy
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i> Lưu
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal thêm/sửa category -->
+	<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered">
+	    <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);">
+	      <form th:action="@{/admin/addCategory}" method="post">
+	        <div class="modal-header" style="background-color: #ff6200; color: #fff; border-top-left-radius: 15px; border-top-right-radius: 15px; padding: 15px 20px;">
+	          <h5 class="modal-title" id="categoryModalLabel" style="font-weight: 600;">
+	            <i class="fas fa-plus-circle me-2"></i>Thêm thể loại
+	          </h5>
+	          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+	        </div>
+	        <div class="modal-body" style="padding: 25px;">
+	          <div class="mb-3">
+	            <label for="cateName" class="form-label" style="font-weight: 500; color: #555; margin-bottom: 8px;">Tên thể loại</label>
+	            <input type="text" class="form-control" id="cateName" name="cateName" required 
+	                   style="border-radius: 20px; border: 1px solid #ced4da; padding: 10px 15px; font-weight: 400;">
+	          </div>
+	        </div>
+	        <div class="modal-footer" style="border-top: 1px solid #f0f0f0; padding: 15px 20px;">
+	          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+	                  style="background-color: #6c757d; border-color: #6c757d; border-radius: 20px; font-weight: 500; padding: 8px 20px;">
+	            <i class="fas fa-times me-2"></i>Hủy
+	          </button>
+	          <button type="submit" class="btn btn-primary" 
+	                  style="background-color: #ff6200; border-color: #ff6200; border-radius: 20px; font-weight: 500; padding: 8px 20px;">
+	            <i class="fas fa-save me-2"></i>Lưu
+	          </button>
+	        </div>
+	      </form>
+	    </div>
+	  </div>
+	</div>
+
+    <!-- Modal thêm hãng -->
+    <div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);">
+                <form th:action="@{/admin/addSupplier}" method="post">
+                    <div class="modal-header" style="background-color: #ff6200; color: #fff; border-top-left-radius: 15px; border-top-right-radius: 15px; padding: 15px 20px;">
+                        <h5 class="modal-title" id="addSupplierModalLabel" style="font-weight: 600;">
+                            <i class="fas fa-plus-circle me-2"></i>Thêm Hãng
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body" style="padding: 25px;">
+                        <div class="mb-3">
+                            <label for="supplierName" class="form-label" style="font-weight: 500; color: #555; margin-bottom: 8px;">Tên Hãng</label>
+                            <input type="text" class="form-control" id="supplierName" name="supplierName" required 
+                                style="border-radius: 20px; border: 1px solid #ced4da; padding: 10px 15px; font-weight: 400;">
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid #f0f0f0; padding: 15px 20px;">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                                style="background-color: #6c757d; border-color: #6c757d; border-radius: 20px; font-weight: 500; padding: 8px 20px;">
+                            <i class="fas fa-times me-2"></i>Hủy
+                        </button>
+                        <button type="submit" class="btn btn-primary" 
+                                style="background-color: #ff6200; border-color: #ff6200; border-radius: 20px; font-weight: 500; padding: 8px 20px;">
+                            <i class="fas fa-save me-2"></i>Lưu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- TinyMCE -->
+    <script src="https://cdn.tiny.cloud/1/r8226os7isr15nd2do3haozn6kltnglphv882mluiz26uz2w/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+    <script th:src="@{/js/product-detail.js}"></script>
+    <script>
+        // Hàm xem trước hình ảnh
+        function previewImage(input) {
+            const preview = document.getElementById('blah');
+            const uploadText = document.getElementById('upload-text');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    uploadText.style.display = 'none';
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        // Kiểm tra nếu đã có hình ảnh
+        document.addEventListener('DOMContentLoaded', function() {
+            const preview = document.getElementById('blah');
+            const uploadText = document.getElementById('upload-text');
+            
+            // Kiểm tra nếu hình ảnh có src hợp lệ
+            if (preview.getAttribute('src') && preview.getAttribute('src') !== '') {
+                const imgSrc = preview.getAttribute('src');
+                if (imgSrc !== window.location.href && !imgSrc.endsWith('/')) {
+                    preview.style.display = 'block';
+                    uploadText.style.display = 'none';
+                }
+            }
+            
+            // Thêm chức năng kéo thả hình ảnh
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+            
+            // Ngăn chặn hành vi mặc định của trình duyệt khi kéo thả
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                imagePreviewContainer.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            // Thêm hiệu ứng khi kéo file vào vùng drop
+            ['dragenter', 'dragover'].forEach(eventName => {
+                imagePreviewContainer.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                imagePreviewContainer.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                imagePreviewContainer.style.borderColor = '#ff6200';
+                imagePreviewContainer.style.backgroundColor = 'rgba(255, 98, 0, 0.05)';
+            }
+            
+            function unhighlight() {
+                imagePreviewContainer.style.borderColor = '#ddd';
+                imagePreviewContainer.style.backgroundColor = '';
+            }
+            
+            // Xử lý khi thả file
+            imagePreviewContainer.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length) {
+                    const file = files[0];
+                    if (file.type.startsWith('image/')) {
+                        const imageInput = document.getElementById('imageInput');
+                        
+                        // Tạo một DataTransfer object mới
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        
+                        // Gán files cho input
+                        imageInput.files = dataTransfer.files;
+                        
+                        // Gọi hàm xem trước
+                        previewImage(imageInput);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
