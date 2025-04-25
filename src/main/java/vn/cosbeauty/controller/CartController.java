@@ -89,9 +89,9 @@ public class CartController {
         Long customerId = customerService.getCurrentCustomerID();
         List<CartItem> cartItems = cartService.getCartItemsByCustomerId(customerId);
         BigDecimal totalAmount = cartItems.stream()
-                .map(item -> item.getProduct().getPrice().multiply(new BigDecimal(item.getQuantity())))
+                .map(item -> BigDecimal.valueOf(item.getProduct().getPrice()).multiply(new BigDecimal(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add); // Tính tổng giá trị
-        List<Category> categories = categoryService.getCategories();
+        List<Category> categories = categoryService.getAllCategory();
         model.addAttribute("categories", categories);
 
         model.addAttribute("cartItems", cartItems);

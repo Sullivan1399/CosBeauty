@@ -158,7 +158,7 @@ public class AccountController {
             model.addAttribute("totalPages", 1); // TODO: Cập nhật nếu triển khai phân trang
             model.addAttribute("activeSection", "account");
         }
-        return "web/Manage-account";
+        return "web/manage-account";
     }
 
     @PostMapping("/admin/accounts")

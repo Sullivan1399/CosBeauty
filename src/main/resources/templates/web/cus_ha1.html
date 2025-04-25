@@ -222,7 +222,7 @@
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
-            <img th:src="${item.getProduct().getImageUrl()} ?: 'https://via.placeholder.com/80'" alt="Product Image" style="width: 80px;">
+            <img th:src="@{'/images/' + ${item.getProduct().imageUrl}}" alt="Product Image" style="width: 80px;">
             <div class="item-details ms-3">
               <div class="name" th:text="${item.getProduct().getProductName()}"></div>
               <div class="quantity" th:text="${item.getQuantity()} + ' x ' + ${@formatter.formatPrice(item.getProduct().getPrice())}  "></div>
@@ -252,7 +252,7 @@
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
-            <img th:src="${item.getProduct().getImageUrl()} ?: 'https://via.placeholder.com/80'" alt="Product Image" style="width: 80px;">
+            <img th:src="@{'/images/' + ${item.getProduct().imageUrl}}" alt="Product Image" style="width: 80px;">
             <div class="item-details ms-3">
               <div class="name" th:text="${item.getProduct().getProductName()}"></div>
               <div class="quantity" th:text="${item.getQuantity()} + ' x ' + ${@formatter.formatPrice(item.getProduct().getPrice())}  "></div>
@@ -283,7 +283,7 @@
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
-            <img th:src="${item.getProduct().getImageUrl()} ?: 'https://via.placeholder.com/80'" alt="Product Image" style="width: 80px;">
+            <img th:src="@{'/images/' + ${item.getProduct().imageUrl}}" alt="Product Image" style="width: 80px;">
             <div class="item-details ms-3">
               <div class="name" th:text="${item.getProduct().getProductName()}"></div>
               <div class="quantity" th:text="${item.getQuantity()} + ' x ' + ${@formatter.formatPrice(item.getProduct().getPrice())}  "></div>
@@ -314,7 +314,7 @@
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
-            <img th:src="${item.getProduct().getImageUrl()} ?: 'https://via.placeholder.com/80'" alt="Product Image" style="width: 80px;">
+            <img th:src="@{'/images/' + ${item.getProduct().imageUrl}}" alt="Product Image" style="width: 80px;">
             <div class="item-details ms-3">
               <div class="name" th:text="${item.getProduct().getProductName()}"></div>
               <div class="quantity" th:text="${item.getQuantity()} + ' x ' + ${@formatter.formatPrice(item.getProduct().getPrice())}  "></div>
@@ -354,7 +354,7 @@
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
-            <img th:src="${item.getProduct().getImageUrl()} ?: 'https://via.placeholder.com/80'" alt="Product Image" style="width: 80px;">
+            <img th:src="@{'/images/' + ${item.getProduct().imageUrl}}" alt="Product Image" style="width: 80px;">
             <div class="item-details ms-3">
               <div class="name" th:text="${item.getProduct().getProductName()}"></div>
               <div class="quantity" th:text="${item.getQuantity()} + ' x ' + ${@formatter.formatPrice(item.getProduct().getPrice())}  "></div>
@@ -393,7 +393,7 @@
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
-            <img th:src="${item.getProduct().getImageUrl()} ?: 'https://via.placeholder.com/80'" alt="Product Image" style="width: 80px;">
+            <img th:src="@{'/images/' + ${item.getProduct().imageUrl}}" alt="Product Image" style="width: 80px;">
             <div class="item-details ms-3">
               <div class="name" th:text="${item.getProduct().getProductName()}"></div>
               <div class="quantity" th:text="${item.getQuantity()} + ' x ' + ${@formatter.formatPrice(item.getProduct().getPrice())}  "></div>
@@ -432,7 +432,7 @@
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
-            <img th:src="${item.getProduct().getImageUrl()} ?: 'https://via.placeholder.com/80'" alt="Product Image" style="width: 80px;">
+            <img th:src="@{'/images/' + ${item.getProduct().imageUrl}}" alt="Product Image" style="width: 80px;">
             <div class="item-details ms-3">
               <div class="name" th:text="${item.getProduct().getProductName()}"></div>
               <div class="quantity" th:text="${item.getQuantity()} + ' x ' + ${@formatter.formatPrice(item.getProduct().getPrice())}  "></div>
@@ -469,7 +469,7 @@
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
-            <img th:src="${item.getProduct().getImageUrl()} ?: 'https://via.placeholder.com/80'" alt="Product Image" style="width: 80px;">
+            <img th:src="@{'/images/' + ${item.getProduct().imageUrl}}" alt="Product Image" style="width: 80px;">
             <div class="item-details ms-3">
               <div class="name" th:text="${item.getProduct().getProductName()}"></div>
               <div class="quantity" th:text="${item.getQuantity()} + ' x ' + ${@formatter.formatPrice(item.getProduct().getPrice())}  "></div>

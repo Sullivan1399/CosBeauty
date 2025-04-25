@@ -73,7 +73,7 @@
   </div>
 
   <form th:action="@{/admin/accounts/create-employee}" th:object="${employeeRegisterDTO}" method="post">
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
 
     <div class="row">
       <div class="col-md-6 mb-3">

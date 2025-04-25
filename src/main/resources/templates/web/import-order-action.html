@@ -110,7 +110,7 @@
                 <form th:action="@{/admin/import-orders/action}" method="post">
                     <input type="hidden" name="importID" th:value="${importOrder.importID}"/>
                     <input type="hidden" name="action" value="approve"/>
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
                     <button type="submit" class="btn btn-custom btn-approve">Duyệt</button>
                 </form>
                 <!-- Nút Hủy: Mở modal -->
@@ -136,7 +136,7 @@
                             </div>
                             <input type="hidden" name="importID" th:value="${importOrder.importID}"/>
                             <input type="hidden" name="action" value="cancel"/>
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>

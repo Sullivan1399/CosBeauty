@@ -23,9 +23,8 @@ public class ProductService {
     	return productRepository.findAll(pageable);
     }
     
-    public Page<Product> getAllproduct(int page, int size) {
-    	Pageable pageable = PageRequest.of(page-1, size);
-    	return productRepository.findAll(pageable);
+    public List<Product> getAllProduct() {
+    	return productRepository.findAll();
     }
     
     public Product getProductById(Long productID) {
@@ -56,10 +55,6 @@ public class ProductService {
     
     public List<Product> searchProductsContainingIgnoreCase(String keyword) {
         return productRepository.findByProductNameContainingIgnoreCase(keyword);
-    }
-
-    public Product getProductById(Long productID) {
-        return productRepository.findById(productID).orElse(null);
     }
 
     public List<Product> getRelatedProducts(Integer categoryId) {

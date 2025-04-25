@@ -725,7 +725,9 @@
                             </div>
                         </div>
                     </div>
-                    <a href="#" class="primary-btn">ADD TO CARD</a>
+                    <form th:action="@{/api/cart/add/{id}(id=${product.productID})}" method="post" style="display:inline;">
+					    <button type="submit" class="primary-btn">ADD TO CART</button>
+					</form>
                     
                     <ul style="margin-top: 15px;">
                         <li><b>Số lượng</b> <span th:text="${product.quantity}"></span></li>

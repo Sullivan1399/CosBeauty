@@ -44,11 +44,11 @@ public class HomeController {
           List<Category> categories = categoryService.getAllCategory();
           Page<Product> products = productService.getProductHome(page, 10); 
 
-        List<Product> products = productService.getAllProduct();
+//        List<Product> products = productService.getAllProduct();
         Long id = customerService.getCurrentCustomerID();
         List<CartItem> cartItems = cartService.getCartItemsByCustomerId(id);
         BigDecimal totalAmount = cartItems.stream()
-                .map(item -> item.getProduct().getPrice().multiply(new BigDecimal(item.getQuantity())))
+                .map(item -> BigDecimal.valueOf(item.getProduct().getPrice()).multiply(new BigDecimal(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add); // Tính tổng giá trị
         model.addAttribute("categories", categories);
         model.addAttribute("cartItems", cartItems);

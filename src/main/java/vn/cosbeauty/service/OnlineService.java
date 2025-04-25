@@ -7,7 +7,6 @@ import vn.cosbeauty.repository.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.LocalDateTime;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -139,7 +138,7 @@ public class OnlineService {
              ) {
             Long productID = c.getProductID();
             int quantities = c.getQuantity();
-            Product product = productRepository.findProductsByProductID(productID);
+            Product product = productRepository.findProductByProductID(productID);
             // tru quantities trong product
             int currentStock = product.getQuantity();
             if (currentStock < quantities) {
@@ -149,7 +148,7 @@ public class OnlineService {
             productRepository.save(product);
 
 
-            BigDecimal cost = product.getPrice().multiply(BigDecimal.valueOf(quantities));
+            BigDecimal cost = BigDecimal.valueOf(product.getPrice()).multiply(BigDecimal.valueOf(quantities));
             OnOrderDetail orderItem = new OnOrderDetail(product,cost, quantities);
             orderItem.setOnlineOrder(order);
             onOrderDetail.save(orderItem);

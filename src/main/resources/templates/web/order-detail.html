@@ -52,7 +52,8 @@
 
         </h3> <p> Phí vận chuyển: <span class="zero" th:text="${@formatter.formatPrice(order.getShippingFee())} "></span> | Tổng tiền (<span th:text="${orderDetails.size()}"></span> sản phẩm): <span class="total" th:text="${@formatter.formatPrice(order.cost)} "></span></p>
         <div th:each="detail : ${orderDetails}" class="product" >
-            <img th:src="${'/' + detail.getProduct().getImageUrl()}" alt="Sản phẩm">
+        	
+            <img th:src="@{'/images/' + ${detail.getProduct().getImageUrl()}}" alt="Sản phẩm">
             <div class="product-details">
                 <p th:text="${detail.getProduct().getProductName()}"></p>
             </div>
@@ -76,7 +77,7 @@
             <h3>Đánh Giá Sản Phẩm</h3>
             <form th:action="@{/review}" method="post">
                 <input type="hidden" name="orderId" th:value="${order.getOnOrderID()}"/>
-                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                <!-- <input type="hidden" name="_csrf" th:value="${_csrf.token}"/> -->
                 <div th:each="detail : ${orderDetails}" class="mb-3">
                     <h6 th:text="${detail.getProduct().getProductName()}"></h6>
                     <input type="hidden" name="productIds" th:value="${detail.getProduct().getProductID()}"/>

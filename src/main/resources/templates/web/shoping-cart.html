@@ -229,7 +229,7 @@
     <!-- Hero Section End -->
 
     <!-- Breadcrumb Section Begin -->
-    <section class="breadcrumb-section set-bg" th:attr="data-setbg=@{/img/hero/banner2.png}">
+    <section class="breadcrumb-section set-bg" th:attr="data-setbg=@{/img/hero/banner.png}">
       <div class="container">
         <div class="row">
           <div class="col-lg-12 text-center">
@@ -268,8 +268,8 @@
                 </tr>
                   <tr th:each="item : ${cartItems}"  >
                     <td class="shoping__cart__item">
-                      <img th:src="${'/' + item.getProduct().getImageUrl()}" style="height: 100px; width: auto" alt="" />
-                      <h5 th:text="${item.getProduct().getProductName()}">> </h5>
+                      <img th:src="@{'/images/' + ${item.getProduct().imageUrl}}" style="height: 120px; width: auto" alt="" />
+                      <h5 th:text="${item.getProduct().getProductName()}"> </h5>
                     </td>
                     <td class="shoping__cart__price" th:text="${@formatter.formatPrice(item.getProduct().getPrice())}"
                         th:attr="data-price=${item.getProduct().getPrice()}"></td>
@@ -305,7 +305,7 @@
           <div class="col-lg-12">
             <div class="shoping__cart__btns">
               <form id="update-cart-form" th:action="@{/api/cart/update}" method="post">
-                <input type="hidden" name="redirect" value="home" />
+                <input type="hidden" name="redirect" value="" />
                 <button type="submit" class="primary-btn cart-btn">Tiếp tục mua sắm</button>
               </form>
             </div>

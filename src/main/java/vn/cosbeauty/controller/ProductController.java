@@ -40,7 +40,7 @@ public class ProductController {
     public String manageProducts(Model model, 
     		@RequestParam(value = "page", required = false, defaultValue = "1") int page,
     		HttpServletRequest request) {
-    	Page<Product> products = productService.getAllproduct(page, 10);
+    	Page<Product> products = productService.getProductHome(page, 10);
     	List<Product> productOfCurrentPage = products.getContent();
     	model.addAttribute("products", productOfCurrentPage);
     	model.addAttribute("listCategory", categoryService.getAllCategory());

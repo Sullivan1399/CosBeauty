@@ -20,7 +20,7 @@ public class CommentService {
 
     public void saveReview(Long customerId, Long productId, String commentText, int rating) {
         Customer customer = customerRepository.findByCustomerID(customerId);
-        Product product = productRepository.findProductsByProductID(productId);
+        Product product = productRepository.findProductByProductID(productId);
 
         // Optional: Check if the customer already reviewed this product
         if (commentRepository.existsByCustomerAndProduct(customer, product)) {

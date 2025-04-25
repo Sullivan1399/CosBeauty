@@ -101,7 +101,7 @@
                 <tr th:each="detail : ${orderDetails}">
                     <td>
 <!--                        <img th:src="${detail.product.image} ?: '/images/placeholder.jpg'" class="product-image" th:alt="'Ảnh ' + ${detail.product.productName}" onerror="this.src='/images/placeholder.jpg'">-->
-                        <img th:src="${'/' + detail.getProduct().getImageUrl()}" alt="Ảnh" class="product-image">
+                        <img th:src="@{'/images/' + ${detail.getProduct().getImageUrl()}}" alt="Ảnh" class="product-image">
                     </td>
                     <td th:text="${detail.product.productName}">Tên sản phẩm</td>
                     <td th:text="${detail.quantity}">Số lượng</td>

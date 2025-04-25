@@ -9,4 +9,5 @@ import vn.cosbeauty.entity.Supplier;
 
 public interface  SupplierRepository extends JpaRepository<Supplier, Integer> {
     Optional<Supplier> findBySupNameIgnoreCase(String supName);
+    Supplier findById(int id);
 }

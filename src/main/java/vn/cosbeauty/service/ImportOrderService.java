@@ -37,7 +37,7 @@ public class ImportOrderService {
      * Tạo đơn nhập hàng mới, lưu vào cả bảng importOrder và importDetail
      */
     public void createImportOrder(
-            Long supplierId,
+            int supplierId,
             double cost,
             List<Long> productIds,
             List<Integer> quantities,
@@ -53,8 +53,7 @@ public class ImportOrderService {
             throw new RuntimeException("Không tìm thấy nhân viên với email = " + account.getUsername());
         }
 
-        Supplier supplier = supplierRepository.findById(supplierId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhà cung cấp"));
+        Supplier supplier = supplierRepository.findById(supplierId);
 
         ImportOrder order = new ImportOrder();
         order.setEmployee(employee);
