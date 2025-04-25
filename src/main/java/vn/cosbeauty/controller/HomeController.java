@@ -28,7 +28,7 @@ public class HomeController {
     @Autowired
     private CartService cartService;
 
-    @GetMapping({"/home","/"})
+    @GetMapping({"/"})
     public String getAll(Model model, @RequestParam(value = "logout", required = false) String logout) {
     	if (logout != null) {
             model.addAttribute("message", "Bạn đã đăng xuất thành công!");
@@ -75,4 +75,5 @@ public class HomeController {
     public String shopDetails() {
         return "web/shop-details";
     }
+
 }

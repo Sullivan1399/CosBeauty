@@ -12,6 +12,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import org.springframework.security.core.GrantedAuthority;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -35,10 +43,24 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/", true)
-                .failureUrl("/login?error=true")
-                .permitAll()
+					.loginPage("/login")
+					.successHandler((HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
+						// Ưu tiên xử lý ADMIN
+						for (GrantedAuthority authority : authentication.getAuthorities()) {
+							String role = authority.getAuthority();
+							if (role.equals("ROLE_ADMIN")) {
+								response.sendRedirect("/admin/accounts");
+								return;
+							} else if (role.equals("ROLE_EMPLOYEE")) {
+								response.sendRedirect("/employee/import-orders");
+								return;
+							}
+						}
+
+						response.sendRedirect("/");
+					})
+					.failureUrl("/login?error=true")
+					.permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
