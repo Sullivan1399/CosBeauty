@@ -5,7 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import vn.cosbeauty.DTO.ProductDTO;
+
+import vn.cosbeauty.DTO.OffDetailDTO;
 import vn.cosbeauty.entity.Product;
 import vn.cosbeauty.repository.ProductRepository;
 
@@ -90,5 +91,12 @@ public class ProductService {
     
     public List<String> getProductSupplier(Long productID) {
     	return productRepository.getProductSupplier(productID);
+    }
+    
+    
+    public List<OffDetailDTO> searchByName(String keyword) {
+        return productRepository.findByProductNameContainingIgnoreCase(keyword)
+                   .stream().map(p -> new OffDetailDTO(p.getProductID(), p.getProductName(), p.getImageUrl(), p.getPrice(), p.getQuantity(), p.getDiscount()))
+                   .collect(Collectors.toList());
     }
 }

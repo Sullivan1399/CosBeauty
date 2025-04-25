@@ -18,8 +18,9 @@
         <!-- Thanh tìm kiếm -->
         <div class="search-bar" style="position: relative;">
           <span class="me-2">🔍</span>
-          <input type="text" id="searchInput" placeholder="Tìm hàng hóa (F3)" autocomplete="off">
-          <div id="searchResults" style="position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; width: 100%; z-index: 10;"></div>
+          <input type="text" id="product-search" placeholder="Tìm sản phẩm...">
+          <ul id="suggestions"></ul>
+          <!-- <div id="searchResults" style="position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; width: 100%; z-index: 10;"></div> -->
         </div>
         <script src="js/search.js"></script>
 
@@ -36,16 +37,11 @@
         </div>
 
         <!-- Sản phẩm trong giỏ hàng -->
-        <div class="order-item">
-          <div>1</div>
-          <i class="fas fa-trash-alt icon-trash"></i>
-          <div>SP000008</div>
-          <div style="flex: 1;">Miếng dán trắng răng Crest 3D White Professional Effects (20 Ngày)</div>
-          <div class="qty">2</div>
-          <div>1,200,000</div>
-          <div class="total">2,400,000</div>
-          <div><i class="fas fa-plus"></i></div>
-        </div>
+        <table>
+		  <thead><tr><th>Hình ảnh</th><th>Tên</th><th>Số lượng</th><th>Giá</th><th>Hành động</th></tr></thead>
+		  <tbody id="offOrder-items"></tbody>
+		</table>
+		<button id="create-order">Tạo hóa đơn</button>
 
         <!-- Ghi chú -->
         <div class="mt-4">
@@ -136,8 +132,6 @@
                 document.getElementById("searchResults").innerHTML = html;
               });
     });
-  </script>
-  <script>
     function updateDateTime() {
       const now = new Date();
       const dateStr = now.toLocaleDateString('vi-VN');
@@ -151,6 +145,63 @@
   
     updateDateTime();
     setInterval(updateDateTime, 60000); // cập nhật mỗi phút
+    
+
+    // 1) Hàm helper gọi API
+	 async function api(url, method = 'GET', data) {
+	   const opts = { method, headers: {'Content-Type':'application/json'} };
+	   if (data) opts.body = JSON.stringify(data);
+	   const res = await fetch(url, opts);
+	   return res.json();
+	 }
+	
+	 // 2) Autocomplete: lắng nghe input
+	 document.getElementById('product-search').addEventListener('input', async function() {
+	   const q = this.value;
+	   if (!q) return document.getElementById('suggestions').innerHTML = '';
+	   const products = await api(`/api/OffOrder/search?q=${encodeURIComponent(q)}`);
+	   const list = products.map(p => `<li data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" > ${p.name} - ${p.price}</li>`).join('');
+	   document.getElementById('suggestions').innerHTML = list;
+	 });
+	
+	 // 3) Chọn sản phẩm: delegate event
+	 document.getElementById('suggestions').addEventListener('click', async function(e) {
+	   if (e.target.tagName==='LI') {
+	     const item = { id: e.target.dataset.id, imageUrl: e.target.dataset.imageUrl, name: e.target.dataset.name, quantity: e.target.dataset.quantity, price: e.target.dataset.price };
+	     const OffOrder = await api('/api/OffOrder/addItems', 'POST', item);
+	     renderOffOrder(OffOrder);
+	     this.innerHTML = '';
+	     document.getElementById('product-search').value = '';
+	   }
+	 });
+	
+	 // 4) Xóa sản phẩm
+	 async function renderOffOrder(items) {
+	   const html = items.map(p =>
+	     `<tr>
+	       <td>${p.name}</td><td>${p.price}</td>
+	       <td><button data-id="${p.id}" class="remove">Xóa</button></td>
+	     </tr>`).join('');
+	   document.getElementById('offOrder-items').innerHTML = html;
+	   document.querySelectorAll('.remove').forEach(btn=>{
+	     btn.addEventListener('click', async ()=> {
+	       const id = btn.dataset.id;
+	       const OffOrder = await api(`/api/OffOrder/items/${id}`, 'DELETE');
+	       renderOffOrder(OffOrder);
+	     });
+	   });
+	 }
+	
+	 // 5) Load giỏ hàng khởi đầu
+	 document.addEventListener('DOMContentLoaded', async ()=>{
+	   renderOffOrder(await api('/api/OffOrder/items'));
+	 });
+	
+	 // 6) Tạo hóa đơn
+	 document.getElementById('create-order').addEventListener('click', ()=>{
+	   window.location = '/'; // hoặc gọi POST hoàn tất đơn
+	 });
+
   </script>
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

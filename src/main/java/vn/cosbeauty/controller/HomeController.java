@@ -61,14 +61,11 @@ public class HomeController {
         return "web/shop-grid";
     }
     
-    @GetMapping("/instore")
+    @GetMapping("/employee/OfflineOrder")
     public String instore() {
-        return "web/instore";
+        return "employee/offline-order";
     }
-
-
-
-
+    
     @GetMapping({"/shoping-cart"})
     public String cart() {
         return "web/shoping-cart";
