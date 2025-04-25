@@ -58,6 +58,10 @@ public class ProductService {
         return productRepository.findByProductNameContainingIgnoreCase(keyword);
     }
 
+    public Product getProductById(Long productID) {
+        return productRepository.findById(productID).orElse(null);
+    }
+
     public List<Product> getRelatedProducts(Integer categoryId) {
         return productRepository.findTop4ByCategoryId(categoryId);
     }

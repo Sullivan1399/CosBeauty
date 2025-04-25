@@ -26,15 +26,12 @@ public class Supplier {
     @OneToMany(mappedBy = "supplier")
     @JsonBackReference
     private List<Product> products=new ArrayList<>();
+
     @OneToMany(mappedBy = "supplier")
+    @JsonBackReference
     private List<ImportOrder> importList = new ArrayList<>();
     
-    public Supplier(String supName, String address, String phone, String email){
-    	this.supName = supName;
-        this.address=address;
-        this.phone=phone;
-        this.email=email;
-    }
+
     public Supplier(){
 
     }

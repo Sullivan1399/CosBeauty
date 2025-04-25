@@ -29,6 +29,9 @@ public class OnlineOrder
     private LocalDateTime deliveryDate;
     private LocalDateTime receiveDate;
     private String cancelReason;
+    private BigDecimal shippingFee;
+    private BigDecimal subtotal;
+
 
     @ManyToOne
     @JoinColumn(name = "customerID")
@@ -39,11 +42,10 @@ public class OnlineOrder
     @OneToMany(mappedBy = "onlineOrder", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OnOrderDetail> onOrderDetails = new ArrayList<>();
     
-    public OnlineOrder(Customer customer, Employee employee, String name, String address, String phone,
-                       BigDecimal cost, int deliveryStatus, int confirm, int paymentType)
+    public OnlineOrder(Customer customer, String name, String address, String phone,
+                       BigDecimal cost, int deliveryStatus, int confirm, int paymentType,BigDecimal shippingFee, BigDecimal subtotal)
     {
         this.customer = customer;
-        this.employee = employee;
         this.name = name;
         this.address = address;
         this.phone = phone;
@@ -51,6 +53,9 @@ public class OnlineOrder
         this.deliveryStatus = deliveryStatus;
         this.confirm = confirm;
         this.paymentType = paymentType;
+        this.shippingFee = shippingFee;
+        this.subtotal = subtotal;
+
         this.orderDate = LocalDateTime.now();
     }
     public OnlineOrder()

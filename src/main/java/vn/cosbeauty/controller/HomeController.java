@@ -8,12 +8,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpServletRequest;
+import vn.cosbeauty.entity.CartItem;
 import vn.cosbeauty.entity.Category;
 import vn.cosbeauty.entity.Product;
+import vn.cosbeauty.service.CartService;
 import vn.cosbeauty.service.CategoryService;
 import vn.cosbeauty.service.CustomerService;
 import vn.cosbeauty.service.ProductService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -22,25 +25,35 @@ public class HomeController {
     private CategoryService categoryService;
     @Autowired
     private ProductService productService;
+    @Autowired
+    private CustomerService customerService;
+    @Autowired
+    private CartService cartService;   
 
     @GetMapping("/")
     public String getAll(Model model, 
-    		@RequestParam(value = "logout", required = false) String logout,
-    		@RequestParam(value = "keyword",defaultValue = "") String keyword,
+            @RequestParam(value = "logout", required = false) String logout,
+            @RequestParam(value = "keyword",defaultValue = "") String keyword,
             @RequestParam(value="page", required=false, defaultValue="1") int page,
             @RequestParam(value="listCategory",required = false) List<String> listCate,
-            @RequestParam(value="listSupplier",required = false) List<String> listSup,
-            @RequestParam(value="url",required = false,defaultValue = "home") String url,
-            HttpServletRequest request) {
-    	if (logout != null) {
-            model.addAttribute("message", "Bạn đã đăng xuất thành công!");
-            System.out.println("Đang Logout neh ba!");
-        }
-    	List<Category> categories = categoryService.getAllCategory();
-    	Page<Product> products = productService.getProductHome(page, 10);
-    	List<Product> productOfCurrentPage = products.getContent();
+            @RequestParam(value="listSupplier",required = false) List<String> listSup) {
+        if (logout != null) {
+               model.addAttribute("message", "Bạn đã đăng xuất thành công!");
+               System.out.println("Đang Logout neh ba!");
+           }
+          List<Category> categories = categoryService.getAllCategory();
+          Page<Product> products = productService.getProductHome(page, 10); 
+
+        List<Product> products = productService.getAllProduct();
+        Long id = customerService.getCurrentCustomerID();
+        List<CartItem> cartItems = cartService.getCartItemsByCustomerId(id);
+        BigDecimal totalAmount = cartItems.stream()
+                .map(item -> item.getProduct().getPrice().multiply(new BigDecimal(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add); // Tính tổng giá trị
         model.addAttribute("categories", categories);
-        model.addAttribute("products", productOfCurrentPage);
+        model.addAttribute("cartItems", cartItems);
+        model.addAttribute("totalAmount", totalAmount);
+        model.addAttribute("products", products);
         return "web/index";
     }
     
@@ -67,8 +80,6 @@ public class HomeController {
     }
 
 
-
-
     @GetMapping({"/shoping-cart"})
     public String cart() {
         return "web/shoping-cart";
@@ -78,4 +89,5 @@ public class HomeController {
     public String shopDetails() {
         return "web/shop-details";
     }
+
 }

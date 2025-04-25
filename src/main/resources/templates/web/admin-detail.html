@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Đơn Hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .container { max-width: 900px; margin-top: 40px; }
+        .card { border-radius: 20px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); border: 1px solid #e9ecef; background-color: #fff; }
+        .card-header { background: linear-gradient(90deg, #317546, #4a8c64); border-radius: 20px 20px 0 0; padding: 20px; color: #fff; }
+        .card-body { padding: 30px; }
+        .status-select { width: auto; display: inline-block; border-color: #317546; color: #317546; border-radius: 8px; }
+        .status-select:focus { border-color: #4a8c64; box-shadow: 0 0 0 0.2rem rgba(49, 117, 70, 0.25); }
+        .text-success { color: #ff6200 !important; }
+        .btn-back { background: linear-gradient(90deg, #317546, #4a8c64); color: white; border: none; border-radius: 10px; padding: 10px 20px; transition: background 0.3s ease; }
+        .btn-back:hover { background: linear-gradient(90deg, #4a8c64, #2a5c38); }
+        .action-buttons .btn { border-radius: 10px; padding: 12px 24px; margin-right: 12px; transition: background 0.3s ease; }
+        .btn-success { background: linear-gradient(90deg, #317546, #4a8c64); color: white; }
+        .btn-success:hover { background: linear-gradient(90deg, #4a8c64, #2a5c38); }
+        .btn-warning { background: linear-gradient(90deg, #6ba881, #4a8c64); color: white; }
+        .btn-warning:hover { background: linear-gradient(90deg, #4a8c64, #317546); }
+        .btn-danger { background: linear-gradient(90deg, #dc3545, #b21f2d); color: white; }
+        .btn-danger:hover { background: linear-gradient(90deg, #b21f2d, #a01c28); }
+        .table { border: 1px solid #e9ecef; border-radius: 10px; overflow: hidden; }
+        .table thead { background-color: #fff8f0; color: #317546; }
+        .table tbody tr:nth-child(odd) { background-color: #f9f9f9; }
+        .table tbody tr:hover { background-color: #f1f1f1; }
+        .table th, .table td { vertical-align: middle; }
+        .product-image { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #e9ecef; }
+        .delivery-date { color: #317546; font-weight: 500; }
+        .cancel-date { color: #dc3545; font-weight: 500; }
+        .failure-date { color: #dc3545; font-weight: 500; }
+        h5 { color: #ff6200; font-weight: 600; }
+        .alert-danger { background-color: #ffe6e6; border-color: #dc3545; color: #dc3545; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a th:href="@{/admin/manage-admin}" class="btn btn-back mb-4">
+        <i class="fas fa-arrow-left"></i> Quay Lại
+    </a>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="mb-0">Chi Tiết Đơn Hàng</h3>
+        </div>
+        <div class="card-body">
+            <h5 class="mb-4">Thông Tin Đơn Hàng</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Mã ĐH:</strong> <span th:text="${order.onOrderID}"></span></p>
+                    <p><strong>Khách Hàng:</strong> <span th:text="${order.name}"></span></p>
+                    <p><strong>Địa Chỉ:</strong> <span th:text="${order.address}"></span></p>
+                    <p><strong>SĐT:</strong> <span th:text="${order.phone}"></span></p>
+                    <p><strong>Phương Thức Thanh Toán:</strong> <span th:text="${order.paymentType == 1 ? 'Thanh toán khi nhận hàng' : 'Chuyển khoản trước'}"></span></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Tổng Tiền Hàng:</strong> <span th:text="${@formatter.formatPrice(order.cost - order.shippingFee)}"></span></p>
+                    <p><strong>Phí Vận Chuyển:</strong> <span th:text="${@formatter.formatPrice(order.shippingFee)}"></span></p>
+                    <p><strong>Thành tiền:</strong> <span th:text="${@formatter.formatPrice(order.cost)}"></span></p>
+                    <p><strong>Ngày Đặt:</strong> <span th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy')}"></span></p>
+                    <p><strong>Lý Do Hủy:</strong> <span th:text="${order.cancelReason} ?: 'N/A'"></span></p>
+                    <!-- Hiển thị Ngày Giao Hàng Thành Công, Ngày Hủy Đơn, hoặc Ngày Giao Hàng Thất Bại -->
+                    <p th:if="${order.deliveryStatus == 4 and order.deliveryDate != null}" class="delivery-date">
+                        <strong>Ngày Giao Hàng Thành Công:</strong>
+                        <span th:text="${#temporals.format(order.deliveryDate, 'dd/MM/yyyy HH:mm:ss')}"></span>
+                    </p>
+                    <p th:if="${order.confirm == 3 and order.deliveryDate != null}" class="cancel-date">
+                        <strong>Ngày Hủy Đơn:</strong>
+                        <span th:text="${#temporals.format(order.deliveryDate, 'dd/MM/yyyy HH:mm:ss')}"></span>
+                    </p>
+                    <p th:if="${order.deliveryStatus == 5 and order.deliveryDate != null}" class="failure-date">
+                        <strong>Ngày Giao Hàng Thất Bại:</strong>
+                        <span th:text="${#temporals.format(order.deliveryDate, 'dd/MM/yyyy HH:mm:ss')}"></span>
+                    </p>
+                </div>
+            </div>
+            <p class="mt-3"><strong>Cập Nhật Trạng Thái Giao:</strong>
+                <select id="newDeliveryStatus" name="deliveryStatus" class="form-select status-select">
+                    <option th:value="1" th:selected="${order.deliveryStatus == 1}">Chưa xử lý</option>
+                    <option th:value="2" th:selected="${order.deliveryStatus == 2}">Đang xử lý</option>
+                    <option th:value="3" th:selected="${order.deliveryStatus == 3}">Đang vận chuyển</option>
+                    <option th:value="4" th:selected="${order.deliveryStatus == 4}">Thành công</option>
+                    <option th:value="5" th:selected="${order.deliveryStatus == 5}">Thất bại</option>
+                </select>
+            </p>
+
+            <h5 class="mt-5 mb-4">Chi Tiết Sản Phẩm (<span th:text="${order.getOnOrderDetails().size()}"></span> sản phẩm)</h5>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th style="width: 80px;">Ảnh</th>
+                    <th>Tên Sản Phẩm</th>
+                    <th style="width: 100px;">Số Lượng</th>
+                    <th style="width: 120px;">Giá</th>
+                    <th style="width: 120px;">Tổng</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="detail : ${orderDetails}">
+                    <td>
+<!--                        <img th:src="${detail.product.image} ?: '/images/placeholder.jpg'" class="product-image" th:alt="'Ảnh ' + ${detail.product.productName}" onerror="this.src='/images/placeholder.jpg'">-->
+                        <img th:src="${'/' + detail.getProduct().getImageUrl()}" alt="Ảnh" class="product-image">
+                    </td>
+                    <td th:text="${detail.product.productName}">Tên sản phẩm</td>
+                    <td th:text="${detail.quantity}">Số lượng</td>
+                    <td th:text="${@formatter.formatPrice(detail.product.price)}">Giá</td>
+                    <td th:text="${@formatter.formatPrice(detail.product.price * detail.quantity)}">Tổng</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="action-buttons mt-4" th:if="${order.confirm == 1}">
+                <form th:action="@{/admin/confirm/{id}(id=${order.onOrderID})}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-success">Xác Nhận</button>
+                </form>
+
+                <button type="button" class="btn btn-danger" onclick="showCancelReason()">Hủy Đơn</button>
+
+                <!-- Form nhập lý do hủy -->
+                <form th:action="@{/admin/cancel/{id}(id=${order.onOrderID})}" method="post" id="cancelForm" style="display:none; margin-top:15px;">
+                    <input type="text" name="cancelReason" placeholder="Nhập lý do hủy đơn" class="form-control" required>
+                    <button type="submit" class="btn btn-danger mt-2">Xác Nhận Hủy</button>
+                </form>
+            </div>
+
+            <!-- Hiển thị Nút Cập Nhật Giao Hàng chỉ khi confirm = 2 và deliveryStatus không phải 4 hoặc 5 -->
+            <div class="action-buttons mt-4" th:if="${order.confirm == 2 and order.deliveryStatus != 4 and order.deliveryStatus != 5}">
+                <form th:action="@{/admin/update-delivery/{id}(id=${order.onOrderID})}" method="post" style="display:inline;">
+                    <input type="hidden" name="deliveryStatus" id="deliveryStatusInput">
+                    <button type="submit" class="btn btn-warning" onclick="setDeliveryStatus()">Cập Nhật Giao Hàng</button>
+                </form>
+            </div>
+
+            <!-- Nếu confirm = 3 thì hiển thị lý do hủy -->
+            <div th:if="${order.confirm == 3}" class="mt-4">
+                <div class="alert alert-danger">
+                    <strong>Đơn hàng đã bị hủy.</strong><br>
+                    Lý do: <span th:text="${order.cancelReason}">Không rõ</span>
+                </div>
+            </div>
+
+            <script>
+                function showCancelReason() {
+                    document.getElementById("cancelForm").style.display = "block";
+                }
+                function setDeliveryStatus() {
+                    var selectedStatus = document.getElementById("newDeliveryStatus").value;
+                    document.getElementById("deliveryStatusInput").value = selectedStatus;
+                }
+            </script>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
