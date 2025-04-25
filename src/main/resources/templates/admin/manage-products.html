@@ -240,7 +240,7 @@
                 Admin Dashboard
             </div>
             <div class="sidebar-nav">
-                <a href="#" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
+                <a th:href="@{/admin/dashboard}" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
                 <!-- Chỉ giữ lại mục sản phẩm trong nav bar -->
                 <a href="#" data-section="products" class="active"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
             </div>
@@ -438,18 +438,6 @@
                 link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
             });
         }
-
-        // Sidebar navigation
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const sectionId = link.getAttribute('data-section');
-                showSection(sectionId);
-                if (window.innerWidth <= 992) {
-                    toggleSidebar();
-                }
-            });
-        });
 
         // Function to show toast
         function showToast(message, type = 'success') {

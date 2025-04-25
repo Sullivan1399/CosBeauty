@@ -167,7 +167,7 @@ public class ProductController {
     	return "admin/manage-products";
     }
     
-    @GetMapping("/product/{id}")
+    @GetMapping("/web/product/{id}")
     public String productDetail(@PathVariable Long id, Model model) {
         List<Category> categories = categoryService.getAllCategory();
         Product product = productService.getProductById(id);

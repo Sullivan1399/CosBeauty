@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.servlet.http.HttpServletRequest;
 import vn.cosbeauty.entity.CartItem;
 import vn.cosbeauty.entity.Category;
 import vn.cosbeauty.entity.Product;
@@ -27,7 +28,7 @@ public class HomeController {
     @Autowired
     private CustomerService customerService;
     @Autowired
-    private CartService cartService;
+    private CartService cartService;   
 
     @GetMapping("/")
     public String getAll(Model model, 
@@ -55,18 +56,24 @@ public class HomeController {
         model.addAttribute("products", products);
         return "web/index";
     }
-    @GetMapping("/shop-grid")
+    
+    @GetMapping("/web/shop-grid")
     public String shopGrid(Model model, 
-    		@RequestParam(value="page", required=false, defaultValue="1") int page) {
-        List<Category> categories = categoryService.getAllCategory();
-
-        Page<Product> products = productService.getProductHome(page, 10);
+    		@RequestParam(value="page", required=false, defaultValue="1") int page,
+    		HttpServletRequest request) {
+    	List<Category> categories = categoryService.getAllCategory();
+    	Page<Product> products = productService.getProductHome(page, 10);
+    	List<Product> productOfCurrentPage = products.getContent();
         Long customerId = 1L; // hoặc lấy từ session, user login
         model.addAttribute("customerId", customerId);
         model.addAttribute("categories", categories);
-        model.addAttribute("products", products);
+        model.addAttribute("products", productOfCurrentPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPage", products.getTotalPages());
+        model.addAttribute("requestURI", request.getRequestURI());
         return "web/shop-grid";
     }
+    
     @GetMapping("/instore")
     public String instore() {
         return "web/instore";
@@ -77,6 +84,7 @@ public class HomeController {
     public String cart() {
         return "web/shoping-cart";
     }
+    
     @GetMapping({"/shop-details"})
     public String shopDetails() {
         return "web/shop-details";
