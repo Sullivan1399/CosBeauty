@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,6 +24,7 @@ import vn.cosbeauty.entity.Account;
 import vn.cosbeauty.entity.Customer;
 import vn.cosbeauty.entity.Employee;
 import vn.cosbeauty.entity.ImportOrder;
+import vn.cosbeauty.repository.AccountRepository;
 import vn.cosbeauty.service.AccountService;
 import vn.cosbeauty.service.CustomerService;
 import vn.cosbeauty.service.EmployeeService;
@@ -27,7 +32,7 @@ import vn.cosbeauty.service.ImportOrderService;
 
 @Controller
 public class AccountController {
-	
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 	@Autowired
 	private AccountService accountService;
 	@Autowired
@@ -36,6 +41,8 @@ public class AccountController {
     private EmployeeService employeeService;
     @Autowired
     private ImportOrderService importOrderService;
+    @Autowired
+    private AccountRepository accountRepository;
 
 
     @GetMapping("/register")
@@ -261,5 +268,93 @@ public class AccountController {
             redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật trạng thái: " + e.getMessage());
         }
         return "redirect:/admin/accounts";
+    }
+
+    @GetMapping("/api/admin/change-password")
+    public String showChangePasswordForm() {
+        logger.debug("Handling GET /api/admin/change-password");
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        var authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        logger.debug("User {} has authorities: {}", username, authorities);
+        return "admin/change-password-3";
+    }
+
+    @PostMapping("/api/admin/change-password")
+    @ResponseBody
+    public ResponseEntity<?> sendChangePasswordEmail() {
+        logger.debug("Handling POST /api/admin/change-password");
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            logger.debug("Authenticated username: {}", username);
+            var authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+            logger.debug("User {} has authorities: {}", username, authorities);
+            if (username == null || username.equals("anonymousUser")) {
+                logger.warn("Unauthenticated access to /api/admin   /change-password");
+                return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+            }
+
+            Account account = accountRepository.findByUsername(username);
+            if (account == null) {
+                logger.warn("Account not found for username: {}", username);
+                return ResponseEntity.status(404).body(Map.of("message", "Account not found"));
+            }
+
+            String email = account.getUsername();
+            logger.info("Initiating password change for email: {}", email);
+            String resetToken = accountService.generateResetPasswordToken(account);
+            logger.debug("Generated reset token: {}", resetToken);
+            accountService.sendResetPasswordEmail(email, resetToken);
+            logger.info("Reset password email sent to: {}", email);
+
+            return ResponseEntity.ok(Map.of("message", "A confirmation email has been sent. Please check your email."));
+        } catch (Exception e) {
+            logger.error("Error sending reset password email: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("message", "Failed to send confirmation email: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/api/admin/reset-password")
+    public String showResetPasswordFormForAdmin(@RequestParam("token") String token, Model model) {
+        logger.debug("Handling GET /api/employee/reset-password with token: {}", token);
+        try {
+            if (accountService.isValidResetPasswordToken(token)) {
+                model.addAttribute("token", token);
+                return "admin/reset-password-3";
+            } else {
+                model.addAttribute("message", "Token không hợp lệ hoặc đã hết hạn.");
+                return "web/login";
+            }
+        } catch (RuntimeException e) {
+            logger.error("Error validating reset token: {}", e.getMessage(), e);
+            model.addAttribute("message", "Lỗi: " + e.getMessage());
+            return "web/login";
+        }
+    }
+
+    @PostMapping("/api/admin/reset-password")
+    public String processResetPasswordForAdmin(
+            @RequestParam("token") String token,
+            @RequestParam("password") String password,
+            @RequestParam("confirmPassword") String confirmPassword,
+            Model model) {
+        logger.debug("Handling POST /api/admin/reset-password with token: {}", token);
+        try {
+            if (!password.equals(confirmPassword)) {
+                logger.warn("Passwords do not match for token: {}", token);
+                model.addAttribute("message", "Mật khẩu và xác nhận mật khẩu không khớp.");
+                model.addAttribute("token", token);
+                return "admin/reset-password-3";
+            }
+
+            accountService.resetPassword(token, password);
+            logger.info("Password reset successfully for token: {}", token);
+            model.addAttribute("message", "Mật khẩu đã được đặt lại thành công! Bạn có thể đăng nhập.");
+            return "web/login";
+        } catch (RuntimeException e) {
+            logger.error("Error resetting password: {}", e.getMessage(), e);
+            model.addAttribute("message", "Lỗi khi đặt lại mật khẩu: " + e.getMessage());
+            model.addAttribute("token", token);
+            return "admin/reset-password-3";
+        }
     }
 }

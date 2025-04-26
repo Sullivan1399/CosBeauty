@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -46,29 +47,29 @@
             <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3">
                 <i class="fas fa-user text-green text-xl"></i>
             </div>
-            <span class="text-lg font-bold" th:text="${customer.name}">User Name</span>
+            <span class="text-lg font-bold" th:text="${employee.name}">User Name</span>
         </div>
         <nav>
             <ul class="space-y-3">
                 <li>
                     <a th:href="@{/}" class="flex items-center px-4 py-3 text-white hover:bg-green-600 hover:bg-opacity-20 rounded-lg transition duration-200">
-                        <i class="fas fa-home mr-3"></i> Về trang chủ
+                        <i class="fas fa-home mr-3"></i> Back to Home
                     </a>
                 </li>
                 <li>
-                    <a th:href="@{/api/customer/profile}" class="flex items-center px-4 py-3 text-white sidebar-active rounded-lg hover:bg-green-600 hover:bg-opacity-20 transition duration-200">
-                        <i class="fas fa-user mr-3"></i> Thông tin của tôi
+                    <a th:href="@{/api/employee/profile}" class="flex items-center px-4 py-3 text-white sidebar-active rounded-lg hover:bg-green-600 hover:bg-opacity-20 transition duration-200">
+                        <i class="fas fa-user mr-3"></i> My Profile
                     </a>
                 </li>
                 <li>
                     <button onclick="changePassword()" class="flex items-center w-full text-left px-4 py-3 text-white hover:bg-green-600 hover:bg-opacity-20 rounded-lg transition duration-200">
-                        <i class="fas fa-lock mr-3"></i> Đổi mật khẩu
+                        <i class="fas fa-lock mr-3"></i> Change Password
                     </button>
                 </li>
                 <li>
                     <form th:action="@{/logout}" method="post">
                         <button type="submit" class="flex items-center w-full text-left px-4 py-3 text-white hover:bg-green-600 hover:bg-opacity-20 rounded-lg transition duration-200">
-                            <i class="fas fa-sign-out-alt mr-3"></i> Đăng xuất
+                            <i class="fas fa-sign-out-alt mr-3"></i> Logout
                         </button>
                     </form>
                 </li>
@@ -80,7 +81,7 @@
     <main class="flex-1 p-8 ml-64 bg-gray-100">
         <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 content-card">
             <div class="flex items-center mb-8">
-                <h2 class="text-3xl font-bold text-gray-800 flex-1">Thông tin của tôi</h2>
+                <h2 class="text-3xl font-bold text-gray-800 flex-1">My Profile</h2>
                 <div class="w-10 h-10 bg-green-light rounded-full flex items-center justify-center">
                     <i class="fas fa-id-card text-green"></i>
                 </div>
@@ -92,22 +93,42 @@
             <div id="profile-view" class="space-y-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-green-light p-4 rounded-lg shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Họ và tên</p>
-                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${customer.name}">User Name</p>
+                        <p class="text-sm font-medium text-gray-600">Full Name</p>
+                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${employee.name}">User Name</p>
                     </div>
                     <div class="bg-green-light p-4 rounded-lg shadow-sm">
                         <p class="text-sm font-medium text-gray-600">Email</p>
-                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${customer.email}">user@example.com</p>
+                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${employee.email}">user@example.com</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-green-light p-4 rounded-lg shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Địa chỉ</p>
-                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${customer.address}">Address</p>
+                        <p class="text-sm font-medium text-gray-600">Address</p>
+                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${employee.address}">Address</p>
                     </div>
                     <div class="bg-green-light p-4 rounded-lg shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Số điện thoại</p>
-                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${customer.phone}">Phone</p>
+                        <p class="text-sm font-medium text-gray-600">Phone Number</p>
+                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${employee.phone}">Phone</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-green-light p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Sex</p>
+                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${employee.sex} ? 'Male' : 'Female'">Sex</p>
+                    </div>
+                    <div class="bg-green-light p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Status</p>
+                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${employee.status} ? 'Active' : 'Inactive'">Status</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-green-light p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Birth Date</p>
+                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${#temporals.format(employee.birthDate, 'yyyy-MM-dd')}">Birth Date</p>
+                    </div>
+                    <div class="bg-green-light p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Recruit Date</p>
+                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${#temporals.format(employee.recruitDate, 'yyyy-MM-dd')}">Recruit Date</p>
                     </div>
                 </div>
                 <div class="flex justify-end">
@@ -118,24 +139,43 @@
             <!-- Edit Form -->
             <form id="edit-form" class="hidden space-y-6 transition-opacity duration-300" onsubmit="updateProfile(event)">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Họ và tên</label>
-                    <input type="text" name="name" th:value="${customer.name}" class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green focus:ring focus:ring-green-200 focus:ring-opacity-50 py-3 px-4 transition duration-200" required/>
+                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input type="text" name="name" th:value="${employee.name}" class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green focus:ring focus:ring-green-200 focus:ring-opacity-50 py-3 px-4 transition duration-200" required/>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" name="email" th:value="${customer.email}" disabled class="mt-2 block w-full rounded-lg border-gray-300 bg-gray-100 cursor-not-allowed py-3 px-4"/>
+                    <input type="email" name="email" th:value="${employee.email}" disabled class="mt-2 block w-full rounded-lg border-gray-300 bg-gray-100 cursor-not-allowed py-3 px-4"/>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Địa chỉ</label>
-                    <input type="text" name="address" th:value="${customer.address}" class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green focus:ring focus:ring-green-200 focus:ring-opacity-50 py-3 px-4 transition duration-200" required/>
+                    <label class="block text-sm font-medium text-gray-700">Address</label>
+                    <input type="text" name="address" th:value="${employee.address}" class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green focus:ring focus:ring-green-200 focus:ring-opacity-50 py-3 px-4 transition duration-200" required/>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Số điện thoại</label>
-                    <input type="tel" name="phone" th:value="${customer.phone}" pattern="[0-9]{10,11}" class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green focus:ring focus:ring-green-200 focus:ring-opacity-50 py-3 px-4 transition duration-200" required/>
+                    <label class="block text-sm font-medium text-gray-700">Phone Number</label>
+                    <input type="tel" name="phone" th:value="${employee.phone}" pattern="[0-9]{10,11}" class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green focus:ring focus:ring-green-200 focus:ring-opacity-50 py-3 px-4 transition duration-200" required/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Sex</label>
+                    <select name="sex" class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green focus:ring focus:ring-green-200 focus:ring-opacity-50 py-3 px-4 transition duration-200" required>
+                        <option value="true" th:selected="${employee.sex}">Male</option>
+                        <option value="false" th:selected="${!employee.sex}">Female</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Status</label>
+                    <input type="text" th:value="${employee.status} ? 'Active' : 'Inactive'" disabled class="mt-2 block w-full rounded-lg border-gray-300 bg-gray-100 cursor-not-allowed py-3 px-4"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Birth Date</label>
+                    <input type="date" name="birthDate" th:value="${#temporals.format(employee.birthDate, 'yyyy-MM-dd')}" class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green focus:ring focus:ring-green-200 focus:ring-opacity-50 py-3 px-4 transition duration-200" required/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Recruit Date</label>
+                    <input type="text" th:value="${#temporals.format(employee.recruitDate, 'yyyy-MM-dd')}" disabled class="mt-2 block w-full rounded-lg border-gray-300 bg-gray-100 cursor-not-allowed py-3 px-4"/>
                 </div>
                 <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="hideEditForm()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">Hủy</button>
-                    <button type="submit" class="px-6 py-3 btn-orange text-white rounded-lg shadow-md">Lưu thay đổi</button>
+                    <button type="button" onclick="hideEditForm()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">Cancel</button>
+                    <button type="submit" class="px-6 py-3 btn-orange text-white rounded-lg shadow-md">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -161,10 +201,12 @@
         const formData = {
             name: form.querySelector('input[name="name"]').value,
             address: form.querySelector('input[name="address"]').value,
-            phone: form.querySelector('input[name="phone"]').value
+            phone: form.querySelector('input[name="phone"]').value,
+            sex: form.querySelector('select[name="sex"]').value === 'true',
+            birthDate: form.querySelector('input[name="birthDate"]').value
         };
 
-        fetch('/api/customer/profile', {
+        fetch('/api/employee/profile', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -191,7 +233,7 @@
     }
 
     function changePassword() {
-        window.location.href = '/api/customer/change-password';
+        window.location.href = '/api/employee/change-password';
     }
 </script>
 </body>

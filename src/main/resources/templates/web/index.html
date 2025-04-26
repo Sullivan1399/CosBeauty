@@ -334,7 +334,7 @@
                                             </a>
                                         </div>
                                         <div>
-                                            <a th:href="@{/form_changePassword}">
+                                            <a th:href="@{/api/admin/change-password}">
                                                 <i class="fa fa-key"></i> Đổi mật khẩu
                                             </a>
                                         </div>
@@ -370,22 +370,22 @@
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="accountDropdown">
                                         <div sec:authorize="hasRole('ROLE_EMPLOYEE')">
-                                            <a th:href="@{/employee/formProfile}">
+                                            <a th:href="@{api/employee/profile}">
                                                 <i class="fa fa-user"></i> Thông tin cá nhân
                                             </a>
                                         </div>
                                         <div sec:authorize="hasRole('ROLE_CUSTOMER')">
-                                            <a th:href="@{/customer/formProfile}">
+                                            <a th:href="@{/api/customer/profile}">
                                                 <i class="fa fa-user"></i> Thông tin cá nhân
                                             </a>
                                         </div>
                                         <div sec:authorize="hasRole('ROLE_EMPLOYEE')">
-                                            <a th:href="@{/employee/form_changePassword}">
+                                            <a th:href="@{/api/employee/change-password}">
                                                 <i class="fa fa-key"></i> Đổi mật khẩu
                                             </a>
                                         </div>
                                         <div sec:authorize="hasRole('ROLE_CUSTOMER')">
-                                            <a th:href="@{/customer/form_changePassword}">
+                                            <a th:href="@{/api/customer/change-password}">
                                                 <i class="fa fa-key"></i> Đổi mật khẩu
                                             </a>
                                         </div>
@@ -394,9 +394,14 @@
                                                 <i class="fa fa-shopping-basket"></i> Đơn hàng của tôi
                                             </a>
                                         </div>
+                                        <div sec:authorize="hasRole('ROLE_CUSTOMER')">
+                                            <a th:href="@{/api/customer/profile}">
+                                                <i class="fa fa-user"></i> Thông tin cá nhân
+                                            </a>
+                                        </div>
                                         <div sec:authorize="hasRole('ROLE_EMPLOYEE')">
-                                            <a th:href="@{/employee/bill}">
-                                                <i class="fa fa-file-text-o"></i> Quản lý hóa đơn
+                                            <a th:href="@{/employee/import-orders}">
+                                                <i class="fa fa-file-text-o"></i> Quản lý hóa đơn nhập
                                             </a>
                                         </div>
                                         <div sec:authorize="isAuthenticated()" class="dropdown-divider"></div>
