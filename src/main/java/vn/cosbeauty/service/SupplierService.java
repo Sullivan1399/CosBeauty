@@ -24,8 +24,7 @@ public class SupplierService {
     }
     
     public Supplier findByID(int supID) {
-    	Supplier supplier = supplierRepository.findById(supID)
-    		    .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+    	Supplier supplier = supplierRepository.findById(supID);
     	return supplier;
     }
     

@@ -279,20 +279,19 @@
     });
 
     // Bắt sự kiện click nút +/–
-    $('.pro-qty').on('click', '.qtybtn', function(){
+    $('.pro-qty').on('click', '.qtybtn', function () {
         const $btn = $(this),
             $row = $btn.closest('tr'),
             $inp = $row.find('input.quantity-input'),
-            oldV = parseInt($inp.val(), 10) || 0,
-            newV = $btn.hasClass('inc') ? oldV + 1 : Math.max(0, oldV - 1);
+            oldV = parseInt($inp.val(), 10) || 1,
+            maxV = parseInt($inp.data('max'), 10) || 999,
+            newV = $btn.hasClass('inc') ? Math.min(maxV, oldV + 1) : Math.max(1, oldV - 1);
 
         $inp.val(newV);
 
-        // Nếu số lượng = 0, bạn có thể xóa row hoặc gọi AJAX ở đây
-        // if (newV === 0) $row.remove();
-
-        recalcCart();
+        recalcCart($row, newV);
     });
+
 
     // Tính tổng ban đầu khi trang vừa load
     $(document).ready(recalcCart);
@@ -438,36 +437,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const grandTotalElement = document.getElementById('grand-total');
     const addressInput = document.getElementById('address-input');
 
+    // Lấy các input ẩn để gửi dữ liệu
+    const inputSubtotal = document.getElementById('input-subtotal');
+    const inputShippingFee = document.getElementById('input-shipping-fee');
+    const inputGrandTotal = document.getElementById('input-grand-total');
+
     // Hàm tính tổng tiền hàng
     function calculateTotal() {
         let total = 0;
         const items = document.querySelectorAll('.cart-item');
 
-        console.log('Total items:', items.length);
-
         items.forEach(item => {
             const priceElement = item.querySelector('.item-price');
             const quantityElement = item.querySelector('.item-quantity');
 
-            if (!priceElement || !quantityElement) {
-                console.log('Skipping item with missing price or quantity element.');
-                return;
-            }
+            if (!priceElement || !quantityElement) return;
 
             const price = parseInt(priceElement.getAttribute('data-price-check')) || 0;
             const quantity = parseInt(quantityElement.getAttribute('data-quantity-check')) || 0;
 
-            console.log(`Price: ${price}, Quantity: ${quantity}`);
-
-            if (isNaN(price) || isNaN(quantity)) {
-                console.log('Skipping invalid item.');
-                return;
-            }
+            if (isNaN(price) || isNaN(quantity)) return;
 
             total += price * quantity;
         });
 
-        console.log(`Total calculated: ${total}`);
         return total;
     }
 
@@ -494,17 +487,23 @@ document.addEventListener('DOMContentLoaded', function() {
         grandTotalElement.textContent = formatPrice(grandTotal);
     }
 
+    // Cập nhật các input ẩn
+    function updateHiddenInputs(subtotal, shippingFee, grandTotal) {
+        inputSubtotal.value = subtotal.toFixed(2);  // Đảm bảo có 2 chữ số thập phân
+        inputShippingFee.value = shippingFee.toFixed(2);  // Đảm bảo có 2 chữ số thập phân
+        inputGrandTotal.value = grandTotal.toFixed(2);  // Đảm bảo có 2 chữ số thập phân
+    }
+
     // Khởi tạo khi trang tải
     function initializeCheckout() {
-        // Tính tổng tiền hàng
         const totalCheck = calculateTotal();
         checkoutTotalCheck.textContent = formatPrice(totalCheck);
 
-        // Cập nhật phí ship dựa trên địa chỉ ban đầu
         const shippingFee = updateShippingFee();
-
-        // Cập nhật tổng cộng
         updateGrandTotal(totalCheck, shippingFee);
+
+        // Cập nhật input ẩn khi khởi tạo
+        updateHiddenInputs(totalCheck, shippingFee, totalCheck + shippingFee);
     }
 
     // Gọi khởi tạo
@@ -514,6 +513,66 @@ document.addEventListener('DOMContentLoaded', function() {
     addressInput.addEventListener('input', function() {
         const totalCheck = parseFloat(checkoutTotalCheck.textContent.replace(/[^\d]/g, '')) || 0;
         const shippingFee = updateShippingFee();
+        const grandTotal = totalCheck + shippingFee;
         updateGrandTotal(totalCheck, shippingFee);
+
+        // Cập nhật input ẩn
+        updateHiddenInputs(totalCheck, shippingFee, grandTotal);
     });
+
+    // Cập nhật khi có sự thay đổi trong giỏ hàng
+    document.addEventListener('cartUpdated', function() {
+        const totalCheck = calculateTotal();
+        checkoutTotalCheck.textContent = formatPrice(totalCheck);
+
+        const shippingFee = updateShippingFee();
+        const grandTotal = totalCheck + shippingFee;
+        updateGrandTotal(totalCheck, shippingFee);
+        // Update the "Tổng tiền hàng" element with totalCheck
+        const totalPriceElement = document.getElementById('totalPrice');
+        if (totalPriceElement) {
+            totalPriceElement.textContent = `Tổng tiền hàng: ${formatPrice(totalCheck)}`;
+        }
+        // Cập nhật input ẩn
+        updateHiddenInputs(totalCheck, shippingFee, grandTotal);
+    });
+});
+//check quantities
+
+    // Lấy tất cả các input có class "quantity-input"
+    document.querySelectorAll('.quantity-input').forEach(input => {
+    input.addEventListener('input', function() {
+        // Lấy giá trị min và max từ thuộc tính HTML
+        const min = parseInt(this.min) || 1; // Nếu không có min, mặc định là 1
+        const max = parseInt(this.max) || Infinity; // Nếu không có max, cho phép bất kỳ giá trị lớn
+        let value = parseInt(this.value); // Giá trị hiện tại của input
+
+        // Kiểm tra giá trị có hợp lệ không
+        if (isNaN(value) || value < min) {
+            this.value = min; // Nếu nhỏ hơn min, đặt lại thành min
+            alert(`Số lượng phải lớn hơn hoặc bằng ${min}`);
+        } else if (value > max) {
+            this.value = max; // Nếu lớn hơn max, đặt lại thành max
+            alert(`Số lượng không được vượt quá ${max}`);
+        }
+    });
+});
+
+    // (Tùy chọn) Kiểm tra khi submit form
+    document.querySelector('form').addEventListener('submit', function(event) {
+    let isValid = true;
+    document.querySelectorAll('.quantity-input').forEach(input => {
+    const min = parseInt(input.min) || 1;
+    const max = parseInt(input.max) || Infinity;
+    const value = parseInt(input.value);
+
+    if (isNaN(value) || value < min || value > max) {
+    isValid = false;
+    alert(`Vui lòng kiểm tra lại số lượng cho sản phẩm ${input.id}`);
+}
+});
+
+    if (!isValid) {
+    event.preventDefault(); // Ngăn form submit nếu có lỗi
+}
 });

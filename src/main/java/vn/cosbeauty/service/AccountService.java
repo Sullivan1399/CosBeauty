@@ -1,13 +1,16 @@
 package vn.cosbeauty.service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,10 +20,13 @@ import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import vn.cosbeauty.DTO.AccountDTO;
 import vn.cosbeauty.entity.Account;
 import vn.cosbeauty.entity.Customer;
+import vn.cosbeauty.entity.Employee;
 import vn.cosbeauty.repository.AccountRepository;
 import vn.cosbeauty.repository.CustomerRepository;
+import vn.cosbeauty.repository.EmployeeRepository;
 
 @Service
 public class AccountService implements UserDetailsService{
@@ -29,6 +35,8 @@ public class AccountService implements UserDetailsService{
     private AccountRepository accountRepository;
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
+    private EmployeeRepository employeeRepository;
     
     @Autowired
     private JavaMailSender mailSender;
@@ -129,4 +137,136 @@ public class AccountService implements UserDetailsService{
 //        }
 //        return null;  // Nếu không tìm thấy tài khoản hoặc mật khẩu sai, trả về null
 //    }
+    public List<Account> getAllAccounts() {
+        return accountRepository.findAll();
+    }
+     // Thêm hoặc cập nhật tài khoản
+    public void save(Account account) {
+        accountRepository.save(account);  // Lưu hoặc cập nhật tài khoản
+    }
+    public List<Account> findByRole(String role) {
+        return accountRepository.findByRole(role);
+    }
+    public List<Account> findAllWithDetails() {
+        return accountRepository.findAllWithDetails();
+    }
+    public List<Account> searchAccounts(String keyword) {
+        return accountRepository.searchByIdOrUsername(keyword);
+    }
+
+
+    public List<Account> enrichDisplayNames(List<Account> accounts) {
+        for (Account account : accounts) {
+            switch (account.getRole()) {
+                case "ROLE_CUSTOMER":
+                    Customer customer = customerRepository.findByEmail(account.getUsername());
+                    account.setDisplayName(customer != null ? customer.getName() : "[Không xác định]");
+                    break;
+                case "ROLE_EMPLOYEE":
+                    Employee employee = employeeRepository.findByEmail(account.getUsername());
+                    account.setDisplayName(employee != null ? employee.getName() : "[Không xác định]");
+                    break;
+                case "ROLE_ADMIN":
+                    account.setDisplayName("Admin");
+                    break;
+                default:
+                    account.setDisplayName("[Không xác định]");
+            }
+        }
+        return accounts;
+    }
+    public Optional<Account> findById(Long id) {
+        return accountRepository.findById(id);
+    }
+
+    public Optional<Account> findByUsername(String username) {
+        return Optional.ofNullable(accountRepository.findByUsername(username));
+    }
+
+
+    @Transactional
+    public void updateAccountAndCustomer(AccountDTO dto) {
+        Account acc = accountRepository.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+
+        if ("CUSTOMER".equalsIgnoreCase(dto.getRole())) {
+            Customer customer = customerRepository.findByEmail(acc.getUsername());
+            if (customer == null) {
+                throw new RuntimeException("Không tìm thấy khách hàng với email = " + acc.getUsername());
+            }
+
+            customer.setName(dto.getNewName());
+            customer.setPhone(dto.getNewPhone()); // cập nhật số điện thoại
+            customerRepository.save(customer);
+
+        } else if ("EMPLOYEE".equalsIgnoreCase(dto.getRole())) {
+            Employee emp = employeeRepository.findByEmail(acc.getUsername());
+            if (emp == null) {
+                throw new RuntimeException("Không tìm thấy nhân viên với email = " + acc.getUsername());
+            }
+
+            emp.setName(dto.getNewName());
+            emp.setPhone(dto.getNewPhone()); //  cập nhật số điện thoại
+            employeeRepository.save(emp);
+        }
+
+        accountRepository.save(acc);
+    }
+
+    public Map<String, String> getPhoneMap(List<Account> accounts) {
+        Map<String, String> phoneMap = new HashMap<>();
+
+        for (Account account : accounts) {
+            String username = account.getUsername(); // thường là email
+
+            switch (account.getRole()) {
+                case "ROLE_CUSTOMER":
+                    Customer customer = customerRepository.findByEmail(username);
+                    phoneMap.put(username, customer != null ? customer.getPhone() : "[Không có SĐT]");
+                    break;
+
+                case "ROLE_EMPLOYEE":
+                    Employee employee = employeeRepository.findByEmail(username);
+                    phoneMap.put(username, employee != null ? employee.getPhone() : "[Không có SĐT]");
+                    break;
+
+                default:
+                    phoneMap.put(username, "Không có");
+            }
+        }
+
+        return phoneMap;
+    }
+
+    public void registerEmployeeAccount(Account account, Employee employee) {
+        if (accountRepository.findByUsername(account.getUsername()) != null) {
+            throw new RuntimeException("Email đã được sử dụng!");
+        }
+        if (employeeRepository.findByPhone(employee.getPhone()) != null) {
+            throw new RuntimeException("Số điện thoại đã được sử dụng!");
+        }
+        account.setPassword(passwordEncoder.encode(account.getPassword()));
+        account.setRole("ROLE_EMPLOYEE");
+        account.setEnabled(true); // Enable account immediately (no email verification)
+        accountRepository.save(account);
+        employeeRepository.save(employee);
+    }
+
+    // Tìm kiếm theo tên (Customer hoặc Employee)
+    public List<Account> searchAccountsByName(String keyword) {
+        // Tìm Customer theo tên
+        List<Customer> customers = customerRepository.findByNameContainingIgnoreCase(keyword);
+        // Tìm Employee theo tên
+        List<Employee> employees = employeeRepository.findByNameContainingIgnoreCase(keyword);
+
+        // Lấy danh sách email từ Customer và Employee
+        Set<String> emails = new HashSet<>();
+        emails.addAll(customers.stream().map(Customer::getEmail).collect(Collectors.toList()));
+        emails.addAll(employees.stream().map(Employee::getEmail).collect(Collectors.toList()));
+
+        // Tìm Account có username khớp với email
+        return accountRepository.findByUsernameIn(emails);
+    }
+    
 }
+

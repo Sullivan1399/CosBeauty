@@ -1,20 +1,29 @@
 package vn.cosbeauty.controller;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import vn.cosbeauty.DTO.AccountDTO;
 import vn.cosbeauty.DTO.RegisterDTO;
 import vn.cosbeauty.entity.Account;
 import vn.cosbeauty.entity.Customer;
-import vn.cosbeauty.repository.AccountRepository;
+import vn.cosbeauty.entity.Employee;
+import vn.cosbeauty.entity.ImportOrder;
 import vn.cosbeauty.service.AccountService;
 import vn.cosbeauty.service.CustomerService;
+import vn.cosbeauty.service.EmployeeService;
+import vn.cosbeauty.service.ImportOrderService;
 
 @Controller
 public class AccountController {
@@ -23,8 +32,13 @@ public class AccountController {
 	private AccountService accountService;
 	@Autowired
 	private CustomerService customerService;
-	
-	@GetMapping("/register")
+    @Autowired
+    private EmployeeService employeeService;
+    @Autowired
+    private ImportOrderService importOrderService;
+
+
+    @GetMapping("/register")
 	public String showRegisterForm(Model model) {
 		model.addAttribute("registerDTO", new RegisterDTO());
         return "web/register";
@@ -101,4 +115,73 @@ public class AccountController {
         }
         return "/web/login";
     }
+    public AccountController(AccountService accountService, ImportOrderService importOrderService) {
+        this.accountService = accountService;
+        this.importOrderService = importOrderService;
+    }
+    @GetMapping("/admin/accounts")
+    public String manageAdmin(
+            @RequestParam(name = "type", defaultValue = "users") String type,
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "searchType", defaultValue = "username") String searchType,
+            @RequestParam(name = "role", required = false) String role,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(value = "importDate", required = false) String importDate,
+            @RequestParam(value = "status", required = false) String status,
+            Model model) {
+
+        if ("users".equalsIgnoreCase(type)) {
+            List<Account> accounts;
+
+            if (keyword != null && !keyword.isEmpty()) {
+                if ("name".equalsIgnoreCase(searchType)) {
+                    // Tìm kiếm theo tên (Customer hoặc Employee)
+                    accounts = accountService.searchAccountsByName(keyword);
+                } else {
+                    // Tìm kiếm theo username (giữ nguyên logic ban đầu)
+                    accounts = accountService.searchAccounts(keyword);
+                }
+            } else if (role != null && !role.isEmpty()) {
+                accounts = accountService.findByRole("ROLE_" + role.toUpperCase());
+            } else {
+                accounts = accountService.findAllWithDetails();
+            }
+
+            accounts = accountService.enrichDisplayNames(accounts);
+
+            model.addAttribute("accounts", accounts);
+            model.addAttribute("phoneMap", accountService.getPhoneMap(accounts));
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("searchType", searchType);
+            model.addAttribute("role", role);
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", 1); // TODO: Cập nhật nếu triển khai phân trang
+            model.addAttribute("activeSection", "account");
+        }
+        return "web/manage-account";
+    }
+
+    @PostMapping("/admin/accounts")
+    public String updateAccountAndCustomer(
+            @RequestParam("id") Long id,
+            @RequestParam("newName") String newName,
+            @RequestParam("role") String role,
+            @RequestParam("newPhone") String newPhone,
+            RedirectAttributes redirectAttributes) {
+        try {
+            AccountDTO accountDTO = new AccountDTO();
+            accountDTO.setId(id);
+            accountDTO.setNewName(newName);
+            accountDTO.setRole(role);
+            accountDTO.setNewPhone(newPhone);
+
+            accountService.updateAccountAndCustomer(accountDTO);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi cập nhật: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return "redirect:/admin/accounts";
+    }
+
 }

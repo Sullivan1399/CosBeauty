@@ -11,8 +11,6 @@
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
-    
-    <!-- Css Styles -->
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" type="text/css">
     <link rel="stylesheet" th:href="@{/css/font-awesome.min.css}" type="text/css">
     <link rel="stylesheet" th:href="@{/css/elegant-icons.css}" type="text/css">
@@ -315,15 +313,50 @@
                                 </div>
                                 
                                 <!-- Admin links -->
-                                <div sec:authorize="hasRole('ROLE_ADMIN')">
-                                    <a th:href="@{/admin/dashboard}">Dashboard</a>
+                                <div sec:authorize="hasRole('ROLE_ADMIN')" class="dropdown user-menu">
+                                    <a href="#" class="dropdown-toggle" id="accountDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-user-o"></i> Tài khoản của tôi
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="accountDropdown">
+                                        <div>
+                                            <a th:href="@{/admin/dashboard}">
+                                                <i class="fa fa-user"></i> Dashboard
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <a th:href="@{/admin/accounts}">
+                                                <i class="fa fa-user"></i> Quản lý tài khoản
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <a th:href="@{/admin/ManageProducts}">
+                                                <i class="fa fa-user"></i> Quản lý sản phẩm
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <a th:href="@{/form_changePassword}">
+                                                <i class="fa fa-key"></i> Đổi mật khẩu
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <a th:href="@{/admin/manage-admin}">
+                                                <i class="fa fa-shopping-basket"></i> Quản lý đơn hàng
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <a th:href="@{/admin/import-orders}">
+                                                <i class="fa fa-file-text-o"></i> Quản lý hóa đơn
+                                            </a>
+                                        </div>
+                                        <div sec:authorize="isAuthenticated()" class="dropdown-divider"></div>
+                                        <form th:action="@{/logout}" method="post">
+                                            <button type="submit" class="logout-btn">
+                                                <i class="fa fa-sign-out"></i> Đăng xuất
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
-                                <div sec:authorize="hasRole('ROLE_ADMIN')">
-                                    <a th:href="@{/admin/ManageProducts}">Quản lý sản phẩm</a>
-                                </div>
-                                <div sec:authorize="hasRole('ROLE_ADMIN')">
-                                    <a th:href="@{/admin/user}">Quản lý người dùng</a>
-                                </div>
+                                <div >
                                 
                                 <!-- Staff links -->
                                 <div sec:authorize="hasRole('ROLE_STAFF')">
@@ -410,8 +443,14 @@
                 <div class="col-lg-3">
                     <div class="header__cart">
                         <ul>
-                            <li><a th:href="@{/api/cart/view}"><i class="fa fa-shopping-bag"></i> <!-- <span>3</span> --></a></li>
+                            <li>
+                                <a th:href="@{/api/cart/view}">>
+                                    <i class="fa fa-shopping-bag"></i>
+                                    <span th:text="${cartItems != null ? cartItems.size() : 0}"></span>
+                                </a>
+                            </li>
                         </ul>
+                        <div class="header__cart__price" th:text="${@formatter.formatPrice(totalAmount)}"></div>
                     </div>
                 </div>
             </div>
@@ -453,7 +492,7 @@
                             </div>
                             <div class="hero__search__phone__text">
                                 <h5>+086-867-2602</h5>
-                                <span>support 24/7 time</span>
+                                <span>Hỗ trợ 24/7 time</span>
                             </div>
                         </div>
                     </div>
