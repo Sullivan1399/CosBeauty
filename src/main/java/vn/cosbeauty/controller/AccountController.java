@@ -205,10 +205,8 @@ public class AccountController {
 
             if (keyword != null && !keyword.isEmpty()) {
                 if ("name".equalsIgnoreCase(searchType)) {
-                    // Tìm kiếm theo tên (Customer hoặc Employee)
                     accounts = accountService.searchAccountsByName(keyword);
                 } else {
-                    // Tìm kiếm theo username (giữ nguyên logic ban đầu)
                     accounts = accountService.searchAccounts(keyword);
                 }
             } else if (role != null && !role.isEmpty()) {
@@ -219,13 +217,14 @@ public class AccountController {
 
             accounts = accountService.enrichDisplayNames(accounts);
 
+            model.addAttribute("employeeStatusMap", accountService.getEmployeeStatusMap(accounts));
             model.addAttribute("accounts", accounts);
             model.addAttribute("phoneMap", accountService.getPhoneMap(accounts));
             model.addAttribute("keyword", keyword);
             model.addAttribute("searchType", searchType);
             model.addAttribute("role", role);
             model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", 1); // TODO: Cập nhật nếu triển khai phân trang
+            model.addAttribute("totalPages", 1);
             model.addAttribute("activeSection", "account");
         }
         return "web/manage-account";
@@ -253,7 +252,14 @@ public class AccountController {
         }
         return "redirect:/admin/accounts";
     }
-
-
-
+    @PostMapping("/admin/accounts/toggle-status")
+    public String toggleStatus(@RequestParam("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            accountService.toggleEmployeeStatus(id);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật trạng thái thành công.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật trạng thái: " + e.getMessage());
+        }
+        return "redirect:/admin/accounts";
+    }
 }

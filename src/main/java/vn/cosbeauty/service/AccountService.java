@@ -56,6 +56,12 @@ public class AccountService implements UserDetailsService{
         if (!account.isEnabled()) {
             throw new RuntimeException("Email chưa được xác thực!");
         }
+        if ("ROLE_EMPLOYEE".equals(account.getRole())) {
+            Employee employee = employeeRepository.findByEmail(username);
+            if (employee == null || !employee.getStatus()) {
+                throw new UsernameNotFoundException("Tài khoản nhân viên đã bị vô hiệu hóa. Vui lòng liên hệ quản trị viên.");
+            }
+        }
         return User
                 .withUsername(account.getUsername())
                 .password(account.getPassword())
@@ -375,6 +381,35 @@ public class AccountService implements UserDetailsService{
         accountRepository.save(account);
         resetTokens.remove(token);
         System.out.println("Password reset for email: " + tokenInfo.getEmail());
+    }
+    // Thêm phương thức mới để lấy employeeStatusMap
+    public Map<String, Boolean> getEmployeeStatusMap(List<Account> accounts) {
+        Map<String, Boolean> statusMap = new HashMap<>();
+        for (Account account : accounts) {
+            if ("ROLE_EMPLOYEE".equals(account.getRole())) {
+                // Truy vấn bảng employee sử dụng email (account.username tương ứng với employee.email)
+                Employee employee = employeeRepository.findByEmail(account.getUsername());
+                if (employee != null) {
+                    statusMap.put(account.getUsername(), employee.getStatus());
+                } else {
+                    statusMap.put(account.getUsername(), false); // Mặc định không hoạt động nếu không tìm thấy
+                }
+            }
+        }
+        return statusMap;
+    }
+    @Transactional
+    public void toggleEmployeeStatus(Long accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        if ("ROLE_EMPLOYEE".equals(account.getRole())) {
+            Employee employee = employeeRepository.findByEmail(account.getUsername());
+            if (employee == null) {
+                throw new IllegalStateException("Employee not found for email: " + account.getUsername());
+            }
+            employee.setStatus(!employee.getStatus());
+            employeeRepository.save(employee);
+        }
     }
 }
 
