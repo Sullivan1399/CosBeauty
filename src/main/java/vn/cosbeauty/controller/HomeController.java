@@ -11,10 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import vn.cosbeauty.entity.CartItem;
 import vn.cosbeauty.entity.Category;
 import vn.cosbeauty.entity.Product;
-import vn.cosbeauty.service.CartService;
-import vn.cosbeauty.service.CategoryService;
-import vn.cosbeauty.service.CustomerService;
-import vn.cosbeauty.service.ProductService;
+import vn.cosbeauty.entity.Supplier;
+import vn.cosbeauty.service.*;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -30,6 +28,8 @@ public class HomeController {
     private CustomerService customerService;
     @Autowired
     private CartService cartService;
+    @Autowired
+    private SupplierService supplierService;
 
     @GetMapping("/")
     public String getAll(Model model, 
@@ -71,8 +71,12 @@ public class HomeController {
     	List<Category> categories = categoryService.getAllCategory();
     	Page<Product> products = productService.getProductHome(page, 10);
     	List<Product> productOfCurrentPage = products.getContent();
-        Long customerId = 1L; // hoặc lấy từ session, user login
-        model.addAttribute("customerId", customerId);
+        List<Supplier> suppliers = supplierService.getAllSupplier();
+        List<Product> topSellingProducts = productService.getTopSellingProducts();
+
+        // Truyền danh sách sản phẩm vào model để hiển thị trong view
+        model.addAttribute("topSellingProducts", topSellingProducts);
+        model.addAttribute("suppliers", suppliers);
         model.addAttribute("categories", categories);
         model.addAttribute("products", productOfCurrentPage);
         model.addAttribute("currentPage", page);
