@@ -409,3 +409,12 @@ body {
 .container {
     padding-bottom: 40px; /* Tạo không gian thêm cho các phần tử ở dưới cùng */
 }
+.btn-custom {
+    background-color: #FF5733;
+    color: white;
+    border: none;
+}
+.btn-custom:hover {
+    background-color: #E64A19;
+    color: white;
+}

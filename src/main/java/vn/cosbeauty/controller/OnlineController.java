@@ -99,30 +99,34 @@ public class OnlineController {
         List<OnOrderDetail> orderDetails = onlineService.getOrderDetailsByOrderId(id);
         List<OnlineOrder> statusHistory = onlineService.getOrderStatusHistory(id);
         Long cusID = customerService.getCurrentCustomerID();
-        boolean hasReviewed = onlineService.hasCustomerReviewedOrder(id, cusID);
+        // Kiểm tra xem đơn hàng đã được đánh giá chưa
+        Customer customer = customerService.findCustomerByID(cusID);
+
+        boolean hasAnyReview = false;
+        List<OnOrderDetail> productsToReview = new ArrayList<>();
+        for (OnOrderDetail detail : orderDetails) {
+            Product product = detail.getProduct();
+            long commentCount = commentService.countByCustomerAndProductAndOnlineOrder(customer, product, order);
+            if (commentCount == 0) {
+                productsToReview.add(detail);
+            } else {
+                hasAnyReview = true;
+            }
+        }
+
+
+
         model.addAttribute("order", order);
         model.addAttribute("orderDetails", orderDetails);
         model.addAttribute("statusHistory", statusHistory);
-        model.addAttribute("hasReviewed", hasReviewed);
+        model.addAttribute("productsToReview", productsToReview);
+        model.addAttribute("hasReviewed", hasAnyReview);
+
+
         return "web/order-detail";
     }
-//    @GetMapping("/admin/manage-admin")
-//    public String getAllOrders(Model model,
-//                               @RequestParam(required = false) String search,
-//                               @RequestParam(required = false) String status) {
-//        List<OnlineOrder> orders;
-//        if (search != null && !search.trim().isEmpty()) {
-//            orders = onlineService.searchOrders(search);
-//        } else if (status != null && !status.isEmpty()) {
-//            orders = onlineService.filterOrders(status);
-//        } else {
-//            orders = onlineService.getAllOnlineOrder();
-//        }
-//        model.addAttribute("orders", orders);
-//        model.addAttribute("search", search);
-//        model.addAttribute("status", status);
-//        return "web/Manage-admin";
-//    }
+
+
 
     @GetMapping("/admin/admin-detail/{id}")
     public String getOrderDetail(@PathVariable Long id, Model model) {
@@ -227,36 +231,64 @@ public class OnlineController {
             return "redirect:/orders";
         }
     }
-    @PostMapping("/review")
-    public String submitReview(
-            @RequestParam("orderId") Long orderId,
-            @RequestParam("productIds") List<Long> productIds,
-            @RequestParam Map<String, String> allParams,
-            RedirectAttributes redirectAttributes) {
-        try {
-            Long customerId = customerService.getCurrentCustomerID();
-            OnlineOrder order = onlineService.getOrderById(orderId);
-            if (order == null || !order.getCustomer().getCustomerID().equals(customerId)) {
-                redirectAttributes.addFlashAttribute("error", "Đơn hàng không hợp lệ.");
-                return "redirect:/orders";
-            }
-            for (Long productId : productIds) {
-                String ratingKey = "ratings_" + productId;
-                String commentKey = "comments_" + productId;
-                int rating = Integer.parseInt(allParams.get(ratingKey));
-                String commentText = allParams.get(commentKey);
-                if (rating < 1 || rating > 5) {
-                    redirectAttributes.addFlashAttribute("error", "Điểm đánh giá phải từ 1 đến 5.");
-                    return "redirect:/order/" + orderId;
-                }
-                commentService.saveReview(customerId, productId, commentText, rating);
-            }
-            redirectAttributes.addFlashAttribute("success", "Đánh giá của bạn đã được gửi!");
-            return "redirect:/order/" + orderId;
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Lỗi khi gửi đánh giá: " + e.getMessage());
+@PostMapping("/review")
+public String submitReview(
+        @RequestParam("orderId") Long orderId,
+        @RequestParam(value = "productIds", required = false) List<Long> productIds,
+        @RequestParam Map<String, String> allParams,
+        RedirectAttributes redirectAttributes) {
+    try {
+        Long customerId = customerService.getCurrentCustomerID();
+        OnlineOrder order = onlineService.getOrderById(orderId);
+
+        if (order == null || !order.getCustomer().getCustomerID().equals(customerId)) {
+            redirectAttributes.addFlashAttribute("error", "Đơn hàng không hợp lệ hoặc không phải của bạn.");
+            return "redirect:/orders";
+        }
+
+        if (productIds == null || productIds.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng chọn ít nhất một sản phẩm để đánh giá.");
             return "redirect:/order/" + orderId;
         }
-    }
 
+        Map<Long, Integer> ratings = new HashMap<>();
+        Map<Long, String> comments = new HashMap<>();
+        for (Long productId : productIds) {
+            String ratingStr = allParams.get("ratings_" + productId);
+            String commentText = allParams.get("comments_" + productId);
+
+            if (ratingStr == null || ratingStr.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Điểm đánh giá không được để trống cho sản phẩm ID: " + productId);
+                return "redirect:/order/" + orderId;
+            }
+
+            int rating;
+            try {
+                rating = Integer.parseInt(ratingStr);
+            } catch (NumberFormatException e) {
+                redirectAttributes.addFlashAttribute("error", "Điểm đánh giá không hợp lệ cho sản phẩm ID: " + productId);
+                return "redirect:/order/" + orderId;
+            }
+
+            if (rating < 1 || rating > 5) {
+                redirectAttributes.addFlashAttribute("error", "Điểm đánh giá phải từ 1 đến 5 cho sản phẩm ID: " + productId);
+                return "redirect:/order/" + orderId;
+            }
+
+            ratings.put(productId, rating);
+            comments.put(productId, commentText != null ? commentText : "");
+        }
+
+        commentService.saveReview(customerId, orderId, productIds, ratings, comments);
+        redirectAttributes.addFlashAttribute("success", "Đánh giá của bạn đã được gửi thành công!");
+        return "redirect:/order/" + orderId;
+
+    } catch (IllegalArgumentException e) {
+        redirectAttributes.addFlashAttribute("error", e.getMessage());
+        return "redirect:/order/" + orderId;
+    } catch (Exception e) {
+        redirectAttributes.addFlashAttribute("error", "Lỗi khi gửi đánh giá: " + e.getMessage());
+        return "redirect:/order/" + orderId;
+    }
+}
 }

@@ -10,13 +10,12 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletRequest;
 import vn.cosbeauty.DTO.ProductDTO;
 import vn.cosbeauty.entity.Category;
+import vn.cosbeauty.entity.Comment;
 import vn.cosbeauty.entity.Product;
 import vn.cosbeauty.entity.Supplier;
-import vn.cosbeauty.service.CategoryService;
-import vn.cosbeauty.service.FileService;
-import vn.cosbeauty.service.ProductService;
-import vn.cosbeauty.service.SupplierService;
+import vn.cosbeauty.service.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +29,8 @@ public class ProductController {
     private ProductService productService;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private CommentService commentService;
 
     //    @GetMapping("/search")
 //    public String searchProducts(@RequestParam("query") String query, Model model) {
@@ -171,13 +172,88 @@ public class ProductController {
     public String productDetail(@PathVariable Long id, Model model) {
         List<Category> categories = categoryService.getAllCategory();
         Product product = productService.getProductById(id);
+        if (product == null) {
+            model.addAttribute("error", "Sản phẩm không tồn tại");
+            return "error-page";
+        }
+        List<Comment> comments = commentService.getCommentsForProduct(product);
+        if (comments == null) {
+            comments = new ArrayList<>();
+        }
+        double avgRating = commentService.calculateAverageRating(product);
 
+        model.addAttribute("ratings", comments.stream()
+                .map(comment -> comment.getRate())
+                .collect(Collectors.toList()));
+        List<Double> ratingProgressList = new ArrayList<>();
+        for (Comment comment : comments) {
+            double ratingProgress = (comment.getRate() / 5.0) * 100;
+            ratingProgressList.add(ratingProgress);
+        }
+        long reviewCount = comments.size();
+
+        Comment comment = new Comment();
+        comment.setProduct(product); // Gán productID vào comment (nếu cần)
+        // Lấy tất cả các bình luận
+        List<Comment> bl = commentService.getAll();
+
+// Khởi tạo các biến để đếm số sao
+        int oneStarCount = 0;
+        int twoStarCount = 0;
+        int threeStarCount = 0;
+        int fourStarCount = 0;
+        int fiveStarCount = 0;
+
+        int totalComments = bl.size();
+
+        for (Comment c : bl) {
+            int rate = c.getRate();
+            switch (rate) {
+                case 1:
+                    oneStarCount++;
+                    break;
+                case 2:
+                    twoStarCount++;
+                    break;
+                case 3:
+                    threeStarCount++;
+                    break;
+                case 4:
+                    fourStarCount++;
+                    break;
+                case 5:
+                    fiveStarCount++;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        double oneStarPercentage = (double) oneStarCount / totalComments * 100;
+        double twoStarPercentage = (double) twoStarCount / totalComments * 100;
+        double threeStarPercentage = (double) threeStarCount / totalComments * 100;
+        double fourStarPercentage = (double) fourStarCount / totalComments * 100;
+        double fiveStarPercentage = (double) fiveStarCount / totalComments * 100;
+
+        model.addAttribute("fiveStarPercentage", fiveStarPercentage);
+        model.addAttribute("fourStarPercentage", fourStarPercentage);
+        model.addAttribute("threeStarPercentage", threeStarPercentage);
+        model.addAttribute("twoStarPercentage", twoStarPercentage);
+        model.addAttribute("oneStarPercentage", oneStarPercentage);
+        // Truyền đối tượng comment vào model
+        model.addAttribute("comment", comment);
+        model.addAttribute("reviewCount", reviewCount);
+
+        // Truyền vào model
+        model.addAttribute("product", product);
+        model.addAttribute("comments", comments);
+        model.addAttribute("avg_rating", avgRating);
+        model.addAttribute("ratingProgressList", ratingProgressList);
         List<Product> relatedProducts = productService.getRelatedProducts(product.getCategory().getCatID());
         List<Product> top4RelatedProducts = relatedProducts.stream().limit(4).collect(Collectors.toList()); // Lấy 4 sản phẩm đầu tiên
         model.addAttribute("categories", categories);
         model.addAttribute("relatedProducts", relatedProducts);
         model.addAttribute("relatedProducts", top4RelatedProducts);
-        model.addAttribute("product", product);
         return "web/shop-details";
     }
 
