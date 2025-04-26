@@ -1,7 +1,12 @@
 package vn.cosbeauty.controller;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -32,11 +37,75 @@ public class ProductController {
     @Autowired
     private CommentService commentService;
 
-    //    @GetMapping("/search")
-//    public String searchProducts(@RequestParam("query") String query, Model model) {
-//        model.addAttribute("products", productService.searchProducts(query));
-//        return "searchResults";
-//    }
+    @GetMapping("/products/category/{categoryId}")
+    public String getProductsByCategory(@PathVariable Long categoryId,
+                                        Model model,
+                                        @RequestParam(value="page", required=false, defaultValue="1") int page,
+                                        HttpServletRequest request) {
+        // Lấy danh sách sản phẩm theo category với phân trang
+        page = page - 1;
+        Page<Product> productPage = productService.findProductsByCategory(categoryId, PageRequest.of(page, 10));
+
+        // Tổng số trang
+        int totalPage = productPage.getTotalPages();
+        // Trang hiện tại
+        int currentPage = productPage.getNumber()+ 1;
+        List<Category> categories = categoryService.getAllCategory();
+        List<Product> productOfCurrentPage = productPage.getContent();
+        List<Supplier> suppliers = supplierService.getAllSupplier();
+
+        List<Product> topSellingProducts = productService.getTopSellingProducts();
+
+        // Truyền danh sách sản phẩm vào model để hiển thị trong view
+        model.addAttribute("topSellingProducts", topSellingProducts);
+
+        model.addAttribute("productPage", productPage);
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("suppliers", suppliers);
+        model.addAttribute("categories", categories);
+        model.addAttribute("products", productOfCurrentPage);
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPage", totalPage);
+        model.addAttribute("requestURI", request.getRequestURI());  // Để tạo liên kết phân trang
+
+        return "web/shop-grid";
+    }
+    @GetMapping("/products/supplier/{supplierId}")
+    public String getProductsBySupplier(@PathVariable Long supplierId,
+                                        Model model,
+                                        @RequestParam(value="page", required=false, defaultValue="1") int page,
+                                        HttpServletRequest request) {
+        // Lấy danh sách sản phẩm của nhà cung cấp với phân trang
+        Page<Product> productPage = productService.findProductsBySupplier(supplierId, PageRequest.of(page - 1, 10));
+
+        // Tổng số trang
+        int totalPage = productPage.getTotalPages();
+        // Trang hiện tại
+        int currentPage = productPage.getNumber() + 1;  // Tính lại currentPage cho phù hợp với Thymeleaf
+
+        List<Category> categories = categoryService.getAllCategory();
+        List<Product> productOfCurrentPage = productPage.getContent();
+
+        List<Supplier> suppliers = supplierService.getAllSupplier();
+
+        List<Product> topSellingProducts = productService.getTopSellingProducts();
+
+        // Truyền danh sách sản phẩm vào model để hiển thị trong view
+        model.addAttribute("topSellingProducts", topSellingProducts);
+
+        model.addAttribute("productPage", productPage);
+        model.addAttribute("supplierId", supplierId);
+        model.addAttribute("suppliers", suppliers);
+        model.addAttribute("categories", categories);
+        model.addAttribute("products", productOfCurrentPage);
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPage", totalPage);
+        model.addAttribute("requestURI", request.getRequestURI());  // Để tạo liên kết phân trang
+
+        return "web/shop-grid";
+    }
+
+
     @GetMapping("/admin/ManageProducts")
     public String manageProducts(Model model, 
     		@RequestParam(value = "page", required = false, defaultValue = "1") int page,
