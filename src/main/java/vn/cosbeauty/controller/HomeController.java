@@ -35,6 +35,7 @@ public class HomeController {
         model.addAttribute("products", products);
         return "web/index";
     }
+
     @GetMapping("/shop-grid")
     public String shopGrid(Model model, @RequestParam(value = "logout", required = false) String logout) {
         if (logout != null) {

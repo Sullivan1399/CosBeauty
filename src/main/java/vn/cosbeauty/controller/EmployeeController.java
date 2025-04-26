@@ -82,7 +82,7 @@ public class EmployeeController {
 
             accountService.registerEmployeeAccount(account, employee);
             model.addAttribute("message", "Tạo tài khoản nhân viên thành công!");
-            return "redirect:admin/accounts";
+            return "redirect:/admin/accounts";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
             return "web/create-employee-account";

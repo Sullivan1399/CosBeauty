@@ -4,8 +4,12 @@ import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import vn.cosbeauty.entity.Employee;
 import vn.cosbeauty.entity.ImportOrder;
+import vn.cosbeauty.entity.Product;
+import vn.cosbeauty.entity.Supplier;
 import vn.cosbeauty.repository.*;
 import vn.cosbeauty.service.ImportOrderService;
 
@@ -17,12 +21,13 @@ import org.springframework.ui.Model;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -37,26 +42,57 @@ public class ImportOrderController {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
     @GetMapping("/employee/import-orders/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("suppliers", supplierRepository.findAll());
-        model.addAttribute("products", productRepository.findAll());
-        return "web/create-import-order"; // tên file HTML
+        List<Supplier> suppliers = supplierRepository.findAll();
+        if (suppliers.isEmpty()) {
+            model.addAttribute("errorMessage", "Không có nhà cung cấp nào trong hệ thống!");
+        }
+        model.addAttribute("suppliers", suppliers);
+        return "web/create-import-order";
     }
 
     @PostMapping("/employee/import-orders/create")
     public String saveImportOrder(
             @RequestParam Long supplierId,
-            @RequestParam double cost,
+            @RequestParam String cost,
             @RequestParam List<Long> productIds,
             @RequestParam List<Integer> quantities,
-            @RequestParam List<Double> costs,
             RedirectAttributes redirectAttributes
     ) {
-        importOrderService.createImportOrder(supplierId, cost, productIds, quantities, costs);
-        redirectAttributes.addFlashAttribute("successMessage", "Tạo đơn nhập hàng thành công!");
-        return "redirect:/employee/import-orders";
+        if (productIds.isEmpty() || quantities.isEmpty() || productIds.size() != quantities.size()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Dữ liệu sản phẩm không hợp lệ!");
+            return "redirect:/employee/import-orders";
+        }
+        try {
+            // Parse cost to BigDecimal
+            NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+            BigDecimal parsedCost = new BigDecimal(numberFormat.parse(cost).toString());
 
+            // Get current employee using email
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            Employee employee = employeeRepository.findByEmail(email);
+            if (employee == null) {
+                throw new IllegalArgumentException("Nhân viên không tồn tại");
+            }
+
+            importOrderService.createImportOrder(employee, supplierId, parsedCost, productIds, quantities);
+            redirectAttributes.addFlashAttribute("successMessage", "Tạo đơn nhập hàng thành công!");
+        } catch (ParseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi định dạng chi phí!");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/employee/import-orders";
+    }
+
+    @GetMapping("/api/products")
+    @ResponseBody
+    public List<Product> getProductsBySupplier(@RequestParam Long supplierId) {
+        return productRepository.findBySupplierSupID(supplierId);
     }
 
     @GetMapping("/employee/import-orders")
@@ -70,10 +106,11 @@ public class ImportOrderController {
         // Tạo đối tượng Pageable
         Pageable pageable = PageRequest.of(page, size);
 
-        // Chuyển đổi importDate từ String sang LocalDate nếu có
-        LocalDate searchDate = null;
+        // Chuyển đổi importDate từ String sang LocalDateTime nếu có
+        LocalDateTime searchDateTime = null;
         if (importDate != null && !importDate.isEmpty()) {
-            searchDate = LocalDate.parse(importDate);
+            LocalDate searchDate = LocalDate.parse(importDate);
+            searchDateTime = searchDate.atStartOfDay(); // Convert LocalDate to LocalDateTime (midnight)
         }
 
         // Chuyển đổi status từ String sang Integer nếu có
@@ -83,7 +120,7 @@ public class ImportOrderController {
         }
 
         // Lấy danh sách đơn nhập hàng với phân trang và bộ lọc
-        Page<ImportOrder> importOrderPage = importOrderService.getFilteredImportOrders(searchDate, statusValue, pageable);
+        Page<ImportOrder> importOrderPage = importOrderService.getFilteredImportOrders(searchDateTime, statusValue, pageable);
 
         // Định dạng dữ liệu để hiển thị
         List<Map<String, Object>> formattedImportOrders = importOrderPage.getContent().stream().map(order -> {
@@ -109,18 +146,36 @@ public class ImportOrderController {
 
         return "web/employee-import-orders";
     }
+    @GetMapping("/employee/import-orders/view")
+    public String viewOrderDetailForEmployee(@RequestParam(value = "importID", required = true) Long importID, Model model) {
+        ImportOrder importOrder = importOrderService.getOrderById(importID);
+        if (importOrder == null) {
+            model.addAttribute("error", "Không tìm thấy đơn hàng nhập với ID: " + importID);
+            return "redirect:/employee/import-orders";
+        }
+        model.addAttribute("importOrder", importOrder);
+        return "web/employee-import-orders-view";
+    }
+
 
     @GetMapping("/admin/import-orders")
-    public String listImportOrdersAsAdmin(Model model,
-                                          @RequestParam(value = "importDate", required = false) String importDate,
-                                          @RequestParam(value = "status", required = false) String status,
-                                          @PageableDefault(size = 10, sort = "importID") Pageable pageable) {
+    public String listImportOrdersAsAdmin(
+            Model model,
+            @RequestParam(value = "importDate", required = false) String importDate,
+            @RequestParam(value = "status", required = false) String status,
+            @PageableDefault(size = 10, sort = "importID") Pageable pageable) {
+
         // Lọc theo ngày nhập và trạng thái nếu có
-        LocalDate searchDate = importDate != null && !importDate.isEmpty() ? LocalDate.parse(importDate) : null;
+        LocalDateTime searchDateTime = null;
+        if (importDate != null && !importDate.isEmpty()) {
+            LocalDate searchDate = LocalDate.parse(importDate);
+            searchDateTime = searchDate.atStartOfDay(); // Convert LocalDate to LocalDateTime (midnight)
+        }
+
         Integer statusValue = (status != null && !status.isEmpty()) ? Integer.parseInt(status) : null;
 
         // Lấy danh sách đơn nhập hàng với phân trang và lọc
-        Page<ImportOrder> importOrdersPage = importOrderService.getFilteredImportOrders(searchDate, statusValue, pageable);
+        Page<ImportOrder> importOrdersPage = importOrderService.getFilteredImportOrders(searchDateTime, statusValue, pageable);
 
         // Định dạng dữ liệu để hiển thị
         List<Map<String, Object>> formattedImportOrders = importOrdersPage.getContent().stream().map(order -> {

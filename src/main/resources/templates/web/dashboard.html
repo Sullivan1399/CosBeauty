@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+    <style>
+        :root {
+            --amazon-green: #00A876;
+            --amazon-orange: #FF9900;
+            --background-gray: #F5F6F5;
+            --text-dark: #1A1A1A;
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            --sidebar-bg: #FFF8F0;
+            --accent-hover: #FFE6CC;
+        }
+
+        body {
+            background-color: var(--background-gray);
+            font-family: 'Roboto', sans-serif;
+            color: var(--text-dark);
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        .container-fluid { padding: 0; }
+
+        .sidebar {
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: var(--sidebar-bg);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            background: accel 135deg, #FF6200, #FF8C00);
+            color: #FFFFFF;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .sidebar-nav { padding: 10px 0; }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 10px 18px;
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background-color 0.3s ease, color 0.3s ease, padding-left 0.2s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: var(--accent-hover);
+            color: #FF6200;
+            padding-left: 22px;
+        }
+
+        .sidebar-nav a.active {
+            background-color: #FF6200;
+            color: #FFFFFF;
+            border-left: 3px solid #FFFFFF;
+        }
+
+        .sidebar-nav a i {
+            margin-right: 8px;
+            width: 18px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            margin-left: 200px;
+            padding: 20px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        h2 {
+            color: var(--amazon-green);
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+
+        .navbar-toggler {
+            display: none;
+            margin: 12px;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            transition: color 0.2s ease;
+        }
+
+        .navbar-toggler:hover { color: var(--amazon-orange); }
+
+        .order-card {
+            background-color: #FFFFFF;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #EDEFF0;
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            background-color: #FDFDFD;
+        }
+
+        .order-card h2 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .order-card p {
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .chart-container {
+            background-color: #FFFFFF;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #EDEFF0;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .chart-container:hover { box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); }
+
+        .no-data {
+            text-align: center;
+            color: #DC3545;
+            font-style: italic;
+            font-size: 0.85rem;
+            padding: 12px;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 1050;
+        }
+
+        .toast-header {
+            background: linear-gradient(135deg, var(--amazon-green), #00C896);
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .navbar-toggler { display: block; }
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 16px;
+            font-size: 0.9rem;
+            color: var(--amazon-orange);
+        }
+
+        .error-message {
+            display: none;
+            color: #DC3545;
+            text-align: center;
+            padding: 16px;
+            font-size: 0.9rem;
+            background-color: #FFF5F5;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">Admin Dashboard</div>
+        <div class="sidebar-nav">
+            <a th:href="@{/admin/dashboard}" class="active"><i class="fas fa-home"></i> Tổng Quan</a>
+            <a th:href="@{/admin/orders}"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
+            <a th:href="@{/admin/accounts}"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
+            <a th:href="@{/admin/products}"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+            <a th:href="@{/admin/import-orders}"><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
+            <a th:href="@{/admin/settings}"><i class="fas fa-cog"></i> Cài Đặt</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div id="overview" class="section">
+            <h1 class="text-2xl font-bold mb-4 text-center" style="color: var(--amazon-green);">Admin Dashboard</h1>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...
+            </div>
+
+            <!-- Error Message -->
+            <div id="error" class="error-message">
+                Lỗi khi tải dữ liệu. Vui lòng kiểm tra kết nối cơ sở dữ liệu hoặc liên hệ quản trị viên.
+            </div>
+
+            <!-- Order Statistics -->
+            <div class="row mb-6" id="order-stats">
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('unconfirmed')">
+                        <h2>Đơn hàng chưa xác nhận</h2>
+                        <p id="unconfirmed-count" style="color: var(--amazon-orange);">0</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('inDelivery')">
+                        <h2>Đơn hàng đang giao</h2>
+                        <p id="inDelivery-count" style="color: var(--amazon-orange);">0</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('delivered')">
+                        <h2>Đơn hàng đã giao</h2>
+                        <p id="delivered-count" style="color: var(--amazon-green);">0</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('canceled')">
+                        <h2>Đơn hàng bị hủy</h2>
+                        <p id="canceled-count" style="color: #dc3545;">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="charts">
+                <!-- Top 10 Categories -->
+                <div class="chart-container">
+                    <h2 class="text-lg font-semibold mb-3">Top 10 Danh mục bán chạy</h2>
+                    <div id="topCategoriesNoData" class="no-data" style="display: none;">
+                        Không có dữ liệu danh mục hoặc chi tiết đơn hàng (on_detail/off_detail) trống.
+                    </div>
+                    <canvas id="topCategoriesChart"></canvas>
+                </div>
+
+                <!-- Bottom 10 Categories -->
+                <div class="chart-container">
+                    <h2 class="text-lg font-semibold mb-3">Top 10 Danh mục bán chậm</h2>
+                    <div id="bottomCategoriesNoData" class="no-data" style="display: none;">
+                        Không có dữ liệu danh mục hoặc chi tiết đơn hàng (on_detail/off_detail) trống.
+                    </div>
+                    <canvas id="bottomCategoriesChart"></canvas>
+                </div>
+
+                <!-- Revenue by Month -->
+                <div class="chart-container lg:col-span-2">
+                    <h2 class="text-lg font-semibold mb-3">Doanh thu theo tháng (4 tháng gần nhất)</h2>
+                    <div id="revenueNoData" class="no-data" style="display: none;">
+                        Không có dữ liệu doanh thu hoặc chi tiết đơn hàng (on_detail/off_detail) trống.
+                    </div>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container">
+    <div id="actionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script th:src="@{/js/app.js}"></script>
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('active');
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('actionToast');
+        const toastBody = toast.querySelector('.toast-body');
+        toastBody.textContent = message;
+        toast.classList.remove('bg-success', 'bg-danger');
+        toast.classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+    }
+
+    // Show loading spinner
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+    const orderStats = document.getElementById('order-stats');
+    const charts = document.getElementById('charts');
+    loading.style.display = 'block';
+    orderStats.style.display = 'none';
+    charts.style.display = 'none';
+
+    // Fetch dashboard data
+    fetch('/admin/dashboard/data')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Dashboard data:', JSON.stringify(data, null, 2));
+            console.log('Top Categories Raw:', data.topCategories);
+            console.log('Bottom Categories Raw:', data.bottomCategories);
+            console.log('Revenue Raw:', data.revenue);
+
+            // Hide loading spinner and show content
+            loading.style.display = 'none';
+            orderStats.style.display = 'flex';
+            charts.style.display = 'grid';
+
+            // Update order statistics
+            try {
+                document.getElementById('unconfirmed-count').textContent = data.orderStats.unconfirmed.count || 0;
+                document.getElementById('inDelivery-count').textContent = data.orderStats.inDelivery.count || 0;
+                document.getElementById('delivered-count').textContent = data.orderStats.delivered.count || 0;
+                document.getElementById('canceled-count').textContent = data.orderStats.canceled.count || 0;
+            } catch (e) {
+                console.error('Error updating order stats:', e);
+                showToast('Lỗi khi hiển thị thống kê đơn hàng', 'danger');
+            }
+
+            // Top Categories Chart
+            const topCategoriesCanvas = document.getElementById('topCategoriesChart');
+            const topCategoriesNoData = document.getElementById('topCategoriesNoData');
+            if (data.topCategories && Array.isArray(data.topCategories) && data.topCategories.length > 0) {
+                topCategoriesNoData.style.display = 'none';
+                topCategoriesCanvas.style.display = 'block';
+                try {
+                    new Chart(topCategoriesCanvas.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: data.topCategories.map(cat => cat.name || 'Unknown'),
+                            datasets: [{
+                                label: 'Số lượng bán',
+                                data: data.topCategories.map(cat => cat.sales || 0),
+                                backgroundColor: 'rgba(0, 168, 118, 0.6)',
+                                borderColor: 'rgba(0, 168, 118, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    title: { display: true, text: 'Số lượng bán' },
+                                    ticks: {
+                                        stepSize: 1,
+                                        precision: 0
+                                    }
+                                },
+                                y: {
+                                    title: { display: true, text: 'Danh mục' }
+                                }
+                            },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error rendering top categories chart:', e);
+                    showToast('Lỗi khi hiển thị biểu đồ danh mục bán chạy.', 'danger');
+                    topCategoriesNoData.style.display = 'block';
+                    topCategoriesCanvas.style.display = 'none';
+                }
+            } else {
+                console.warn('No data for top categories:', data.topCategories);
+                topCategoriesNoData.style.display = 'block';
+                topCategoriesCanvas.style.display = 'none';
+            }
+
+            // Bottom Categories Chart
+            const bottomCategoriesCanvas = document.getElementById('bottomCategoriesChart');
+            const bottomCategoriesNoData = document.getElementById('bottomCategoriesNoData');
+            if (data.bottomCategories && Array.isArray(data.bottomCategories) && data.bottomCategories.length > 0) {
+                bottomCategoriesNoData.style.display = 'none';
+                bottomCategoriesCanvas.style.display = 'block';
+                try {
+                    new Chart(bottomCategoriesCanvas.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: data.bottomCategories.map(cat => cat.name || 'Unknown'),
+                            datasets: [{
+                                label: 'Số lượng bán',
+                                data: data.bottomCategories.map(cat => cat.sales || 0),
+                                backgroundColor: 'rgba(244, 180, 0, 0.6)',
+                                borderColor: 'rgba(244, 180, 0, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    title: { display: true, text: 'Số lượng bán' },
+                                    ticks: {
+                                        stepSize: 1,
+                                        precision: 0
+                                    }
+                                },
+                                y: {
+                                    title: { display: true, text: 'Danh mục' }
+                                }
+                            },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error rendering bottom categories chart:', e);
+                    showToast('Lỗi khi hiển thị biểu đồ danh mục bán chậm.', 'danger');
+                    bottomCategoriesNoData.style.display = 'block';
+                    bottomCategoriesCanvas.style.display = 'none';
+                }
+            } else {
+                console.warn('No data for bottom categories:', data.bottomCategories);
+                bottomCategoriesNoData.style.display = 'block';
+                bottomCategoriesCanvas.style.display = 'none';
+            }
+
+            // Revenue Chart
+            const revenueCanvas = document.getElementById('revenueChart');
+            const revenueNoData = document.getElementById('revenueNoData');
+            if (data.revenue && Array.isArray(data.revenue) && data.revenue.length > 0) {
+                revenueNoData.style.display = 'none';
+                revenueCanvas.style.display = 'block';
+                try {
+                    new Chart(revenueCanvas.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: data.revenue.map(rev => rev.month || 'Unknown'),
+                            datasets: [{
+                                label: 'Doanh thu',
+                                data: data.revenue.map(rev => parseFloat(rev.amount) || 0),
+                                backgroundColor: 'rgba(0, 168, 118, 0.6)',
+                                borderColor: 'rgba(0, 168, 118, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: { display: true, text: 'Doanh thu (VND)' },
+                                    ticks: {
+                                        stepSize: 1000000,
+                                        precision: 0,
+                                        callback: function(value) {
+                                            return value / 1000000 + 'M';
+                                        }
+                                    }
+                                },
+                                x: {
+                                    title: { display: true, text: 'Tháng' }
+                                }
+                            },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error rendering revenue chart:', e);
+                    showToast('Lỗi khi hiển thị biểu đồ doanh thu.', 'danger');
+                    revenueNoData.style.display = 'block';
+                    revenueCanvas.style.display = 'none';
+                }
+            } else {
+                console.warn('No data for revenue:', data.revenue);
+                revenueNoData.style.display = 'block';
+                revenueCanvas.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching dashboard data:', error);
+            loading.style.display = 'none';
+            error.style.display = 'block';
+            showToast('Lỗi khi tải dữ liệu dashboard. Kiểm tra kết nối cơ sở dữ liệu.', 'danger');
+        });
+
+    function navigateToOrders(status) {
+        let url;
+        switch (status) {
+            case 'unconfirmed': url = '/admin/orders?status=unconfirmed'; break;
+            case 'inDelivery': url = '/admin/orders?status=inDelivery'; break;
+            case 'delivered': url = '/admin/orders?status=delivered'; break;
+            case 'canceled': url = '/admin/orders?status=canceled'; break;
+        }
+        window.location.href = url;
+    }
+</script>
+</body>
+</html>

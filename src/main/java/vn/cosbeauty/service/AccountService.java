@@ -1,5 +1,6 @@
 package vn.cosbeauty.service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,10 @@ import vn.cosbeauty.entity.Employee;
 import vn.cosbeauty.repository.AccountRepository;
 import vn.cosbeauty.repository.CustomerRepository;
 import vn.cosbeauty.repository.EmployeeRepository;
+
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService implements UserDetailsService{
@@ -269,6 +274,107 @@ public class AccountService implements UserDetailsService{
         return accountRepository.findByUsernameIn(emails);
     }
 
-    
+    // HashMap để lưu token khôi phục tạm thời
+    private final Map<String, ResetTokenInfo> resetTokens = new HashMap<>();
+
+    // Inner class để lưu thông tin token
+    private static class ResetTokenInfo {
+        private final String email;
+        private final LocalDateTime expiryDate;
+
+        public ResetTokenInfo(String email, LocalDateTime expiryDate) {
+            this.email = email;
+            this.expiryDate = expiryDate;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public boolean isExpired() {
+            return LocalDateTime.now().isAfter(expiryDate);
+        }
+    }
+
+    public Account findByEmail(String email) {
+        Account account = accountRepository.findByUsername(email);
+        System.out.println("findByEmail: Email " + email + " found: " + (account != null));
+        return account;
+    }
+
+    @Transactional
+    public String generateResetPasswordToken(Account account) {
+        String token = UUID.randomUUID().toString();
+        LocalDateTime expiryDate = LocalDateTime.now().plusHours(48); // Tăng lên 48 giờ
+        resetTokens.put(token, new ResetTokenInfo(account.getUsername(), expiryDate));
+        System.out.println("Generated reset token: " + token + " for email: " + account.getUsername());
+        System.out.println("Current resetTokens size: " + resetTokens.size());
+        System.out.println("Token expiry: " + expiryDate);
+        return token;
+    }
+
+    public void sendResetPasswordEmail(String email, String token) throws MessagingException {
+        String resetLink = "http://localhost:9090/reset-password?token=" + token; // Kiểm tra port
+        String subject = "Khôi phục mật khẩu";
+        String content = "<html>" +
+                "<body>" +
+                "<p style=\"font-size: 16px;\">Vui lòng nhấp vào nút dưới đây để đặt lại mật khẩu:</p>" +
+                "<a href=\"" + resetLink + "\" " +
+                "style=\"display: inline-block; padding: 8px 15px; font-size: 14px; " +
+                "color: #fff; background-color: #28a745; text-decoration: none; border-radius: 5px;\">" +
+                "Đặt lại mật khẩu</a>" +
+                "<p>Liên kết này sẽ hết hạn sau 48 giờ.</p>" +
+                "</body>" +
+                "</html>";
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setTo(email);
+        helper.setSubject(subject);
+        helper.setText(content, true);
+
+        try {
+            mailSender.send(message);
+            System.out.println("Reset password email sent to: " + email + " with link: " + resetLink);
+        } catch (Exception e) {
+            System.err.println("Failed to send reset password email: " + e.getMessage());
+            e.printStackTrace();
+            throw new MessagingException("Không thể gửi email khôi phục.", e);
+        }
+    }
+
+    public boolean isValidResetPasswordToken(String token) {
+        ResetTokenInfo tokenInfo = resetTokens.get(token);
+        if (tokenInfo == null) {
+            System.out.println("Token not found: " + token);
+            return false;
+        }
+        if (tokenInfo.isExpired()) {
+            System.out.println("Token expired: " + token + ", expiry: " + tokenInfo.expiryDate);
+            return false;
+        }
+        System.out.println("Token valid: " + token + " for email: " + tokenInfo.getEmail());
+        return true;
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        ResetTokenInfo tokenInfo = resetTokens.get(token);
+        if (tokenInfo == null || tokenInfo.isExpired()) {
+            System.out.println("Reset attempt failed: Token " + token + " invalid or expired");
+            throw new RuntimeException("Token không hợp lệ hoặc đã hết hạn.");
+        }
+
+        Account account = accountRepository.findByUsername(tokenInfo.getEmail());
+        if (account == null) {
+            System.out.println("Reset attempt failed: Account not found for email: " + tokenInfo.getEmail());
+            throw new RuntimeException("Tài khoản không tồn tại.");
+        }
+
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+        resetTokens.remove(token);
+        System.out.println("Password reset for email: " + tokenInfo.getEmail());
+    }
 }
 

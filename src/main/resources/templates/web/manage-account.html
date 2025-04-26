@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quản Lý Đơn Hàng Online - Admin</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Font Awesome for icons -->
@@ -275,7 +274,7 @@
       Admin Dashboard
     </div>
     <div class="sidebar-nav">
-      <a href="#" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
+      <a th:href="@{/admin/dashboard}" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
       <a href="#" data-section="orders"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
       <a th:href="@{/admin/accounts}" class="active"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
       <a href="#" data-section="products"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>

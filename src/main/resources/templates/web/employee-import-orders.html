@@ -18,6 +18,23 @@
     .container-fluid {
       padding: 0;
     }
+    .btn-custom-search {
+      background-color: #ff6200; /* Cam */
+      border-color: #ff6200;
+      border-radius: 20px;
+      font-weight: 500;
+      padding: 8px 20px;
+      color: #fff;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    .btn-custom-search:hover {
+      background-color: #e65b00; /* Cam đậm hơn */
+      border-color: #e65b00;
+    }
+    .btn-custom-search i {
+      font-size: 14px;
+      vertical-align: middle;
+    }
     /* Sidebar */
     .sidebar {
       width: 250px;
@@ -98,7 +115,7 @@
       transition: background-color 0.3s;
     }
     .status-pending { color: #ffc107; font-weight: 500; }
-    .status-confirmed { color: #317546; font-weight: 500; } /* Xanh lá đậm */
+    .status-confirmed { color: #317546; font-weight: 500; }
     .status-cancelled { color: #dc3545; font-weight: 500; }
     .status-processing { color: #17a2b8; font-weight: 500; }
     .status-delivering { color: #007bff; font-weight: 500; }
@@ -234,6 +251,13 @@
         display: block;
       }
     }
+    /* Column widths for import orders table */
+    .table th:nth-child(1), .table td:nth-child(1) { width: 8%; } /* # */
+    .table th:nth-child(2), .table td:nth-child(2) { width: 15%; } /* Chi Phí */
+    .table th:nth-child(3), .table td:nth-child(3) { width: 20%; } /* Ngày Nhập */
+    .table th:nth-child(4), .table td:nth-child(4) { width: 15%; } /* Trạng Thái */
+    .table th:nth-child(5), .table td:nth-child(5) { width: 22%; } /* Lý Do Hủy */
+    .table th:nth-child(6), .table td:nth-child(6) { width: 20%; } /* Hành Động */
   </style>
 </head>
 <body>
@@ -279,8 +303,9 @@
               <option value="">Tất cả trạng thái</option>
               <option value="1" th:selected="${param.status == '1'}">Đã duyệt</option>
               <option value="0" th:selected="${param.status == '0'}">Chưa duyệt</option>
+              <option value="2" th:selected="${param.status == '2 '}">Đã hủy</option>
             </select>
-            <button type="submit" class="btn btn-search px-3">Tìm</button>
+            <button type="submit" class="btn btn-custom-search">Tìm</button>
           </form>
         </div>
 
@@ -293,6 +318,7 @@
             <th>Ngày Nhập</th>
             <th>Trạng Thái</th>
             <th>Lý Do Hủy</th>
+            <th class="action-column">Hành Động</th>
           </tr>
           </thead>
           <tbody>
@@ -300,8 +326,11 @@
             <td th:text="${importOrder.importID}"></td>
             <td th:text="${importOrder.cost}"></td>
             <td th:text="${importOrder.importDate != null ? importOrder.importDate : 'N/A'}"></td>
-            <td th:text="${importOrder.status == 1 ? 'Đã duyệt' : 'Chưa duyệt'}"></td>
+            <td th:text="${importOrder.status == 1 ? 'Đã duyệt' : importOrder.status == 2 ? 'Đã hủy' : 'Chưa duyệt'}"></td>
             <td th:text="${importOrder.cancelReason}"></td>
+            <td class="action-column">
+              <a th:href="@{/employee/import-orders/view(importID=${importOrder.importID})}" class="btn btn-secondary">View</a>
+            </td>
           </tr>
           </tbody>
         </table>

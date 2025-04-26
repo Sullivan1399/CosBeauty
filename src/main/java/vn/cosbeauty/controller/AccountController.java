@@ -119,6 +119,76 @@ public class AccountController {
         this.accountService = accountService;
         this.importOrderService = importOrderService;
     }
+
+    @GetMapping("/forgot")
+    public String showForgotPasswordForm(Model model) {
+        model.addAttribute("email", "");
+        return "web/forgot-password";
+    }
+
+    @PostMapping("/forgot")
+    public String processForgotPassword(@RequestParam("email") String email, Model model) {
+        try {
+            System.out.println("Processing forgot password for email: " + email);
+            Account account = accountService.findByEmail(email);
+            if (account == null) {
+                System.out.println("Email not found: " + email);
+                model.addAttribute("error", "Email không tồn tại trong hệ thống.");
+                return "web/forgot-password";
+            }
+            System.out.println("Found account: " + account.getUsername());
+            String resetToken = accountService.generateResetPasswordToken(account);
+            System.out.println("Generated token: " + resetToken);
+            accountService.sendResetPasswordEmail(email, resetToken);
+            System.out.println("Email sent to: " + email);
+            model.addAttribute("message", "Hướng dẫn khôi phục mật khẩu đã được gửi đến email của bạn.");
+            return "web/forgot-password";
+        } catch (Exception e) {
+            System.err.println("Error sending reset email: " + e.getMessage());
+            model.addAttribute("error", "Lỗi khi gửi email khôi phục: " + e.getMessage());
+            return "web/forgot-password";
+        }
+    }
+
+    @GetMapping("/reset-password")
+    public String showResetPasswordForm(@RequestParam("token") String token, Model model) {
+        try {
+            if (accountService.isValidResetPasswordToken(token)) {
+                model.addAttribute("token", token);
+                return "web/reset-password";
+            } else {
+                model.addAttribute("message", "Token không hợp lệ hoặc đã hết hạn.");
+                return "web/login";
+            }
+        } catch (RuntimeException e) {
+            model.addAttribute("message", "Lỗi: " + e.getMessage());
+            return "web/login";
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public String processResetPassword(
+            @RequestParam("token") String token,
+            @RequestParam("password") String password,
+            @RequestParam("confirmPassword") String confirmPassword,
+            Model model) {
+        try {
+            if (!password.equals(confirmPassword)) {
+                model.addAttribute("error", "Mật khẩu và xác nhận mật khẩu không khớp.");
+                model.addAttribute("token", token);
+                return "web/reset-password";
+            }
+
+            accountService.resetPassword(token, password);
+            model.addAttribute("message", "Mật khẩu đã được đặt lại thành công! Bạn có thể đăng nhập.");
+            return "web/login";
+        } catch (RuntimeException e) {
+            model.addAttribute("error", "Lỗi khi đặt lại mật khẩu: " + e.getMessage());
+            model.addAttribute("token", token);
+            return "web/reset-password";
+        }
+    }
+
     @GetMapping("/admin/accounts")
     public String manageAdmin(
             @RequestParam(name = "type", defaultValue = "users") String type,
@@ -158,7 +228,7 @@ public class AccountController {
             model.addAttribute("totalPages", 1); // TODO: Cập nhật nếu triển khai phân trang
             model.addAttribute("activeSection", "account");
         }
-        return "web/Manage-account";
+        return "web/manage-account";
     }
 
     @PostMapping("/admin/accounts")
@@ -183,5 +253,7 @@ public class AccountController {
         }
         return "redirect:/admin/accounts";
     }
+
+
 
 }
