@@ -1,8 +1,12 @@
 package vn.cosbeauty.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import vn.cosbeauty.service.OnlineService;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -10,13 +14,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Controller
 public class DashboardController {
-
     private static final Logger logger = LoggerFactory.getLogger(DashboardController.class);
+
+    @Autowired
+    private OnlineService onlineService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -33,15 +37,19 @@ public class DashboardController {
         try {
             logger.info("Fetching dashboard data");
 
-            // Order Statistics (unchanged, as they work)
+            // Order Statistics
+            Map<String, Long> statusCounts = onlineService.getOrderStatusCounts();
             Map<String, Map<String, Object>> orderStats = Map.of(
-                    "unconfirmed", Map.of("label", "Đơn hàng chưa xác nhận", "count", getOrderCount("unconfirmed")),
-                    "inDelivery", Map.of("label", "Đơn hàng đang giao", "count", getOrderCount("inDelivery")),
-                    "delivered", Map.of("label", "Đơn hàng đã giao", "count", getOrderCount("delivered")),
-                    "canceled", Map.of("label", "Đơn hàng bị hủy", "count", getOrderCount("canceled"))
+                    "pending", Map.of("label", "Chờ xác nhận", "count", statusCounts.get("pending")),
+                    "confirmed", Map.of("label", "Đã xác nhận", "count", statusCounts.get("confirmed")),
+                    "canceled", Map.of("label", "Đã hủy", "count", statusCounts.get("canceled")),
+                    "processing", Map.of("label", "Đang xử lý", "count", statusCounts.get("processing")),
+                    "delivering", Map.of("label", "Đang vận chuyển", "count", statusCounts.get("delivering")),
+                    "success", Map.of("label", "Thành công", "count", statusCounts.get("success")),
+                    "failed", Map.of("label", "Thất bại", "count", statusCounts.get("failed"))
             );
 
-            // Top 10 and Bottom 10 Categories by Sales (Native SQL, Fixed Column Names)
+            // Top 10 and Bottom 10 Categories by Sales (unchanged)
             List<Object[]> categorySales;
             try {
                 categorySales = entityManager.createNativeQuery(
@@ -69,7 +77,7 @@ public class DashboardController {
                     .map(row -> Map.of("name", row[0] != null ? row[0] : "Unknown", "sales", ((Number) row[1]).longValue()))
                     .collect(Collectors.toList());
 
-            // Revenue by Month (Last 4 months, Native SQL, Fallback to online_order/offline_order cost)
+            // Revenue by Month (unchanged)
             List<Object[]> revenue;
             try {
                 revenue = entityManager.createNativeQuery(
@@ -94,8 +102,8 @@ public class DashboardController {
 
             List<Map<String, String>> revenueData = revenue.stream()
                     .collect(Collectors.groupingBy(
-                            row -> (String) row[0], // Group by month name
-                            Collectors.summingDouble(row -> ((Number) row[2]).doubleValue()) // Sum amounts
+                            row -> (String) row[0],
+                            Collectors.summingDouble(row -> ((Number) row[2]).doubleValue())
                     ))
                     .entrySet().stream()
                     .map(entry -> Map.of(
@@ -116,32 +124,6 @@ public class DashboardController {
         } catch (Exception e) {
             logger.error("Error fetching dashboard data", e);
             throw new RuntimeException("Failed to fetch dashboard data", e);
-        }
-    }
-
-    private long getOrderCount(String status) {
-        try {
-            String query;
-            switch (status) {
-                case "unconfirmed":
-                    query = "SELECT COUNT(*) FROM online_order WHERE confirm = 0";
-                    break;
-                case "inDelivery":
-                    query = "SELECT COUNT(*) FROM online_order WHERE delivery_status = 3";
-                    break;
-                case "delivered":
-                    query = "SELECT COUNT(*) FROM online_order WHERE delivery_status = 1";
-                    break;
-                case "canceled":
-                    query = "SELECT COUNT(*) FROM online_order WHERE delivery_status = 2";
-                    break;
-                default:
-                    return 0;
-            }
-            return ((Number) entityManager.createNativeQuery(query).getSingleResult()).longValue();
-        } catch (Exception e) {
-            logger.error("Error counting orders for status: {}", status, e);
-            return 0;
         }
     }
 

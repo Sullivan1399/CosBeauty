@@ -17,6 +17,13 @@
             --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
             --sidebar-bg: #FFF8F0;
             --accent-hover: #FFE6CC;
+            --status-pending: #ffc107; /* Chờ xác nhận */
+            --status-confirmed: #317546; /* Đã xác nhận */
+            --status-cancelled: #dc3545; /* Đã hủy */
+            --status-processing: #17a2b8; /* Đang xử lý */
+            --status-delivering: #007bff; /* Đang vận chuyển */
+            --status-success: #ff6200; /* Thành công */
+            --status-failed: #dc3545; /* Thất bại */
         }
 
         body {
@@ -30,64 +37,53 @@
         .container-fluid { padding: 0; }
 
         .sidebar {
-            width: 200px;
+            width: 250px;
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            background-color: var(--sidebar-bg);
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            background-color: #fff3e6;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
             transition: transform 0.3s ease;
         }
-
         .sidebar-header {
-            padding: 16px;
-            background: accel 135deg, #FF6200, #FF8C00);
-            color: #FFFFFF;
+            padding: 20px;
+            background-color: #ff6200;
+            color: #fff;
             text-align: center;
-            font-size: 1.2rem;
             font-weight: 700;
-            letter-spacing: 0.3px;
         }
-
-        .sidebar-nav { padding: 10px 0; }
-
+        .sidebar-nav {
+            padding: 10px 0;
+        }
         .sidebar-nav a {
             display: flex;
             align-items: center;
-            padding: 10px 18px;
-            color: var(--text-dark);
+            padding: 12px 20px;
+            color: #333;
             text-decoration: none;
-            font-size: 0.85rem;
             font-weight: 500;
-            transition: background-color 0.3s ease, color 0.3s ease, padding-left 0.2s ease;
+            transition: background-color 0.3s, color 0.3s;
         }
-
         .sidebar-nav a:hover {
-            background-color: var(--accent-hover);
-            color: #FF6200;
-            padding-left: 22px;
+            background-color: #ffe6cc;
         }
-
         .sidebar-nav a.active {
-            background-color: #FF6200;
-            color: #FFFFFF;
-            border-left: 3px solid #FFFFFF;
+            background-color: #ff6200;
+            color: #fff;
         }
-
         .sidebar-nav a i {
-            margin-right: 8px;
-            width: 18px;
+            margin-right: 10px;
+            width: 20px;
             text-align: center;
-            font-size: 0.9rem;
         }
 
         .main-content {
-            margin-left: 200px;
-            padding: 20px;
+            margin-left: 250px;
+            padding: 30px;
             min-height: 100vh;
-            transition: margin-left 0.3s ease;
+            position: relative;
         }
 
         h2 {
@@ -99,11 +95,7 @@
 
         .navbar-toggler {
             display: none;
-            margin: 12px;
-            border: none;
-            font-size: 1.2rem;
-            color: var(--text-dark);
-            transition: color 0.2s ease;
+            margin: 15px;
         }
 
         .navbar-toggler:hover { color: var(--amazon-orange); }
@@ -136,6 +128,11 @@
             line-height: 1.2;
         }
 
+        .status-icon {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
         .chart-container {
             background-color: #FFFFFF;
             padding: 16px;
@@ -143,9 +140,18 @@
             box-shadow: var(--card-shadow);
             border: 1px solid #EDEFF0;
             transition: box-shadow 0.3s ease;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .chart-container:hover { box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); }
+
+        .chart-container canvas {
+            max-height: 100% !important;
+            width: 100% !important;
+        }
 
         .no-data {
             text-align: center;
@@ -169,11 +175,33 @@
             font-size: 0.85rem;
         }
 
+        #charts {
+            min-height: 900px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.active { transform: translateX(0); }
-            .main-content { margin-left: 0; }
-            .navbar-toggler { display: block; }
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .navbar-toggler {
+                display: block;
+            }
+            .chart-container {
+                height: 350px;
+            }
+            #charts {
+                min-height: 1200px;
+            }
         }
 
         .loading-spinner {
@@ -199,14 +227,16 @@
 <div class="container-fluid">
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">Admin Dashboard</div>
+        <div class="sidebar-header">
+            Admin Dashboard
+        </div>
         <div class="sidebar-nav">
-            <a th:href="@{/admin/dashboard}" class="active"><i class="fas fa-home"></i> Tổng Quan</a>
-            <a th:href="@{/admin/orders}"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
-            <a th:href="@{/admin/accounts}"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
-            <a th:href="@{/admin/products}"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
-            <a th:href="@{/admin/import-orders}"><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
-            <a th:href="@{/admin/settings}"><i class="fas fa-cog"></i> Cài Đặt</a>
+            <a th:href="@{/admin/dashboard}" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
+            <a th:href="@{/admin/manage-admin}" data-section="orders"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
+            <a th:href="@{/admin/accounts}" class="active"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
+            <a th:href="@{/admin/ManageProducts}"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+            <a th:href="@{/admin/import-orders}" data-section="import"><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
+            <a href="#" data-section="settings"><i class="fas fa-cog"></i> Cài Đặt</a>
         </div>
     </div>
 
@@ -230,35 +260,52 @@
 
             <!-- Order Statistics -->
             <div class="row mb-6" id="order-stats">
-                <div class="col-12 col-md-6 mb-3">
-                    <div class="order-card" onclick="navigateToOrders('unconfirmed')">
-                        <h2>Đơn hàng chưa xác nhận</h2>
-                        <p id="unconfirmed-count" style="color: var(--amazon-orange);">0</p>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('pending', event)">
+                        <h2><i class="fas fa-clock status-icon"></i>Chờ xác nhận</h2>
+                        <p id="pending-count" style="color: var(--status-pending);">0</p>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 mb-3">
-                    <div class="order-card" onclick="navigateToOrders('inDelivery')">
-                        <h2>Đơn hàng đang giao</h2>
-                        <p id="inDelivery-count" style="color: var(--amazon-orange);">0</p>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('confirmed', event)">
+                        <h2><i class="fas fa-check-circle status-icon"></i>Đã xác nhận</h2>
+                        <p id="confirmed-count" style="color: var(--status-confirmed);">0</p>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 mb-3">
-                    <div class="order-card" onclick="navigateToOrders('delivered')">
-                        <h2>Đơn hàng đã giao</h2>
-                        <p id="delivered-count" style="color: var(--amazon-green);">0</p>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('canceled', event)">
+                        <h2><i class="fas fa-times-circle status-icon"></i>Đã hủy</h2>
+                        <p id="canceled-count" style="color: var(--status-cancelled);">0</p>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 mb-3">
-                    <div class="order-card" onclick="navigateToOrders('canceled')">
-                        <h2>Đơn hàng bị hủy</h2>
-                        <p id="canceled-count" style="color: #dc3545;">0</p>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('processing', event)">
+                        <h2><i class="fas fa-cogs status-icon"></i>Đang xử lý</h2>
+                        <p id="processing-count" style="color: var(--status-processing);">0</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('delivering', event)">
+                        <h2><i class="fas fa-truck status-icon"></i>Đang vận chuyển</h2>
+                        <p id="delivering-count" style="color: var(--status-delivering);">0</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('success', event)">
+                        <h2><i class="fas fa-check-circle status-icon"></i>Thành công</h2>
+                        <p id="success-count" style="color: var(--status-success);">0</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('failed', event)">
+                        <h2><i class="fas fa-times-circle status-icon"></i>Thất bại</h2>
+                        <p id="failed-count" style="color: var(--status-failed);">0</p>
                     </div>
                 </div>
             </div>
 
             <!-- Charts -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="charts">
-                <!-- Top 10 Categories -->
+            <div id="charts">
                 <div class="chart-container">
                     <h2 class="text-lg font-semibold mb-3">Top 10 Danh mục bán chạy</h2>
                     <div id="topCategoriesNoData" class="no-data" style="display: none;">
@@ -266,8 +313,6 @@
                     </div>
                     <canvas id="topCategoriesChart"></canvas>
                 </div>
-
-                <!-- Bottom 10 Categories -->
                 <div class="chart-container">
                     <h2 class="text-lg font-semibold mb-3">Top 10 Danh mục bán chậm</h2>
                     <div id="bottomCategoriesNoData" class="no-data" style="display: none;">
@@ -275,9 +320,7 @@
                     </div>
                     <canvas id="bottomCategoriesChart"></canvas>
                 </div>
-
-                <!-- Revenue by Month -->
-                <div class="chart-container lg:col-span-2">
+                <div class="chart-container" style="grid-column: span 2;">
                     <h2 class="text-lg font-semibold mb-3">Doanh thu theo tháng (4 tháng gần nhất)</h2>
                     <div id="revenueNoData" class="no-data" style="display: none;">
                         Không có dữ liệu doanh thu hoặc chi tiết đơn hàng (on_detail/off_detail) trống.
@@ -304,10 +347,89 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script th:src="@{/js/app.js}"></script>
 <script>
+    function navigateToOrders(status, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const statusMap = {
+            'pending': '/admin/manage-admin?status=confirm-1',
+            'confirmed': '/admin/manage-admin?status=confirm-2',
+            'canceled': '/admin/manage-admin?status=confirm-3',
+            'processing': '/admin/manage-admin?status=delivery-2',
+            'delivering': '/admin/manage-admin?status=delivery-3',
+            'success': '/admin/manage-admin?status=delivery-4',
+            'failed': '/admin/manage-admin?status=delivery-5'
+        };
+        const url = statusMap[status] || '/admin/manage-admin';
+        console.log(`Navigating to: ${url}`);
+        window.location.href = url;
+    }
+
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         sidebar.classList.toggle('active');
     }
+
+    function showSection(sectionId) {
+        console.log(`showSection called with sectionId: ${sectionId}`);
+        document.querySelectorAll('.section').forEach(section => {
+            section.style.display = section.id === sectionId ? 'block' : 'none';
+        });
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
+        });
+        let newUrl;
+        switch (sectionId) {
+            case 'overview': newUrl = '/admin/dashboard'; break;
+            case 'orders': newUrl = '/admin/manage-admin'; break;
+            case 'account': newUrl = '/admin/accounts'; break;
+            case 'products': newUrl = '/admin/ManageProducts'; break;
+            case 'import': newUrl = '/admin/import-orders'; break;
+            case 'settings': newUrl = '/admin/settings'; break;
+            default: newUrl = '/admin/dashboard';
+        }
+        console.log(`Setting URL to: ${newUrl}`);
+        window.history.pushState({ sectionId: sectionId }, '', newUrl);
+        localStorage.setItem('currentSection', sectionId);
+    }
+
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            const sectionId = link.getAttribute('data-section');
+            const href = link.getAttribute('href');
+            if (href && href !== '#') {
+                return;
+            }
+            e.preventDefault();
+            showSection(sectionId);
+            if (window.innerWidth <= 992) {
+                toggleSidebar();
+            }
+        });
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const path = window.location.pathname;
+        let sectionId = localStorage.getItem('currentSection') || 'overview';
+        if (path.includes('/admin/accounts')) {
+            sectionId = 'account';
+        } else if (path.includes('/admin/manage-admin')) {
+            sectionId = 'orders';
+        } else if (path.includes('/admin/ManageProducts')) {
+            sectionId = 'products';
+        } else if (path.includes('/admin/import-orders')) {
+            sectionId = 'import';
+        } else if (path.includes('/admin/settings')) {
+            sectionId = 'settings';
+        } else if (path.includes('/admin/dashboard')) {
+            sectionId = 'overview';
+        }
+        showSection(sectionId);
+    });
+
+    window.addEventListener('popstate', (event) => {
+        const sectionId = event.state ? event.state.sectionId : localStorage.getItem('currentSection') || 'overview';
+        showSection(sectionId);
+    });
 
     function showToast(message, type = 'success') {
         const toast = document.getElementById('actionToast');
@@ -338,9 +460,6 @@
         })
         .then(data => {
             console.log('Dashboard data:', JSON.stringify(data, null, 2));
-            console.log('Top Categories Raw:', data.topCategories);
-            console.log('Bottom Categories Raw:', data.bottomCategories);
-            console.log('Revenue Raw:', data.revenue);
 
             // Hide loading spinner and show content
             loading.style.display = 'none';
@@ -349,160 +468,190 @@
 
             // Update order statistics
             try {
-                document.getElementById('unconfirmed-count').textContent = data.orderStats.unconfirmed.count || 0;
-                document.getElementById('inDelivery-count').textContent = data.orderStats.inDelivery.count || 0;
-                document.getElementById('delivered-count').textContent = data.orderStats.delivered.count || 0;
-                document.getElementById('canceled-count').textContent = data.orderStats.canceled.count || 0;
+                document.getElementById('pending-count').textContent = data.orderStats.pending?.count || 0;
+                document.getElementById('confirmed-count').textContent = data.orderStats.confirmed?.count || 0;
+                document.getElementById('canceled-count').textContent = data.orderStats.canceled?.count || 0;
+                document.getElementById('processing-count').textContent = data.orderStats.processing?.count || 0;
+                document.getElementById('delivering-count').textContent = data.orderStats.delivering?.count || 0;
+                document.getElementById('success-count').textContent = data.orderStats.success?.count || 0;
+                document.getElementById('failed-count').textContent = data.orderStats.failed?.count || 0;
             } catch (e) {
                 console.error('Error updating order stats:', e);
                 showToast('Lỗi khi hiển thị thống kê đơn hàng', 'danger');
             }
 
-            // Top Categories Chart
+            // Top Categories Chart (Horizontal Bar, 1-10 Labels)
             const topCategoriesCanvas = document.getElementById('topCategoriesChart');
             const topCategoriesNoData = document.getElementById('topCategoriesNoData');
             if (data.topCategories && Array.isArray(data.topCategories) && data.topCategories.length > 0) {
                 topCategoriesNoData.style.display = 'none';
                 topCategoriesCanvas.style.display = 'block';
-                try {
-                    new Chart(topCategoriesCanvas.getContext('2d'), {
-                        type: 'bar',
-                        data: {
-                            labels: data.topCategories.map(cat => cat.name || 'Unknown'),
-                            datasets: [{
-                                label: 'Số lượng bán',
-                                data: data.topCategories.map(cat => cat.sales || 0),
-                                backgroundColor: 'rgba(0, 168, 118, 0.6)',
-                                borderColor: 'rgba(0, 168, 118, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            indexAxis: 'y',
-                            scales: {
-                                x: {
-                                    beginAtZero: true,
-                                    title: { display: true, text: 'Số lượng bán' },
-                                    ticks: {
-                                        stepSize: 1,
-                                        precision: 0
-                                    }
-                                },
-                                y: {
-                                    title: { display: true, text: 'Danh mục' }
+                // Pad data to ensure 10 bars
+                const topData = data.topCategories.slice(0, 10);
+                while (topData.length < 10) {
+                    topData.push({ name: 'N/A', sales: 0 });
+                }
+                new Chart(topCategoriesCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], // 1-10 labels
+                        datasets: [{
+                            label: 'Doanh số',
+                            data: topData.map(item => item.sales),
+                            backgroundColor: 'rgba(0, 168, 118, 0.6)', // --amazon-green
+                            borderColor: 'rgba(0, 168, 118, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y', // Makes bars horizontal
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Doanh số'
                                 }
                             },
-                            plugins: { legend: { display: false } }
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Xếp hạng'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        const index = context[0].dataIndex;
+                                        return `Hạng ${index + 1}: ${topData[index].name}`;
+                                    }
+                                }
+                            }
                         }
-                    });
-                } catch (e) {
-                    console.error('Error rendering top categories chart:', e);
-                    showToast('Lỗi khi hiển thị biểu đồ danh mục bán chạy.', 'danger');
-                    topCategoriesNoData.style.display = 'block';
-                    topCategoriesCanvas.style.display = 'none';
-                }
+                    }
+                });
             } else {
-                console.warn('No data for top categories:', data.topCategories);
                 topCategoriesNoData.style.display = 'block';
                 topCategoriesCanvas.style.display = 'none';
             }
 
-            // Bottom Categories Chart
+            // Bottom Categories Chart (Horizontal Bar, 1-10 Labels)
             const bottomCategoriesCanvas = document.getElementById('bottomCategoriesChart');
             const bottomCategoriesNoData = document.getElementById('bottomCategoriesNoData');
             if (data.bottomCategories && Array.isArray(data.bottomCategories) && data.bottomCategories.length > 0) {
                 bottomCategoriesNoData.style.display = 'none';
                 bottomCategoriesCanvas.style.display = 'block';
-                try {
-                    new Chart(bottomCategoriesCanvas.getContext('2d'), {
-                        type: 'bar',
-                        data: {
-                            labels: data.bottomCategories.map(cat => cat.name || 'Unknown'),
-                            datasets: [{
-                                label: 'Số lượng bán',
-                                data: data.bottomCategories.map(cat => cat.sales || 0),
-                                backgroundColor: 'rgba(244, 180, 0, 0.6)',
-                                borderColor: 'rgba(244, 180, 0, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            indexAxis: 'y',
-                            scales: {
-                                x: {
-                                    beginAtZero: true,
-                                    title: { display: true, text: 'Số lượng bán' },
-                                    ticks: {
-                                        stepSize: 1,
-                                        precision: 0
-                                    }
-                                },
-                                y: {
-                                    title: { display: true, text: 'Danh mục' }
+                // Pad data to ensure 10 bars
+                const bottomData = data.bottomCategories.slice(0, 10);
+                while (bottomData.length < 10) {
+                    bottomData.push({ name: 'N/A', sales: 0 });
+                }
+                new Chart(bottomCategoriesCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], // 1-10 labels
+                        datasets: [{
+                            label: 'Doanh số',
+                            data: bottomData.map(item => item.sales),
+                            backgroundColor: 'rgba(255, 153, 0, 0.6)', // --amazon-orange
+                            borderColor: 'rgba(255, 153, 0, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y', // Makes bars horizontal
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Doanh số'
                                 }
                             },
-                            plugins: { legend: { display: false } }
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Xếp hạng'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        const index = context[0].dataIndex;
+                                        return `Hạng ${index + 1}: ${bottomData[index].name}`;
+                                    }
+                                }
+                            }
                         }
-                    });
-                } catch (e) {
-                    console.error('Error rendering bottom categories chart:', e);
-                    showToast('Lỗi khi hiển thị biểu đồ danh mục bán chậm.', 'danger');
-                    bottomCategoriesNoData.style.display = 'block';
-                    bottomCategoriesCanvas.style.display = 'none';
-                }
+                    }
+                });
             } else {
-                console.warn('No data for bottom categories:', data.bottomCategories);
                 bottomCategoriesNoData.style.display = 'block';
                 bottomCategoriesCanvas.style.display = 'none';
             }
 
-            // Revenue Chart
+            // Revenue Chart (Line Chart)
             const revenueCanvas = document.getElementById('revenueChart');
             const revenueNoData = document.getElementById('revenueNoData');
             if (data.revenue && Array.isArray(data.revenue) && data.revenue.length > 0) {
                 revenueNoData.style.display = 'none';
                 revenueCanvas.style.display = 'block';
-                try {
-                    new Chart(revenueCanvas.getContext('2d'), {
-                        type: 'bar',
-                        data: {
-                            labels: data.revenue.map(rev => rev.month || 'Unknown'),
-                            datasets: [{
-                                label: 'Doanh thu',
-                                data: data.revenue.map(rev => parseFloat(rev.amount) || 0),
-                                backgroundColor: 'rgba(0, 168, 118, 0.6)',
-                                borderColor: 'rgba(0, 168, 118, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    title: { display: true, text: 'Doanh thu (VND)' },
-                                    ticks: {
-                                        stepSize: 1000000,
-                                        precision: 0,
-                                        callback: function(value) {
-                                            return value / 1000000 + 'M';
-                                        }
-                                    }
-                                },
-                                x: {
-                                    title: { display: true, text: 'Tháng' }
+                new Chart(revenueCanvas.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: data.revenue.map(item => item.month),
+                        datasets: [{
+                            label: 'Doanh thu',
+                            data: data.revenue.map(item => parseFloat(item.amount)),
+                            backgroundColor: 'rgba(0, 168, 118, 0.2)',
+                            borderColor: 'rgba(0, 168, 118, 1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Doanh thu (VND)'
                                 }
                             },
-                            plugins: { legend: { display: false } }
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Tháng'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
                         }
-                    });
-                } catch (e) {
-                    console.error('Error rendering revenue chart:', e);
-                    showToast('Lỗi khi hiển thị biểu đồ doanh thu.', 'danger');
-                    revenueNoData.style.display = 'block';
-                    revenueCanvas.style.display = 'none';
-                }
+                    }
+                });
             } else {
-                console.warn('No data for revenue:', data.revenue);
                 revenueNoData.style.display = 'block';
                 revenueCanvas.style.display = 'none';
             }
@@ -513,17 +662,6 @@
             error.style.display = 'block';
             showToast('Lỗi khi tải dữ liệu dashboard. Kiểm tra kết nối cơ sở dữ liệu.', 'danger');
         });
-
-    function navigateToOrders(status) {
-        let url;
-        switch (status) {
-            case 'unconfirmed': url = '/admin/orders?status=unconfirmed'; break;
-            case 'inDelivery': url = '/admin/orders?status=inDelivery'; break;
-            case 'delivered': url = '/admin/orders?status=delivered'; break;
-            case 'canceled': url = '/admin/orders?status=canceled'; break;
-        }
-        window.location.href = url;
-    }
 </script>
 </body>
 </html>
