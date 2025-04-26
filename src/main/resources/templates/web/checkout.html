@@ -34,14 +34,14 @@
     <div class="humberger__menu__overlay"></div>
     <div class="humberger__menu__wrapper">
         <div class="humberger__menu__logo">
-            <a href="#"><img src="img/logo.png" alt=""></a>
+            <a href="#"><img th:src="@{/img/logo.png}" alt="Logo"></a>
         </div>
         <div class="humberger__menu__cart">
-            <ul>
-                <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+            <li>
+                <a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a>
+            </li>
             </ul>
-            <div class="header__cart__price">item: <span>$150.00</span></div>
+            <div class="header__cart__price" th:text="${@formatter.formatPrice(totalAmount)}"></div>
         </div>
         <div class="humberger__menu__widget">
             <div class="header__top__right__language">
@@ -131,7 +131,9 @@
             <div class="row">
                 <div class="col-lg-3">
                     <div class="header__logo">
-                        <a href="./index.html"><img src="img/logo.png" alt=""></a>
+                        <a th:href="@{/}">
+                            <img th:src="@{/img/logo.png}" alt="" style="max-height: 100px; width: auto" />
+                        </a>
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -155,10 +157,15 @@
                 <div class="col-lg-3">
                     <div class="header__cart">
                         <ul>
-                            <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                            <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                            <li>
+                                <a>
+                                    <i class="fa fa-shopping-bag"></i>
+                                    <span th:text="${cartItems != null ? cartItems.size() : 0}"></span>
+                                </a>
+                            </li>
                         </ul>
-                        <div class="header__cart__price">item: <span>$150.00</span></div>
+                        <div class="header__cart__price" th:text="${@formatter.formatPrice(totalAmount)}"></div>
+
                     </div>
                 </div>
             </div>
@@ -177,20 +184,12 @@
                     <div class="hero__categories">
                         <div class="hero__categories__all">
                             <i class="fa fa-bars"></i>
-                            <span>All departments</span>
+                            <span>Danh mục</span>
                         </div>
                         <ul>
-                            <li><a href="#">Fresh Meat</a></li>
-                            <li><a href="#">Vegetables</a></li>
-                            <li><a href="#">Fruit & Nut Gifts</a></li>
-                            <li><a href="#">Fresh Berries</a></li>
-                            <li><a href="#">Ocean Foods</a></li>
-                            <li><a href="#">Butter & Eggs</a></li>
-                            <li><a href="#">Fastfood</a></li>
-                            <li><a href="#">Fresh Onion</a></li>
-                            <li><a href="#">Papayaya & Crisps</a></li>
-                            <li><a href="#">Oatmeal</a></li>
-                            <li><a href="#">Fresh Bananas</a></li>
+                            <li th:each="category : ${categories}">
+                                <a th:href="@{/category/{id}(id=${category.catID})}" th:text="${category.cateName}"></a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -211,8 +210,8 @@
                                 <i class="fa fa-phone"></i>
                             </div>
                             <div class="hero__search__phone__text">
-                                <h5>+65 11.188.888</h5>
-                                <span>support 24/7 time</span>
+                                <h5>+086-867-2602</h5>
+                                <span>Hỗ trợ 24/7 time</span>
                             </div>
                         </div>
                     </div>
@@ -228,10 +227,10 @@
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <div class="breadcrumb__text">
-                        <h2>Checkout</h2>
+                        <h2>Thanh toán</h2>
                         <div class="breadcrumb__option">
                             <a href="./index.html">Home</a>
-                            <span>Checkout</span>
+                            <span>Thanh toán</span>
                         </div>
                     </div>
                 </div>
@@ -245,14 +244,14 @@
         <div class="container">
             <div class="checkout__form">
                 <h4>Thông tin thanh toán</h4>
-                <form action="#">
+                <form th:action="@{/order}" method="post">
                     <div class="row">
                         <div class="col-lg-6 col-md-6">
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="checkout__input">
                                         <p>Họ và Tên<span>*</span></p>
-                                        <input type="text" th:value="${customer.getName()}">
+                                        <input type="text" th:value="${customer.getName()}" name="customerName">
                                     </div>
                                 </div>
                             </div>
@@ -260,79 +259,21 @@
                                 <div class="col-lg-6">
                                     <div class="checkout__input">
                                         <p>Số điện thoại<span>*</span></p>
-                                        <input type="text" th:value="${customer.getPhone()}">
+                                        <input type="text" th:value="${customer.getPhone()}" name="customerPhone">
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="checkout__input">
                                         <p>Email<span>*</span></p>
-                                        <input type="text" th:value="${customer.getEmail()}">
+                                        <input type="text" th:value="${customer.getEmail()}" name="customerEmail">
                                     </div>
                                 </div>
                             </div>
                             <div class="checkout__input">
                                 <p>Địa chỉ<span>*(Vui lòng nhập đúng chính tả "TP. Hồ Chí Minh" hoặc "TP. Ho Chi "Minh" để được freeship nếu bạn ở TP.Hồ Chí Minh)</span></p>
-                                <input type="text" id="address-input" th:value="${customer.getAddress()}">
+                                <input type="text" id="address-input" th:value="${customer.getAddress()}" name="customerAddress">
                             </div>
-
-<!--                            <div class="checkout__input__checkbox">-->
-<!--                                <label for="diff-acc">-->
-<!--                                    Ship to a different address?-->
-<!--                                    <input type="checkbox" id="diff-acc">-->
-<!--                                    <span class="checkmark"></span>-->
-<!--                                </label>-->
-<!--                            </div>-->
-<!--                            <div id="diff-address-section"  th:object="${shippingAddress}">-->
-<!--                                <div class="form-holder">-->
-<!--                                    <label for="cities">Tỉnh/Thành phố</label>-->
-<!--                                    <select id="cities" class="form-control">-->
-<!--                                        <option value="" selected>Tỉnh/Thành phố</option>-->
-<!--                                    </select>-->
-<!--                                    <input type="hidden" id="cityName" th:field="*{city}">-->
-<!--                                    <div th:if="${#fields.hasErrors('city')}" class="text-danger">-->
-<!--                                        <small th:errors="*{city}" style="color: red"></small>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                                <div class="form-holder">-->
-<!--                                    <label for="districts">Quận/Huyện</label>-->
-<!--                                    <select id="districts" class="form-control">-->
-<!--                                        <option value="" selected>Quận/Huyện</option>-->
-<!--                                    </select>-->
-<!--                                    <input type="hidden" id="districtName" th:field="*{district}">-->
-<!--                                    <div th:if="${#fields.hasErrors('district')}" class="text-danger">-->
-<!--                                        <small th:errors="*{district}" style="color: red"></small>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                                    <div class="form-holder">-->
-<!--                                        <label for="wards">Phường/Xã</label>-->
-<!--                                        <select id="wards" class="form-control">-->
-<!--                                            <option value="" selected>Phường/Xã</option>-->
-<!--                                        </select>-->
-<!--                                        <input type="hidden" id="wardName" th:field="*{ward}">-->
-<!--                                        <div th:if="${#fields.hasErrors('ward')}" class="text-danger">-->
-<!--                                            <small th:errors="*{ward}" style="color: red"></small>-->
-<!--                                        </div>-->
-<!--                                    </div>-->
-<!--                                <div class="form-holder">-->
-<!--                                    <label for="houseNo">Số nhà, tên đường</label>-->
-<!--                                    <input type="text" id="houseNo" th:field="*{houseNo}" class="form-control" placeholder="Số nhà, tên đường" required>-->
-<!--                                    <div th:if="${#fields.hasErrors('houseNo')}" class="text-danger">-->
-<!--                                        <small th:errors="*{houseNo}" style="color: red"></small>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                            </div>-->
-
-
                         </div>
-
-
-
-                            <!--                            <div class="checkout__input">-->
-<!--                                <p>Order notes<span>*</span></p>-->
-<!--                                <input type="text"-->
-<!--                                    placeholder="Notes about your order, e.g. special notes for delivery.">-->
-<!--                            </div>-->
-<!--                        </div>-->
                         <div class="col-lg-6 col-md-6">
                             <div class="checkout__order">
                                 <h4>Đơn hàng của bạn</h4>
@@ -352,106 +293,36 @@
                                         <span style="width: 100px; text-align: right;" th:text="${@formatter.formatPrice(item.getProduct().getPrice())}" th:attr="data-price-check=${item.getProduct().getPrice()}" class="item-price"></span>
                                     </li>
                                 </ul>
-
-
                                 <!-- Tổng tiền -->
                                 <div class="checkout__order__subtotal" style="display: flex;  font-weight: bold;">
                                     <span>Tổng tiền hàng</span>
                                     <span id="checkout-total-check"></span>
+                                    <input type="hidden" id="input-subtotal" name="subtotal" />
                                 </div>
                                 <div class="checkout__order__ship" style="display: flex; font-weight: bold;">
                                     <span>Phí ship</span>
                                     <span id="shipping-fee">0 đ</span> <!-- Phí sẽ được cập nhật bằng JS -->
+                                    <input type="hidden" id="input-shipping-fee" name="shippingFee" />
                                 </div>
                                 <div class="checkout__order__total" style="display: flex; justify-content: space-between; font-weight: bold; color: red; margin-top: 10px;">
                                     <span>Total</span>
                                     <span id="grand-total"></span> <!-- Đây là nơi hiển thị tổng cộng -->
-<!--                                    <span id="grand-total" th:text="${@formatter.formatPrice(totalPrice + shippingFee)}"></span>-->
+                                    <input type="hidden" id="input-grand-total" name="grandTotal" />
+<!--                                   <span id="grand-total" th:text="${@formatter.formatPrice(totalPrice + shippingFee)}"></span>-->
                                 </div>
 
                                 <p style="margin-top: 15px;">
                                     Cảm ơn bạn đã mua hàng tại cửa hàng của chúng tôi!
                                 </p>
-
-                                <button type="submit" class="site-btn">PLACE ORDER</button>
+                                <button type="submit" class="site-btn">ĐẶT HÀNG</button>
                             </div>
                         </div>
-
-
                     </div>
                 </form>
             </div>
         </div>
     </section>
     <!-- Checkout Section End -->
-
-    <!-- Footer Section Begin -->
-    <footer class="footer spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="footer__about">
-                        <div class="footer__about__logo">
-                            <a href="./index.html"><img src="img/logo.png" alt=""></a>
-                        </div>
-                        <ul>
-                            <li>Address: 60-49 Road 11378 New York</li>
-                            <li>Phone: +65 11.188.888</li>
-                            <li>Email: hello@colorlib.com</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 col-sm-6 offset-lg-1">
-                    <div class="footer__widget">
-                        <h6>Useful Links</h6>
-                        <ul>
-                            <li><a href="#">About Us</a></li>
-                            <li><a href="#">About Our Shop</a></li>
-                            <li><a href="#">Secure Shopping</a></li>
-                            <li><a href="#">Delivery infomation</a></li>
-                            <li><a href="#">Privacy Policy</a></li>
-                            <li><a href="#">Our Sitemap</a></li>
-                        </ul>
-                        <ul>
-                            <li><a href="#">Who We Are</a></li>
-                            <li><a href="#">Our Services</a></li>
-                            <li><a href="#">Projects</a></li>
-                            <li><a href="#">Contact</a></li>
-                            <li><a href="#">Innovation</a></li>
-                            <li><a href="#">Testimonials</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-12">
-                    <div class="footer__widget">
-                        <h6>Join Our Newsletter Now</h6>
-                        <p>Get E-mail updates about our latest shop and special offers.</p>
-                        <form action="#">
-                            <input type="text" placeholder="Enter your mail">
-                            <button type="submit" class="site-btn">Subscribe</button>
-                        </form>
-                        <div class="footer__widget__social">
-                            <a href="#"><i class="fa fa-facebook"></i></a>
-                            <a href="#"><i class="fa fa-instagram"></i></a>
-                            <a href="#"><i class="fa fa-twitter"></i></a>
-                            <a href="#"><i class="fa fa-pinterest"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="footer__copyright">
-                        <div class="footer__copyright__text"><p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-  Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-  <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p></div>
-                        <div class="footer__copyright__payment"><img src="img/payment-item.png" alt=""></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-    <!-- Footer Section End -->
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>

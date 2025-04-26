@@ -1,12 +1,7 @@
 package vn.cosbeauty.service;
-
-import jakarta.servlet.http.HttpSession;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.transaction.annotation.Transactional;
 import vn.cosbeauty.entity.CartID;
 import vn.cosbeauty.entity.CartItem;
 import vn.cosbeauty.entity.Customer;
@@ -16,9 +11,7 @@ import vn.cosbeauty.repository.CartRepository;
 import vn.cosbeauty.repository.CustomerRepository;
 import vn.cosbeauty.repository.ProductRepository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -32,6 +25,9 @@ public class CartService {
     private ProductRepository productRepository;
     @Autowired
     private CustomerRepository customerRepository;
+    public void clearCartByCustomerId(Long customerId) {
+        cartItemRepository.deleteCartByCustomerId(customerId);
+    }
     public List<CartItem> getCartItemsByCustomerId(Long customerId) {
         return cartItemRepository.findByCustomerID(customerId);
     }
@@ -58,6 +54,27 @@ public class CartService {
 
     // Hàm tính tổng giá trị giỏ hàng (nếu cần)
 
+    public void addReOrderToCart(Long customerId, Long productId,int quantity) {
+        if (quantity <= 0) {
+            return; // Ignore invalid quantities
+        }
+
+        CartID cartID = new CartID(customerId, productId);
+        Optional<CartItem> existingItem = cartItemRepository.findById(cartID);
+
+        if (existingItem.isPresent()) {
+            CartItem item = existingItem.get();
+            item.setQuantity(item.getQuantity() + quantity);
+            cartItemRepository.save(item);
+        } else {
+            CartItem newItem = new CartItem();
+            newItem.setProductID(productId);
+            newItem.setCustomerID(customerId);
+            newItem.setQuantity(quantity);
+            cartItemRepository.save(newItem);
+        }
+
+    }
     public void addToCart(Long customerId, Long productId) {
 
         CartID cartID = new CartID(customerId, productId);
@@ -74,6 +91,7 @@ public class CartService {
             newItem.setQuantity(1);
             cartItemRepository.save(newItem);
         }
+
     }
     public Optional<CartItem> findByCartID(Long customerID, Long productID){
         CartID cartID = new CartID(customerID, productID);
@@ -90,14 +108,15 @@ public class CartService {
         return cartRepository.findByCustomerID(customerID);
     }
 
-    public void removeFromCart(Long id) {
-        cartRepository.deleteById(id);
+    @Transactional
+    public boolean removeCartItem(Long customerID, Long productID) {
+        CartID cartID = new CartID(customerID, productID);
+        if (cartItemRepository.existsById(cartID)) {
+            cartItemRepository.deleteById(cartID);
+            return true;
+        }
+        return false;
     }
 
-    public CartItem incrementQuantity(Long id) {
-        CartItem item = cartRepository.findById(id).orElseThrow();
-        item.setQuantity(item.getQuantity() + 1);
-        return cartRepository.save(item);
-    }
 }
 

@@ -1,11 +1,11 @@
 package vn.cosbeauty.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import vn.cosbeauty.entity.Category;
-import vn.cosbeauty.entity.Product;
 
-import java.util.List;
-
-public interface  CategoryRepository extends JpaRepository<Category, Long> {
-    List<Category> findAll();
+public interface  CategoryRepository extends JpaRepository<Category, Integer> {
+	Optional<Category> findByCateNameIgnoreCase(String cateName);
 }

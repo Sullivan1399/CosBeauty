@@ -57,6 +57,7 @@
       width: 20px;
       text-align: center;
     }
+    /* Main content */
     .main-content {
       margin-left: 250px;
       padding: 30px;
@@ -227,10 +228,12 @@
     .btn-save i {
       margin-right: 5px;
     }
+    /* Hamburger menu */
     .navbar-toggler {
       display: none;
       margin: 15px;
     }
+    /* Pagination */
     .pagination-container {
       margin-top: 30px;
     }
@@ -292,6 +295,7 @@
 </head>
 <body>
 <div class="container-fluid">
+  <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       Admin Dashboard
@@ -300,13 +304,15 @@
       <a th:href="@{/admin/dashboard}" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
       <a href="#" data-section="orders"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
       <a th:href="@{/admin/accounts}" class="active"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
-      <a href="#" data-section="products"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+      <a th:href="@{/admin/ManageProducts}"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
       <a th:href="@{/admin/import-orders}"><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
       <a href="#" data-section="settings"><i class="fas fa-cog"></i> Cài Đặt</a>
     </div>
   </div>
 
+  <!-- Main Content -->
   <div class="main-content">
+    <!-- Hamburger Menu -->
     <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
       <i class="fas fa-bars"></i>
     </button>
@@ -316,9 +322,11 @@
       <p>Chào mừng đến với bảng điều khiển quản trị. Đây là trang tổng quan.</p>
     </div>
 
+    <!-- Quản Lý Tài Khoản -->
     <div id="account" class="section" style="display: block;">
       <h2 class="text-center mb-4">Quản Lý Tài Khoản</h2>
 
+      <!-- Search Form -->
       <form th:action="@{/admin/accounts}" method="get" class="d-flex align-items-center mb-4" style="max-width: 500px;">
         <select name="searchType" class="form-select me-2" style="width: 150px;">
           <option value="username" th:selected="${searchType == 'username'}">Theo email</option>
@@ -338,6 +346,7 @@
           <a href="/admin/accounts/create-employee" class="btn btn-success">Thêm tài khoản Nhân viên</a>
         </div>
 
+        <!-- Filter Role -->
         <div class="mb-3">
           <form method="get" action="/admin/accounts" class="d-inline">
             <input type="hidden" name="role" value="customer" />
@@ -403,6 +412,7 @@
           </tbody>
         </table>
 
+        <!-- Pagination -->
         <div class="pagination-container d-flex justify-content-center">
           <nav>
             <ul class="pagination">
@@ -428,6 +438,7 @@
   </div>
 </div>
 
+<!-- Toast Container -->
 <div class="toast-container">
   <div id="actionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header">
@@ -438,13 +449,16 @@
   </div>
 </div>
 
+<!-- Bootstrap JS and Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+  // Function to toggle sidebar on mobile
   function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.toggle('active');
   }
 
+  // Function to show section
   function showSection(sectionId) {
     document.querySelectorAll('.section').forEach(section => {
       section.style.display = section.id === sectionId ? 'block' : 'none';
@@ -453,6 +467,7 @@
       link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
     });
 
+    // Cập nhật URL dựa trên sectionId
     let newUrl;
     switch (sectionId) {
       case 'overview': newUrl = '/admin/dashboard'; break;
@@ -464,9 +479,12 @@
       default: newUrl = '/admin/dashboard';
     }
     window.history.pushState({ sectionId: sectionId }, '', newUrl);
+
+    // Lưu section hiện tại vào localStorage
     localStorage.setItem('currentSection', sectionId);
   }
 
+  // Sidebar navigation
   document.querySelectorAll('.sidebar-nav a').forEach(link => {
     link.addEventListener('click', (e) => {
       const sectionId = link.getAttribute('data-section');
@@ -478,6 +496,7 @@
     });
   });
 
+  // Xử lý khi tải trang: Kiểm tra URL để hiển thị section đúng
   window.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
     let sectionId = localStorage.getItem('currentSection') || 'overview';
@@ -490,11 +509,13 @@
     showSection(sectionId);
   });
 
+  // Xử lý nút Back/Forward
   window.addEventListener('popstate', (event) => {
     const sectionId = event.state ? event.state.sectionId : localStorage.getItem('currentSection') || 'overview';
     showSection(sectionId);
   });
 
+  // Function to show toast
   function showToast(message, type = 'success') {
     const toast = document.getElementById('actionToast');
     const toastBody = toast.querySelector('.toast-body');

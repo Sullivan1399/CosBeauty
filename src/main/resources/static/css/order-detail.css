@@ -1,0 +1,411 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f5f5f5;
+}
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+.header a {
+    text-decoration: none;
+    color: #000; /* Màu đen bình thường cho "Quay lại" */
+}
+.header .payment-method {
+    background-color: #e6f5eb;
+    color: #317546;
+    padding: 5px 10px;
+    border-radius: 12px;
+}
+.header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #317546;
+}
+.top-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 20px;
+}
+.order-info, .payment-info {
+    flex: 1;
+}
+.order-info h3, .payment-info h3 {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+}
+.order-info p, .payment-info p {
+    margin: 5px 0;
+    color: #555;
+}
+.address {
+    background-color: #317546;
+    color: #317546;
+    padding: 5px 10px;
+    border-radius: 12px;
+    display: inline-block;
+}
+.payment-info .total {
+    color: #ff6200;
+    font-weight: bold;
+}
+.payment-info .amount {
+    color: #000;
+}
+.product {
+    display: flex;
+    align-items: center; /* Vertically center all items */
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #e0e0e0;
+    min-height: 80px; /* Optional: Set a minimum height to ensure consistency */
+}
+
+.product:last-child {
+    border-bottom: none;
+}
+
+.product img {
+    width: 60px;
+    height: 60px; /* Fix the height to ensure uniformity */
+    object-fit: cover; /* Ensure the image scales properly */
+}
+
+.product-details {
+    flex-grow: 1;
+    display: flex;
+    align-items: center; /* Center the text vertically */
+}
+
+.product-details p {
+    margin: 0; /* Remove default margins to prevent misalignment */
+    color: #555;
+}
+
+.product-price {
+    font-weight: bold;
+    color: #ff6200;
+    display: flex;
+    align-items: center; /* Center the price vertically */
+}
+.product-info {
+    border-top: 1px solid #e0e0e0;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+.product-info h3 {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+}
+.product-info h3 .status-success {
+    color: #ff6200;
+}
+.product-info h3 .delivery-date {
+    color: #317546;
+}
+.product-info .zero {
+    color: #ff6200;
+}
+.product-info .total {
+    color: #ff6200;
+}
+.product {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.product img {
+    width: 60px;
+    height: auto;
+}
+.product-details {
+    flex-grow: 1;
+}
+.product-details p {
+    margin: 2px 0;
+    color: #555;
+}
+.product-price {
+    font-weight: bold;
+    color: #ff6200;
+}
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #e6f5eb; /* Nền xanh nhạt */
+    border: 1px solid #317546;
+    border-radius: 20px; /* Bo tròn */
+    text-decoration: none;
+    color: #317546; /* Màu chữ xanh */
+    margin-top: 20px;
+    float: right;
+    transition: background-color 0.2s ease;
+}
+.button:hover {
+    background-color: #d0e9e0; /* Hiệu ứng hover */
+}
+.timeline-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.timeline {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+    margin-bottom: 20px;
+}
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #ccc;
+    z-index: 0;
+}
+.timeline::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    height: 2px;
+    background-color: #317546;
+    z-index: 0;
+    transition: width 0.3s ease;
+}
+.timeline[data-current-step="1"]::after { width: 0%; }
+.timeline[data-current-step="2"]::after { width: 25%; }
+.timeline[data-current-step="3"]::after { width: 50%; }
+.timeline[data-current-step="4"]::after { width: 75%; }
+.timeline[data-current-step="5"]::after { width: 100%; }
+.timeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20%;
+    position: relative;
+    z-index: 1;
+}
+.timeline-step .icon {
+    width: 40px;
+    height: 40px;
+    background-color: #fff;
+    border: 2px solid #317546;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    color: #317546;
+    transition: transform 0.2s ease;
+}
+.timeline-step .icon:hover {
+    transform: scale(1.1);
+}
+.timeline-step.pending .icon {
+    border-color: #ccc;
+    color: #ccc;
+}
+.timeline-step p {
+    margin: 8px 0 0;
+    text-align: center;
+    font-size: 13px;
+    color: #000;
+    line-height: 1.4;
+}
+.timeline-section .thanks {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 10px;
+}
+.timeline-section .review-button {
+    padding: 8px 20px;
+    background-color: #e6f5eb;
+    border: 1px solid #317546;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #317546;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+.timeline-section .review-button:hover {
+    background-color: #d0e9e0;
+}
+.button {
+    display: inline-block;
+    padding: 8px 16px;
+    border: 2px solid #317546; /* Green border to match your theme */
+    border-radius: 20px; /* Rounded corners for button-like look */
+    background-color: transparent;
+    color: #317546; /* Green text */
+    text-align: center;
+    text-decoration: none; /* Remove underline */
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Smooth hover effect */
+}
+
+.button:hover {
+    background-color: #317546;
+    color: #fff; /* White text on hover */
+    border-color: #317546;
+}
+
+.button:active {
+    background-color: #265638; /* Darker green on click */
+    border-color: #265638;
+}
+.modal-content {
+    border-radius: 10px;
+}
+
+.modal-body .mb-3 {
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 15px;
+}
+
+.modal-body h6 {
+    color: #317546;
+    font-weight: bold;
+}
+
+.modal-body .form-control {
+    border-radius: 5px;
+}
+
+/*// danh gia*/
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header a {
+    text-decoration: none;
+    color: #317546;
+    font-weight: bold;
+}
+
+.top-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.order-info, .payment-info {
+    width: 48%;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+}
+
+.product-info {
+    margin-bottom: 20px;
+}
+
+.product {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.product img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.product-details {
+    flex-grow: 1;
+}
+
+.product-price {
+    font-weight: bold;
+}
+
+.btn-reorder {
+    display: inline-block;
+    padding: 8px 16px;
+    border: 2px solid #317546;
+    border-radius: 20px;
+    background-color: transparent;
+    color: #317546;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-reorder:hover {
+    background-color: #317546;
+    color: #fff;
+    border-color: #317546;
+}
+
+.mb-3 {
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 15px;
+}
+
+.mb-3 h6 {
+    color: #317546;
+    font-weight: bold;
+}
+
+.form-control {
+    border-radius: 5px;
+}
+
+.thanks {
+    text-align: center;
+    font-size: 18px;
+    color: #317546;
+    margin-top: 20px;
+}
+.reviewed-message {
+    margin-bottom: 20px; /* Tạo khoảng cách dưới thông báo đã đánh giá */
+}
+
+.thanks {
+    margin-top: 30px; /* Tạo khoảng cách giữa phần đánh giá và cảm ơn */
+}
+
+.button {
+    margin-top: 30px; /* Đảm bảo nút "Mua lại" không bị đè lên */
+}
+
+.container {
+    padding-bottom: 40px; /* Tạo không gian thêm cho các phần tử ở dưới cùng */
+}

@@ -47,9 +47,14 @@ public class CustomerService {
         if (customer == null) {
             throw new RuntimeException("Không tìm thấy Customer liên kết với tài khoản này!");
         }
-
         return customer.getCustomerID();
+	}
+    
+    public boolean isCustomer() {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_CUSTOMER"));
     }
+
     public Customer getCustomerByEmail(String email) {
         return customerRepository.findByEmail(email);
     }

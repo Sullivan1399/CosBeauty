@@ -21,6 +21,302 @@
     <link rel="stylesheet" th:href="@{/css/slicknav.min.css}" type="text/css">
     <link rel="stylesheet" th:href="@{/css/nice-select.css}" type="text/css">
     <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css">
+	<style>
+		/* Dropdown menu "All categories" */
+        .hero section {
+        	margin: 100px;
+        }
+        .hero__categories ul {
+            position: absolute;
+            left: 0;
+            top: 46px;
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid #ebebeb;
+            padding: 10px 0;
+            z-index: 9;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #ff6200 #f5f5f5;
+            margin-left: 2px;
+        }
+        
+        .hero__categories ul::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .hero__categories ul::-webkit-scrollbar-track {
+            background: #f5f5f5;
+        }
+        
+        .hero__categories ul::-webkit-scrollbar-thumb {
+            background-color: #ff6200;
+            border-radius: 6px;
+        }
+        
+        .hero__categories ul.show {
+            display: block;
+        }
+        
+        .hero__categories li {
+        	margin-left: 15px;
+        }
+        
+        .breadcrumb-section {
+            position: relative;
+            padding: 20px 0; 
+            text-align: center;
+            margin-top: -20px; 
+            margin-bottom: 0px;
+            height: 180px;
+        }
+        
+        .breadcrumb-section img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            box-shadow: 0px 0px 10px #668c2b;
+        }
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .header__top__right__auth .dropdown-menu {
+                position: absolute;
+                left: auto;
+                right: 0;
+                min-width: 200px;
+            }
+            
+            .header__top__right__auth .dropdown-toggle::after {
+                display: inline-block;
+                margin-left: 0.255em;
+                vertical-align: 0.255em;
+                content: "";
+                border-top: 0.3em solid;
+                border-right: 0.3em solid transparent;
+                border-bottom: 0;
+                border-left: 0.3em solid transparent;
+            }
+            
+            .header__cart {
+                text-align: center;
+                margin-bottom: 15px;
+            }
+            
+            .header__logo {
+                text-align: center;
+                margin-bottom: 15px;
+            }
+            
+            .header__menu {
+                display: none;
+            }
+        }
+        
+        /* Common user menu styles */
+        .user-menu {
+            display: inline-block;
+            position: relative;
+        }
+        
+        .user-menu .dropdown-menu {
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: absolute;
+            right: 0;
+            left: auto;
+            top: 100%;
+            z-index: 1000;
+            display: none;
+            float: left;
+            min-width: 10rem;
+            margin: 0.125rem 0 0;
+            font-size: 1rem;
+            color: #212529;
+            text-align: left;
+            list-style: none;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0,0,0,.15);
+        }
+        
+        .user-menu .dropdown-menu.show {
+            display: block;
+        }
+        
+        .user-menu .dropdown-menu a {
+            display: block;
+            padding: 8px 10px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .user-menu .dropdown-menu a:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .user-menu .dropdown-toggle {
+            cursor: pointer;
+        }
+        
+        /* Logout button styling */
+        .logout-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px 10px;
+            width: 100%;
+            text-align: left;
+            transition: all 0.3s;
+            color: #333;
+        }
+        
+        .logout-btn:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Footer styling */
+        .footer {
+            background-color: #f5f5f5;
+            padding: 50px 0 20px;
+            margin-top: 50px;
+        }
+        
+        .footer-logo {
+            margin-bottom: 20px;
+        }
+        
+        .footer-logo img {
+            max-height: 60px;
+            margin: 10px 0;
+        }
+        
+        .footer-info ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .footer-info ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            margin-top: 30px;
+        }
+        
+        /* Cải thiện hiển thị email và thông tin vận chuyển */
+        .header__top__left ul li {
+            display: inline-block;
+            margin-right: 15px;
+            font-size: 14px;
+            color: #1c1c1c;
+            line-height: 39px;
+        }
+        
+        /* Banner carousel */
+        .hero__carousel {
+            position: relative;
+            overflow: hidden;
+            height: 400px;
+        }
+        
+        .hero__carousel .carousel-item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        .hero__carousel .carousel-item.active {
+            opacity: 1;
+        }
+        
+        .hero__carousel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .product__item__pic {
+		    position: relative;
+		    height: 270px; /* Chiều cao cố định */
+		    overflow: hidden;
+		}
+		
+		.product__item__pic__hover {
+		    position: absolute;
+		    left: 0;
+		    bottom: 50px; /* Ẩn ban đầu */
+		    width: 100%;
+		    text-align: center;
+		    transition: all 0.5s;
+		    visibility: hidden;
+		}
+		
+		.product__item:hover .product__item__pic__hover {
+		    bottom: 80px; /* Hiển thị khi hover */
+		    visibility: visible;
+		}
+		
+		.product__item__pic img {
+		    width: 100%;
+		    height: 100%;
+		    object-fit: cover; /* Đảm bảo hình ảnh phủ đầy container */
+		}
+		        
+        /* Tăng khoảng cách giữa các sản phẩm */
+        .product__item {
+		    margin-bottom: 10px;
+            margin-top: 10px; /* Thêm margin-top 10px theo yêu cầu */
+		}
+		
+        /* CSS cho phân trang mới */
+        .pagination {
+            display: flex;
+            padding-left: 0;
+            list-style: none;
+            border-radius: 0.25rem;
+        }
+        
+        .pagination a {
+            color: #7fad39;
+            text-decoration: none;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            padding: 0.5rem 0.75rem;
+            margin: 0 2px;
+            transition: all 0.3s;
+        }
+        
+        .pagination a:hover {
+            color: #fff;
+            background-color: #7fad39;
+            border-color: #7fad39;
+        }
+        
+        .pagination a.active {
+            color: #fff;
+            background-color: #7fad39;
+            border-color: #7fad39;
+        }
+        
+        .page-item {
+            list-style: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -28,61 +324,57 @@
     <div id="preloder">
         <div class="loader"></div>
     </div>
-
-    <!-- Humberger Begin -->
+    
+    <!-- Thông báo đăng xuất (nếu có) -->
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    
+    <!-- Humberger Begin - Chỉ hiển thị trên mobile -->
     <div class="humberger__menu__overlay"></div>
     <div class="humberger__menu__wrapper">
         <div class="humberger__menu__logo">
-            <a href="#"><img src="img/logo.png" alt=""></a>
+            <a th:href="@{/}"><img style="height:50px; width:auto" th:src="@{/img/logo.png}" alt="Logo"></a>
         </div>
+        
         <div class="humberger__menu__cart">
             <ul>
-                <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                <li><a th:href="@{/api/cart/view}"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
             </ul>
-            <div class="header__cart__price">item: <span>$150.00</span></div>
         </div>
-        <div class="humberger__menu__widget">
-            <div class="header__top__right__language">
-                <img src="img/language.png" alt="">
-                <div>English</div>
-                <span class="arrow_carrot-down"></span>
-                <ul>
-                    <li><a href="#">Spanis</a></li>
-                    <li><a href="#">English</a></li>
-                </ul>
-            </div>
-            <div class="header__top__right__auth">
-                <a href="#"><i class="fa fa-user"></i> Login</a>
-            </div>
-        </div>
+        
+        <!-- Mobile menu -->
         <nav class="humberger__menu__nav mobile-menu">
             <ul>
-                <li class="active"><a href="./index.html">Home</a></li>
-                <li><a href="./shop-grid.html">Shop</a></li>
+                <li class="active"><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/web/shop-grid}">Shop</a></li>
                 <li><a href="#">Pages</a>
                     <ul class="header__menu__dropdown">
-                        <li><a href="./shop-details.html">Shop Details</a></li>
-                        <li><a href="./shoping-cart.html">Shoping Cart</a></li>
-                        <li><a href="./checkout.html">Check Out</a></li>
-                        <li><a href="./blog-details.html">Blog Details</a></li>
+                        <li><a th:href="@{/shop-details}">Shop Details</a></li>
+                        <li><a th:href="@{/shoping-cart}">Shopping Cart</a></li>
+                        <li><a th:href="@{/checkout}">Check Out</a></li>
+                        <li><a th:href="@{/blog-details}">Blog Details</a></li>
                     </ul>
                 </li>
-                <li><a href="./blog.html">Blog</a></li>
-                <li><a href="./contact.html">Contact</a></li>
+                <li><a href="#blog">Blog</a></li>
+                <li><a href="#contact">Contact</a></li>
             </ul>
         </nav>
+        
         <div id="mobile-menu-wrap"></div>
+        
         <div class="header__top__right__social">
-            <a href="#"><i class="fa fa-facebook"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=61568438765648&sk=about" target="_blank"><i class="fa fa-facebook"></i></a>
             <a href="#"><i class="fa fa-twitter"></i></a>
             <a href="#"><i class="fa fa-linkedin"></i></a>
             <a href="#"><i class="fa fa-pinterest-p"></i></a>
         </div>
+        
         <div class="humberger__menu__contact">
             <ul>
-                <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
-                <li>Free Shipping for all Order of $99</li>
+                <li>
+                    <i class="fa fa-envelope"></i>
+                    <span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
+                    <span sec:authorize="isAnonymous()">mailcongviec1399@gmail.com</span>
+                </li>
             </ul>
         </div>
     </div>
@@ -93,33 +385,101 @@
         <div class="header__top">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-6">
+                    <div class="col-lg-6 col-md-6">
                         <div class="header__top__left">
                             <ul>
-                                <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
-                                <li>Free Shipping for all Order of $99</li>
+                                <li>
+                                    <i class="fa fa-envelope"></i>
+                                    <span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
+                                    <span sec:authorize="isAnonymous()">mailcongviec1399@gmail.com</span>
+                                </li>
                             </ul>
                         </div>
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-6 col-md-6">
                         <div class="header__top__right">
                             <div class="header__top__right__social">
-                                <a href="#"><i class="fa fa-facebook"></i></a>
+                                <a href="https://www.facebook.com/profile.php?id=61568438765648&sk=about" target="_blank">
+                                    <i class="fa fa-facebook"></i>
+                                </a>
                                 <a href="#"><i class="fa fa-twitter"></i></a>
                                 <a href="#"><i class="fa fa-linkedin"></i></a>
                                 <a href="#"><i class="fa fa-pinterest-p"></i></a>
                             </div>
                             <div class="header__top__right__language">
-                                <img src="img/language.png" alt="">
-                                <div>English</div>
-                                <span class="arrow_carrot-down"></span>
-                                <ul>
-                                    <li><a href="#">Spanis</a></li>
-                                    <li><a href="#">English</a></li>
-                                </ul>
+                                <img th:src="@{/img/image.png}" style="height: 20px; width: auto" alt="" />
+                                <div>VietNam</div>
                             </div>
-                            <div class="header__top__right__auth">
-                                <a href="#"><i class="fa fa-user"></i> Login</a>
+                            
+                            <!-- Thông tin người dùng - Chung cho cả mobile và desktop -->
+                            <div class="header__top__right__auth">                
+                                <!-- Người dùng chưa đăng nhập -->
+                                <div sec:authorize="isAnonymous()">
+                                    <a th:href="@{/login}">
+                                        <i class="fa fa-user-o"></i> Đăng nhập
+                                    </a>
+                                </div>
+                                
+                                <!-- Admin links -->
+                                <div sec:authorize="hasRole('ROLE_ADMIN')">
+                                    <a th:href="@{/admin/dashboard}">Dashboard</a>
+                                </div>
+                                <div sec:authorize="hasRole('ROLE_ADMIN')">
+                                    <a th:href="@{/admin/ManageProducts}">Quản lý sản phẩm</a>
+                                </div>
+                                <div sec:authorize="hasRole('ROLE_ADMIN')">
+                                    <a th:href="@{/admin/user}">Quản lý người dùng</a>
+                                </div>
+                                
+                                <!-- Staff links -->
+                                <div sec:authorize="hasRole('ROLE_STAFF')">
+                                    <a th:href="@{/staff/bill}">Quản lý hóa đơn</a>
+                                </div>
+                                
+                                <!-- Người dùng đã đăng nhập -->
+                                <div sec:authorize="isAuthenticated() and !hasRole('ROLE_ADMIN')" class="dropdown user-menu">
+                                    <a href="#" class="dropdown-toggle" id="accountDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-user-o"></i> Tài khoản của tôi
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="accountDropdown">
+                                        <div sec:authorize="hasRole('ROLE_EMPLOYEE')">
+                                            <a th:href="@{/employee/formProfile}">
+                                                <i class="fa fa-user"></i> Thông tin cá nhân
+                                            </a>
+                                        </div>
+                                        <div sec:authorize="hasRole('ROLE_CUSTOMER')">
+                                            <a th:href="@{/customer/formProfile}">
+                                                <i class="fa fa-user"></i> Thông tin cá nhân
+                                            </a>
+                                        </div>
+                                        <div sec:authorize="hasRole('ROLE_EMPLOYEE')">
+                                            <a th:href="@{/employee/form_changePassword}">
+                                                <i class="fa fa-key"></i> Đổi mật khẩu
+                                            </a>
+                                        </div>
+                                        <div sec:authorize="hasRole('ROLE_CUSTOMER')">
+                                            <a th:href="@{/customer/form_changePassword}">
+                                                <i class="fa fa-key"></i> Đổi mật khẩu
+                                            </a>
+                                        </div>
+                                        <div sec:authorize="hasRole('ROLE_EMPLOYEE')">
+                                            <a th:href="@{/employee/orders}">
+                                                <i class="fa fa-shopping-basket"></i> Đơn hàng của tôi
+                                            </a>
+                                        </div>
+                                        <div sec:authorize="hasRole('ROLE_EMPLOYEE')">
+                                            <a th:href="@{/employee/bill}">
+                                                <i class="fa fa-file-text-o"></i> Quản lý hóa đơn
+                                            </a>
+                                        </div>
+                                        <div sec:authorize="isAuthenticated()" class="dropdown-divider"></div>
+                                        <form th:action="@{/logout}" method="post">
+                                            <button type="submit" class="logout-btn">
+                                                <i class="fa fa-sign-out"></i> Đăng xuất
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -130,34 +490,34 @@
             <div class="row">
                 <div class="col-lg-3">
                     <div class="header__logo">
-                        <a href="./index.html"><img src="img/logo.png" alt=""></a>
+                        <a th:href="@{/}">
+                            <img th:src="@{/img/logo.png}" alt="" style="max-height: 100px; width: auto" />
+                        </a>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <nav class="header__menu">
                         <ul>
-                            <li><a href="./index.html">Home</a></li>
-                            <li class="active"><a href="./shop-grid.html">Shop</a></li>
+                            <li class="active"><a th:href="@{/}">Home</a></li>
+                            <li><a th:href="@{/web/shop-grid}">Shop</a></li>
                             <li><a href="#">Pages</a>
                                 <ul class="header__menu__dropdown">
-                                    <li><a href="./shop-details.html">Shop Details</a></li>
-                                    <li><a href="./shoping-cart.html">Shoping Cart</a></li>
-                                    <li><a href="./checkout.html">Check Out</a></li>
-                                    <li><a href="./blog-details.html">Blog Details</a></li>
+                                    <li><a th:href="@{/shop-details}">Shop Details</a></li>
+                                    <li><a th:href="@{/shoping-cart}">Shopping Cart</a></li>
+                                    <li><a th:href="@{/checkout}">Check Out</a></li>
+                                    <li><a th:href="@{/blog-details}">Blog Details</a></li>
                                 </ul>
                             </li>
-                            <li><a href="./blog.html">Blog</a></li>
-                            <li><a href="./contact.html">Contact</a></li>
+                            <li><a href="#blog">Blog</a></li>
+                            <li><a href="#contact">Contact</a></li>
                         </ul>
                     </nav>
                 </div>
                 <div class="col-lg-3">
                     <div class="header__cart">
                         <ul>
-                            <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                            <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                            <li><a th:href="@{/api/cart/view}"><i class="fa fa-shopping-bag"></i> <!-- <span>3</span> --></a></li>
                         </ul>
-                        <div class="header__cart__price">item: <span>$150.00</span></div>
                     </div>
                 </div>
             </div>
@@ -169,27 +529,19 @@
     <!-- Header Section End -->
 
     <!-- Hero Section Begin -->
-    <section class="hero hero-normal">
+    <section class="hero">
         <div class="container">
             <div class="row">
                 <div class="col-lg-3">
                     <div class="hero__categories">
                         <div class="hero__categories__all">
                             <i class="fa fa-bars"></i>
-                            <span>All departments</span>
+                            <span>All categories</span>
                         </div>
                         <ul>
-                            <li><a href="#">Fresh Meat</a></li>
-                            <li><a href="#">Vegetables</a></li>
-                            <li><a href="#">Fruit & Nut Gifts</a></li>
-                            <li><a href="#">Fresh Berries</a></li>
-                            <li><a href="#">Ocean Foods</a></li>
-                            <li><a href="#">Butter & Eggs</a></li>
-                            <li><a href="#">Fastfood</a></li>
-                            <li><a href="#">Fresh Onion</a></li>
-                            <li><a href="#">Papayaya & Crisps</a></li>
-                            <li><a href="#">Oatmeal</a></li>
-                            <li><a href="#">Fresh Bananas</a></li>
+                            <li th:each="cat : ${categories}">
+                                <a href="#" th:text="${cat.getCateName()}"></a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -197,11 +549,7 @@
                     <div class="hero__search">
                         <div class="hero__search__form">
                             <form action="#">
-                                <div class="hero__search__categories">
-                                    All Categories
-                                    <span class="arrow_carrot-down"></span>
-                                </div>
-                                <input type="text" placeholder="What do yo u need?">
+                                <input type="text" placeholder="What do you need?">
                                 <button type="submit" class="site-btn">SEARCH</button>
                             </form>
                         </div>
@@ -210,32 +558,17 @@
                                 <i class="fa fa-phone"></i>
                             </div>
                             <div class="hero__search__phone__text">
-                                <h5>+65 11.188.888</h5>
+                                <h5>+086-867-2602</h5>
                                 <span>support 24/7 time</span>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
     </section>
     <!-- Hero Section End -->
 
     <!-- Breadcrumb Section Begin -->
-    <section class="breadcrumb-section set-bg" th:attr="data-setbg=@{/img/hero/banner2.png}">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    <div class="breadcrumb__text">
-                        <h2>Cos Beauty</h2>
-                        <div class="breadcrumb__option">
-                            <a href="./index.html">Home</a>
-                            <span>Shop</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <section class="breadcrumb-section set-bg">
+    	<img th:src="@{/img/hero/LongBanner.jpg}" alt="Banner">
     </section>
     <!-- Breadcrumb Section End -->
 
@@ -277,72 +610,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="sidebar__item sidebar__item__color--option">
-                            <h4>Colors</h4>
-                            <div class="sidebar__item__color sidebar__item__color--white">
-                                <label for="white">
-                                    White
-                                    <input type="radio" id="white">
-                                </label>
-                            </div>
-                            <div class="sidebar__item__color sidebar__item__color--gray">
-                                <label for="gray">
-                                    Gray
-                                    <input type="radio" id="gray">
-                                </label>
-                            </div>
-                            <div class="sidebar__item__color sidebar__item__color--red">
-                                <label for="red">
-                                    Red
-                                    <input type="radio" id="red">
-                                </label>
-                            </div>
-                            <div class="sidebar__item__color sidebar__item__color--black">
-                                <label for="black">
-                                    Black
-                                    <input type="radio" id="black">
-                                </label>
-                            </div>
-                            <div class="sidebar__item__color sidebar__item__color--blue">
-                                <label for="blue">
-                                    Blue
-                                    <input type="radio" id="blue">
-                                </label>
-                            </div>
-                            <div class="sidebar__item__color sidebar__item__color--green">
-                                <label for="green">
-                                    Green
-                                    <input type="radio" id="green">
-                                </label>
-                            </div>
-                        </div>
-                        <div class="sidebar__item">
-                            <h4>Popular Size</h4>
-                            <div class="sidebar__item__size">
-                                <label for="large">
-                                    Large
-                                    <input type="radio" id="large">
-                                </label>
-                            </div>
-                            <div class="sidebar__item__size">
-                                <label for="medium">
-                                    Medium
-                                    <input type="radio" id="medium">
-                                </label>
-                            </div>
-                            <div class="sidebar__item__size">
-                                <label for="small">
-                                    Small
-                                    <input type="radio" id="small">
-                                </label>
-                            </div>
-                            <div class="sidebar__item__size">
-                                <label for="tiny">
-                                    Tiny
-                                    <input type="radio" id="tiny">
-                                </label>
-                            </div>
-                        </div>
+                        
                         <div class="sidebar__item">
                             <div class="latest-product__text">
                                 <h4>Latest Products</h4>
@@ -350,7 +618,7 @@
                                     <div class="latest-prdouct__slider__item">
                                         <a href="#" class="latest-product__item">
                                             <div class="latest-product__item__pic">
-                                                <img src="img/latest-product/lp-1.jpg" alt="">
+                                                <img th:src="@{/img/latest-product/lp-1.jpg}" alt="LTp1">
                                             </div>
                                             <div class="latest-product__item__text">
                                                 <h6>Crab Pool Security</h6>
@@ -359,7 +627,7 @@
                                         </a>
                                         <a href="#" class="latest-product__item">
                                             <div class="latest-product__item__pic">
-                                                <img src="img/latest-product/lp-2.jpg" alt="">
+                                               <img th:src="@{/img/latest-product/lp-2.jpg}" alt="LTp2">
                                             </div>
                                             <div class="latest-product__item__text">
                                                 <h6>Crab Pool Security</h6>
@@ -368,7 +636,7 @@
                                         </a>
                                         <a href="#" class="latest-product__item">
                                             <div class="latest-product__item__pic">
-                                                <img src="img/latest-product/lp-3.jpg" alt="">
+                                                <img th:src="@{/img/latest-product/lp-3.jpg}" alt="LTp3">
                                             </div>
                                             <div class="latest-product__item__text">
                                                 <h6>Crab Pool Security</h6>
@@ -379,7 +647,7 @@
                                     <div class="latest-prdouct__slider__item">
                                         <a href="#" class="latest-product__item">
                                             <div class="latest-product__item__pic">
-                                                <img src="img/latest-product/lp-1.jpg" alt="">
+                                                <img th:src="@{/img/latest-product/lp-1.jpg}" alt="LTp4">
                                             </div>
                                             <div class="latest-product__item__text">
                                                 <h6>Crab Pool Security</h6>
@@ -388,7 +656,7 @@
                                         </a>
                                         <a href="#" class="latest-product__item">
                                             <div class="latest-product__item__pic">
-                                                <img src="img/latest-product/lp-2.jpg" alt="">
+                                                <img th:src="@{/img/latest-product/lp-2.jpg}" alt="LTp5">
                                             </div>
                                             <div class="latest-product__item__text">
                                                 <h6>Crab Pool Security</h6>
@@ -397,7 +665,7 @@
                                         </a>
                                         <a href="#" class="latest-product__item">
                                             <div class="latest-product__item__pic">
-                                                <img src="img/latest-product/lp-3.jpg" alt="">
+                                                <img th:src="@{/img/latest-product/lp-3.jpg}" alt="LTp6">
                                             </div>
                                             <div class="latest-product__item__text">
                                                 <h6>Crab Pool Security</h6>
@@ -419,8 +687,8 @@
                             <div class="product__discount__slider owl-carousel">
                                 <div class="col-lg-4">
                                     <div class="product__discount__item">
-                                        <div class="product__discount__item__pic set-bg"
-                                            data-setbg="img/product/discount/pd-1.jpg">
+                                        <div class="product__discount__item__pic set-bg">
+                                            <img th:src="@{/img/product/discount/pd-1.jpg}" alt="DCp1">
                                             <div class="product__discount__percent">-20%</div>
                                             <ul class="product__item__pic__hover">
                                                 <li><a href="#"><i class="fa fa-heart"></i></a></li>
@@ -430,15 +698,15 @@
                                         </div>
                                         <div class="product__discount__item__text">
                                             <span>Dried Fruit</span>
-                                            <h5><a href="#">Raisin’n’nuts</a></h5>
+                                            <h5><a href="#">Raisin'n'nuts</a></h5>
                                             <div class="product__item__price">$30.00 <span>$36.00</span></div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="product__discount__item">
-                                        <div class="product__discount__item__pic set-bg"
-                                            data-setbg="img/product/discount/pd-2.jpg">
+                                        <div class="product__discount__item__pic set-bg">
+                                            <img th:src="@{/img/product/discount/pd-2.jpg}" alt="DCp2">
                                             <div class="product__discount__percent">-20%</div>
                                             <ul class="product__item__pic__hover">
                                                 <li><a href="#"><i class="fa fa-heart"></i></a></li>
@@ -448,15 +716,15 @@
                                         </div>
                                         <div class="product__discount__item__text">
                                             <span>Vegetables</span>
-                                            <h5><a href="#">Vegetables’package</a></h5>
+                                            <h5><a href="#">Vegetables'package</a></h5>
                                             <div class="product__item__price">$30.00 <span>$36.00</span></div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="product__discount__item">
-                                        <div class="product__discount__item__pic set-bg"
-                                            data-setbg="img/product/discount/pd-3.jpg">
+                                        <div class="product__discount__item__pic set-bg">
+                                            <img th:src="@{/img/product/discount/pd-3.jpg}" alt="DCp3">
                                             <div class="product__discount__percent">-20%</div>
                                             <ul class="product__item__pic__hover">
                                                 <li><a href="#"><i class="fa fa-heart"></i></a></li>
@@ -473,8 +741,8 @@
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="product__discount__item">
-                                        <div class="product__discount__item__pic set-bg"
-                                            data-setbg="img/product/discount/pd-4.jpg">
+                                        <div class="product__discount__item__pic set-bg">
+                                            <img th:src="@{/img/product/discount/pd-4.jpg}" alt="DCp4">
                                             <div class="product__discount__percent">-20%</div>
                                             <ul class="product__item__pic__hover">
                                                 <li><a href="#"><i class="fa fa-heart"></i></a></li>
@@ -484,15 +752,15 @@
                                         </div>
                                         <div class="product__discount__item__text">
                                             <span>Dried Fruit</span>
-                                            <h5><a href="#">Raisin’n’nuts</a></h5>
+                                            <h5><a href="#">Raisin'n'nuts</a></h5>
                                             <div class="product__item__price">$30.00 <span>$36.00</span></div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="product__discount__item">
-                                        <div class="product__discount__item__pic set-bg"
-                                            data-setbg="img/product/discount/pd-5.jpg">
+                                        <div class="product__discount__item__pic set-bg">
+                                            <img th:src="@{/img/product/discount/pd-5.jpg}" alt="DCp5">
                                             <div class="product__discount__percent">-20%</div>
                                             <ul class="product__item__pic__hover">
                                                 <li><a href="#"><i class="fa fa-heart"></i></a></li>
@@ -502,15 +770,15 @@
                                         </div>
                                         <div class="product__discount__item__text">
                                             <span>Dried Fruit</span>
-                                            <h5><a href="#">Raisin’n’nuts</a></h5>
+                                            <h5><a href="#">Raisin'n'nuts</a></h5>
                                             <div class="product__item__price">$30.00 <span>$36.00</span></div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="product__discount__item">
-                                        <div class="product__discount__item__pic set-bg"
-                                            data-setbg="img/product/discount/pd-6.jpg">
+                                        <div class="product__discount__item__pic set-bg">
+                                            <img th:src="@{/img/product/discount/pd-6.jpg}" alt="DCp6">
                                             <div class="product__discount__percent">-20%</div>
                                             <ul class="product__item__pic__hover">
                                                 <li><a href="#"><i class="fa fa-heart"></i></a></li>
@@ -520,7 +788,7 @@
                                         </div>
                                         <div class="product__discount__item__text">
                                             <span>Dried Fruit</span>
-                                            <h5><a href="#">Raisin’n’nuts</a></h5>
+                                            <h5><a href="#">Raisin'n'nuts</a></h5>
                                             <div class="product__item__price">$30.00 <span>$36.00</span></div>
                                         </div>
                                     </div>
@@ -554,25 +822,33 @@
                     </div>
                     <div class="row">
                         <div class="col-lg-4 col-md-6 col-sm-6" th:each="product : ${products}">
-                            <div  class="product__item">
-                                <div class="product__item__pic set-bg" th:attr="data-setbg=${product.getImageUrl()}"></div>
+                            <a th:href="@{/web/product/{id}(id=${product.getProductID()})}">
+                            <div class="product__item">
+                                <div class="product__item__pic set-bg">
+                                	<img th:src="@{'/images/' + ${product.imageUrl}}" alt="" style="width: 100%; height: auto; object-fit: contain; padding: 0.5px;">
+                                 </div>
                                     <ul class="product__item__pic__hover">
                                         <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
                                     </ul>
-                                </div>
+                            </div>
                                 <div class="product__item__text">
-                                    <h6><a th:href="@{/product/{id}(id=${product.getProductID()})}" th:text="${product.getProductName()}"></a></h6>
-                                    <h5  th:text="'Giá: ' + ${product.getPrice()} + '₫'"></h5>
+                                    <h5 th:text="${product.getProductName()}"></h5>
+                                    <h6  th:text="'Giá: ' + ${product.getPrice()} + '₫'"></h6>
                                 </div>
+                            </a>
                             </div>
                         </div>
 
                     </div>
-                    <div class="product__pagination">
-                        <a href="#">1</a>
-                        <a href="#">2</a>
-                        <a href="#">3</a>
-                        <a href="#"><i class="fa fa-long-arrow-right"></i></a>
+                    <!-- Thay thế phần phân trang cũ bằng phân trang mới -->
+                    <div class="d-flex justify-content-center">
+                        <ul class="pagination mt-3 mb-0">
+                            <a th:href="@{${requestURI}(page=${currentPage - 1})}" th:if="${currentPage > 1}">« Previous</a>
+                            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPage)}">
+                                <a class="page-link" th:href="@{${requestURI}(page=${i})}" th:text="${i}" th:classappend="${i == currentPage} ? 'active' : ''"></a>
+                            </li>
+                            <a th:href="@{${requestURI}(page=${currentPage + 1})}" th:if="${currentPage < totalPage}">Next »</a>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -587,7 +863,7 @@
                 <div class="col-lg-3 col-md-6 col-sm-6">
                     <div class="footer__about">
                         <div class="footer__about__logo">
-                            <a href="./index.html"><img src="img/logo.png" alt=""></a>
+                            <a href="./index.html"><img th:src="@{img/logo.png}" alt=""></a>
                         </div>
                         <ul>
                             <li>Address: 60-49 Road 11378 New York</li>
@@ -640,7 +916,7 @@
                         <div class="footer__copyright__text"><p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
   Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
   <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p></div>
-                        <div class="footer__copyright__payment"><img src="img/payment-item.png" alt=""></div>
+                        <div class="footer__copyright__payment"><img th:src="@{img/payment-item.png}" alt=""></div>
                     </div>
                 </div>
             </div>
@@ -657,9 +933,55 @@
     <script th:src="@{/js/mixitup.min.js}"></script>
     <script th:src="@{/js/owl.carousel.min.js}"></script>
     <script th:src="@{/js/main.js}"></script>
-
-
-
+	<!-- Cải thiện responsive và dropdown menu -->
+    <script>
+        $(document).ready(function() {
+            // Xử lý dropdown menu
+            $('#accountDropdown').on('click', function(e) {
+                e.preventDefault();
+                $(this).next('.dropdown-menu').toggleClass('show');
+            });
+            
+            // Đóng dropdown khi click bên ngoài
+            $(document).on('click', function(e) {
+                var container = $(".user-menu");
+                if (!container.is(e.target) && container.has(e.target).length === 0) {
+                    container.find('.dropdown-menu').removeClass('show');
+                }
+            });
+            
+            // Xử lý responsive cho menu
+            $(window).resize(function() {
+                if ($(window).width() > 768) {
+                    $('.dropdown-menu').removeAttr('style');
+                }
+            });
+            
+            // Banner carousel
+            var carouselItems = $('.hero__carousel .carousel-item');
+            var currentIndex = 0;
+            var itemCount = carouselItems.length;
+            
+            function showNextSlide() {
+                carouselItems.removeClass('active');
+                currentIndex = (currentIndex + 1) % itemCount;
+                carouselItems.eq(currentIndex).addClass('active');
+            }
+            
+            // Chạy carousel mỗi 5 giây
+            setInterval(showNextSlide, 5000);
+        });
+     	// Xử lý dropdown menu "All categories"
+        $('#categoriesToggle').on('click', function() {
+            $('#categoriesList').toggleClass('show');
+        });
+        
+        // Đóng dropdown khi click bên ngoài
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.hero__categories').length) {
+                $('#categoriesList').removeClass('show');
+            }
+        });
+    </script>
 </body>
-
 </html>

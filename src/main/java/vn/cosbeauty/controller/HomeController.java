@@ -1,17 +1,23 @@
 package vn.cosbeauty.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.servlet.http.HttpServletRequest;
+import vn.cosbeauty.entity.CartItem;
 import vn.cosbeauty.entity.Category;
 import vn.cosbeauty.entity.Product;
+import vn.cosbeauty.service.CartService;
 import vn.cosbeauty.service.CategoryService;
 import vn.cosbeauty.service.CustomerService;
 import vn.cosbeauty.service.ProductService;
 
+import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -22,46 +28,70 @@ public class HomeController {
     private ProductService productService;
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private CartService cartService;
 
-    @GetMapping({"/"})
-    public String getAll(Model model, @RequestParam(value = "logout", required = false) String logout) {
-    	if (logout != null) {
-            model.addAttribute("message", "Bạn đã đăng xuất thành công!");
-        }
-    	List<Category> categories = categoryService.getCategories();
+    @GetMapping("/")
+    public String getAll(Model model,
+            @RequestParam(value = "logout", required = false) String logout,
+            @RequestParam(value = "keyword",defaultValue = "") String keyword,
+            @RequestParam(value="page", required=false, defaultValue="1") int page,
+            @RequestParam(value="listCategory",required = false) List<String> listCate,
+            @RequestParam(value="listSupplier",required = false) List<String> listSup) {
+        	if (logout != null) {
+        		model.addAttribute("message", "Bạn đã đăng xuất thành công!");
+        		System.out.println("Đang Logout neh ba!");
+        	}
+	        List<Category> categories = categoryService.getAllCategory();
+	        Page<Product> products = productService.getProductHome(page, 10);
+	        List<CartItem> cartItems;
+	        BigDecimal totalAmount = BigDecimal.ZERO;
 
-        List<Product> products = productService.getAllProduct();
-        model.addAttribute("categories", categories);
-        model.addAttribute("products", products);
-        return "web/index";
+	        if (customerService.isCustomer()) {
+	            Long id = customerService.getCurrentCustomerID();
+	            cartItems = cartService.getCartItemsByCustomerId(id);
+	            totalAmount = cartItems.stream()
+		                .map(item -> BigDecimal.valueOf(item.getProduct().getPrice()).multiply(new BigDecimal(item.getQuantity())))
+		                .reduce(BigDecimal.ZERO, BigDecimal::add); // Tính tổng giá trị
+	        } else {
+	            cartItems = Collections.emptyList();
+	        }
+
+	        model.addAttribute("cartItems", cartItems);
+	        model.addAttribute("totalAmount", totalAmount);
+	        model.addAttribute("categories", categories);
+	        model.addAttribute("products", products);
+	        return "web/index";
     }
 
-    @GetMapping("/shop-grid")
-    public String shopGrid(Model model, @RequestParam(value = "logout", required = false) String logout) {
-        if (logout != null) {
-            model.addAttribute("message", "Bạn đã đăng xuất thành công!");
-        }
-        List<Category> categories = categoryService.getCategories();
-
-        List<Product> products = productService.getAllProduct();
+    @GetMapping("/web/shop-grid")
+    public String shopGrid(Model model,
+    		@RequestParam(value="page", required=false, defaultValue="1") int page,
+    		HttpServletRequest request) {
+    	List<Category> categories = categoryService.getAllCategory();
+    	Page<Product> products = productService.getProductHome(page, 10);
+    	List<Product> productOfCurrentPage = products.getContent();
         Long customerId = 1L; // hoặc lấy từ session, user login
         model.addAttribute("customerId", customerId);
         model.addAttribute("categories", categories);
-        model.addAttribute("products", products);
+        model.addAttribute("products", productOfCurrentPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPage", products.getTotalPages());
+        model.addAttribute("requestURI", request.getRequestURI());
         return "web/shop-grid";
     }
+
     @GetMapping("/instore")
     public String instore() {
         return "web/instore";
     }
 
 
-
-
     @GetMapping({"/shoping-cart"})
     public String cart() {
         return "web/shoping-cart";
     }
+
     @GetMapping({"/shop-details"})
     public String shopDetails() {
         return "web/shop-details";
