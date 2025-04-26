@@ -57,8 +57,8 @@ public class ImportOrderController {
 
     @PostMapping("/employee/import-orders/create")
     public String saveImportOrder(
-            @RequestParam int supplierId,
-            @RequestParam double cost,
+            @RequestParam Long supplierId,
+            @RequestParam String cost,
             @RequestParam List<Long> productIds,
             @RequestParam List<Integer> quantities,
             RedirectAttributes redirectAttributes

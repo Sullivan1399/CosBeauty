@@ -66,7 +66,7 @@
 
 <!-- Form tạo đơn -->
 <form th:action="@{/employee/import-orders/create}" method="post" class="row g-3" id="import-order-form">
-  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+<!--  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
 
   <!-- Nhà cung cấp -->
   <div class="col-md-6">
@@ -75,6 +75,7 @@
       <option value="" disabled selected>-- Chọn nhà cung cấp --</option>
       <option th:each="sup : ${suppliers}" th:value="${sup.supID}" th:text="${sup.supName}"></option>
     </select>
+    <input type="hidden" id="supplierIdHidden" name="supplierId">
   </div>
 
   <!-- Tổng chi phí -->
@@ -125,7 +126,11 @@
   // Handle supplier change
   function handleSupplierChange() {
     const supplierSelect = document.getElementById('supplier');
+    const supplierIdHidden = document.getElementById('supplierIdHidden');
     const newSupplierId = supplierSelect.value;
+
+    // Set the hidden input value
+    supplierIdHidden.value = newSupplierId;
 
     if (selectedProducts.length > 0 && newSupplierId !== selectedSupplierId) {
       if (confirm('Thay đổi nhà cung cấp sẽ xóa tất cả sản phẩm đã chọn. Bạn có muốn tiếp tục?')) {
@@ -135,7 +140,8 @@
         loadProducts();
         updateTable();
       } else {
-        supplierSelect.value = selectedSupplierId || ''; // Revert to previous supplier
+        supplierSelect.value = selectedSupplierId || '';
+        supplierIdHidden.value = selectedSupplierId || '';
       }
     } else {
       selectedSupplierId = newSupplierId;
@@ -143,38 +149,16 @@
     }
   }
 
-  // Load products for the selected supplier
-  async function loadProducts() {
+  // Prevent form submission without supplier
+  document.getElementById('import-order-form').addEventListener('submit', function(event) {
     const supplierId = document.getElementById('supplier').value;
-    const searchInput = document.getElementById('product-search');
-    const resultsContainer = document.getElementById('product-search-results');
-
-    if (supplierId) {
-      searchInput.disabled = false;
-      try {
-        const response = await fetch(`/api/products?supplierId=${supplierId}`);
-        if (!response.ok) throw new Error('Failed to fetch products');
-        allProducts = await response.json();
-        searchInput.value = '';
-        showAllProducts(); // Show all products initially
-      } catch (error) {
-        console.error('Error loading products:', error);
-        alert('Không thể tải danh sách sản phẩm!');
-        searchInput.disabled = true;
-        allProducts = [];
-        selectedProducts = [];
-        updateTable();
-        resultsContainer.style.display = 'none';
-      }
-    } else {
-      searchInput.disabled = true;
-      allProducts = [];
-      selectedProducts = [];
-      resultsContainer.style.display = 'none';
-      updateTable();
+    if (!supplierId) {
+      event.preventDefault();
+      alert('Vui lòng chọn nhà cung cấp trước khi tạo đơn nhập hàng!');
     }
-  }
+  });
 
+  // Show all products for the selected supplier
   // Show all products for the selected supplier
   function showAllProducts() {
     const resultsContainer = document.getElementById('product-search-results');
@@ -186,24 +170,24 @@
       resultsContainer.innerHTML = '<div class="search-result-item">Không còn sản phẩm nào để chọn</div>';
     } else {
       resultsContainer.innerHTML = availableProducts.map(p => `
-                <div class="search-result-item" onclick="addProduct(${p.productID}, '${p.productName.replace(/'/g, "\\'")}', ${p.price}, '${p.imageUrl ? p.imageUrl.replace(/'/g, "\\'") : ''}')">
-                    <img src="${p.imageUrl || '/images/placeholder.jpg'}" alt="${p.productName}" onerror="this.src='/images/placeholder.jpg'">
-                    <div class="product-info">
-                        ${p.productName} - ${p.price.toLocaleString()} VND
-                    </div>
+            <div class="search-result-item" onclick="addProduct(${p.productID}, '${(p.productName || 'Unknown').replace(/'/g, "\\'")}', ${p.price || 0}, '${(p.imageUrl || '').replace(/'/g, "\\'")}')">
+                <img src="${p.imageUrl || '/images/placeholder.jpg'}" alt="${p.productName || 'Unknown'}" onerror="this.src='/images/placeholder.jpg'">
+                <div class="product-info">
+                    ${p.productName || 'Unknown'} - ${(p.price || 0).toLocaleString()} VND
                 </div>
-            `).join('');
+            </div>
+        `).join('');
     }
     resultsContainer.style.display = 'block';
   }
 
   // Search products
   document.getElementById('product-search').addEventListener('input', function(e) {
-    const searchTerm = e.target.value.toLowerCase();
+    const searchTerm = e.target.value.toLowerCase().trim();
     const resultsContainer = document.getElementById('product-search-results');
 
     const filteredProducts = allProducts.filter(p =>
-            p.productName.toLowerCase().includes(searchTerm) &&
+            (p.productName || '').toLowerCase().includes(searchTerm) &&
             !selectedProducts.some(sp => sp.productID === p.productID)
     );
 
@@ -211,13 +195,13 @@
       resultsContainer.innerHTML = '<div class="search-result-item">Không tìm thấy sản phẩm</div>';
     } else {
       resultsContainer.innerHTML = filteredProducts.map(p => `
-                <div class="search-result-item" onclick="addProduct(${p.productID}, '${p.productName.replace(/'/g, "\\'")}', ${p.price}, '${p.imageUrl ? p.imageUrl.replace(/'/g, "\\'") : ''}')">
-                    <img src="${p.imageUrl || '/images/placeholder.jpg'}" alt="${p.productName}" onerror="this.src='/images/placeholder.jpg'">
-                    <div class="product-info">
-                        ${p.productName} - ${p.price.toLocaleString()} VND
-                    </div>
+            <div class="search-result-item" onclick="addProduct(${p.productID}, '${(p.productName || 'Unknown').replace(/'/g, "\\'")}', ${p.price || 0}, '${(p.imageUrl || '').replace(/'/g, "\\'")}')">
+                <img src="${p.imageUrl || '/images/placeholder.jpg'}" alt="${p.productName || 'Unknown'}" onerror="this.src='/images/placeholder.jpg'">
+                <div class="product-info">
+                    ${p.productName || 'Unknown'} - ${(p.price || 0).toLocaleString()} VND
                 </div>
-            `).join('');
+            </div>
+        `).join('');
     }
     resultsContainer.style.display = 'block';
   });
@@ -237,6 +221,51 @@
       updateTable();
       document.getElementById('product-search').value = '';
       showAllProducts(); // Refresh search results
+    }
+  }
+  // Load products for the selected supplier
+  async function loadProducts() {
+    const supplierId = document.getElementById('supplier').value;
+    const searchInput = document.getElementById('product-search');
+    const resultsContainer = document.getElementById('product-search-results');
+
+    if (supplierId) {
+      try {
+        const response = await fetch(`/api/products?supplierId=${supplierId}`, {
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        allProducts = await response.json();
+        console.log('Fetched products:', allProducts); // Debug log
+        if (allProducts.length === 0) {
+          searchInput.disabled = true;
+          resultsContainer.innerHTML = '<div class="search-result-item">Không có sản phẩm nào cho nhà cung cấp này</div>';
+          resultsContainer.style.display = 'block';
+        } else {
+          searchInput.disabled = false;
+          searchInput.value = '';
+          showAllProducts(); // Show all products initially
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+        searchInput.disabled = true;
+        resultsContainer.innerHTML = '<div class="search-result-item text-danger">Lỗi khi tải sản phẩm: ' + error.message + '</div>';
+        resultsContainer.style.display = 'block';
+        alert('Không thể tải danh sách sản phẩm! Vui lòng thử lại.');
+        allProducts = [];
+        selectedProducts = [];
+        updateTable();
+      }
+    } else {
+      searchInput.disabled = true;
+      allProducts = [];
+      selectedProducts = [];
+      resultsContainer.style.display = 'none';
+      updateTable();
     }
   }
 

@@ -10,9 +10,7 @@ import vn.cosbeauty.repository.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ImportOrderService {
@@ -52,8 +50,7 @@ public class ImportOrderService {
         }
         int supId = supplierId.intValue();
 
-        Supplier supplier = supplierRepository.findById(supId)
-                .orElseThrow(() -> new IllegalArgumentException("Nhà cung cấp không tồn tại"));
+        Supplier supplier = supplierRepository.findById(supId);
 
         ImportOrder order = new ImportOrder();
         order.setEmployee(employee);
@@ -69,7 +66,7 @@ public class ImportOrderService {
             ImportOrderDetail detail = new ImportOrderDetail();
             detail.setProduct(product);
             detail.setQuantity(quantities.get(i));
-            detail.setCost(product.getPrice()); // Use Product.price
+            detail.setCost(BigDecimal.valueOf(product.getPrice()));// Use Product.price
             detail.setImportOrder(order);
             details.add(detail);
         }
@@ -130,4 +127,6 @@ public class ImportOrderService {
     public Page<ImportOrder> findByImportDateAndStatus(LocalDateTime importDate, int status, Pageable pageable) {
         return importOrderRepository.findByImportDateAndStatus(importDate, status, pageable);
     }
+
+
 }
