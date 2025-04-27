@@ -32,7 +32,7 @@ public class HomeController {
     private SupplierService supplierService;
 
     @GetMapping("/")
-    public String getAll(Model model, 
+    public String getAll(Model model,
             @RequestParam(value = "logout", required = false) String logout,
             @RequestParam(value = "keyword",defaultValue = "") String keyword,
             @RequestParam(value="page", required=false, defaultValue="1") int page,
@@ -70,9 +70,9 @@ public class HomeController {
 	        model.addAttribute("products", products);
 	        return "web/index";
     }
-    
+
     @GetMapping("/web/shop-grid")
-    public String shopGrid(Model model, 
+    public String shopGrid(Model model,
     		@RequestParam(value="page", required=false, defaultValue="1") int page,
     		HttpServletRequest request) {
     	List<Category> categories = categoryService.getAllCategory();
@@ -92,7 +92,7 @@ public class HomeController {
         model.addAttribute("requestURI", request.getRequestURI());
         return "web/shop-grid";
     }
-    
+
     @GetMapping("/instore")
     public String instore() {
         return "web/instore";
@@ -103,7 +103,7 @@ public class HomeController {
     public String cart() {
         return "web/shoping-cart";
     }
-    
+
     @GetMapping({"/shop-details"})
     public String shopDetails() {
         return "web/shop-details";

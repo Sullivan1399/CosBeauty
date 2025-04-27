@@ -10,7 +10,7 @@ import vn.cosbeauty.repository.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ImportOrderService {
@@ -36,52 +36,43 @@ public class ImportOrderService {
     /**
      * Tạo đơn nhập hàng mới, lưu vào cả bảng importOrder và importDetail
      */
-    public void createImportOrder(
-            int supplierId,
-            double cost,
-            List<Long> productIds,
-            List<Integer> quantities,
-            List<Double> costs) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Account account = accountRepository.findByUsername(username);
-        if (account == null) {
-            throw new RuntimeException("Không tìm thấy tài khoản");
-        }
-
-        Employee employee = employeeRepository.findByEmail(account.getUsername());
+    public void createImportOrder(Employee employee, Long supplierId, BigDecimal cost, List<Long> productIds,
+                                  List<Integer> quantities) {
         if (employee == null) {
-            throw new RuntimeException("Không tìm thấy nhân viên với email = " + account.getUsername());
+            throw new IllegalArgumentException("Nhân viên không được để trống");
         }
+        if (supplierId == null) {
+            throw new IllegalArgumentException("ID nhà cung cấp không được để trống");
+        }
+        // Safely convert Long to int
+        if (supplierId > Integer.MAX_VALUE || supplierId < Integer.MIN_VALUE) {
+            throw new IllegalArgumentException("ID nhà cung cấp vượt quá giới hạn cho phép");
+        }
+        int supId = supplierId.intValue();
 
-        Supplier supplier = supplierRepository.findById(supplierId);
+        Supplier supplier = supplierRepository.findById(supId);
 
         ImportOrder order = new ImportOrder();
         order.setEmployee(employee);
-        order.setImportDate(LocalDateTime.now());
         order.setSupplier(supplier);
+        order.setCost(cost);
+        order.setImportDate(LocalDateTime.now());
+        order.setStatus(0); // Set status to 0
 
-        ImportOrder savedOrder = importOrderRepository.save(order);
-
-        BigDecimal totalCost = BigDecimal.ZERO;
-
+        List<ImportOrderDetail> details = new ArrayList<>();
         for (int i = 0; i < productIds.size(); i++) {
             Product product = productRepository.findById(productIds.get(i))
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
-
-            BigDecimal itemCost = BigDecimal.valueOf(costs.get(i));
-            int quantity = quantities.get(i);
-
-            totalCost = totalCost.add(itemCost.multiply(BigDecimal.valueOf(quantity)));
-
-            ImportOrderDetail detail = new ImportOrderDetail(product, itemCost, quantity);
-            detail.setImportOrder(savedOrder);
-            importOrderDetailRepository.save(detail);
+                    .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại"));
+            ImportOrderDetail detail = new ImportOrderDetail();
+            detail.setProduct(product);
+            detail.setQuantity(quantities.get(i));
+            detail.setCost(BigDecimal.valueOf(product.getPrice()));// Use Product.price
+            detail.setImportOrder(order);
+            details.add(detail);
         }
-
-        savedOrder.setCost(totalCost);
-        importOrderRepository.save(savedOrder);
+        order.setImportDetail(details);
+        importOrderRepository.save(order);
     }
-
     /**
      * Lấy tất cả đơn nhập hàng
      */
@@ -106,7 +97,7 @@ public class ImportOrderService {
     /**
      * Lấy danh sách đơn nhập hàng với phân trang và bộ lọc
      */
-    public Page<ImportOrder> getFilteredImportOrders(LocalDate importDate, Integer status, Pageable pageable) {
+    public Page<ImportOrder> getFilteredImportOrders(LocalDateTime importDate, Integer status, Pageable pageable) {
         if (importDate != null && status != null) {
             return importOrderRepository.findByImportDateAndStatus(importDate, status, pageable);
         } else if (importDate != null) {
@@ -125,7 +116,7 @@ public class ImportOrderService {
         return importOrderRepository.findAll(pageable);
     }
 
-    public Page<ImportOrder> findByImportDate(LocalDate importDate, Pageable pageable) {
+    public Page<ImportOrder> findByImportDate(LocalDateTime importDate, Pageable pageable) {
         return importOrderRepository.findByImportDate(importDate, pageable);
     }
 
@@ -133,7 +124,9 @@ public class ImportOrderService {
         return importOrderRepository.findByStatus(status, pageable);
     }
 
-    public Page<ImportOrder> findByImportDateAndStatus(LocalDate importDate, int status, Pageable pageable) {
+    public Page<ImportOrder> findByImportDateAndStatus(LocalDateTime importDate, int status, Pageable pageable) {
         return importOrderRepository.findByImportDateAndStatus(importDate, status, pageable);
     }
+
+
 }

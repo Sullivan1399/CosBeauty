@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+    <style>
+        :root {
+            --amazon-green: #00A876;
+            --amazon-orange: #FF9900;
+            --background-gray: #F5F6F5;
+            --text-dark: #1A1A1A;
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            --sidebar-bg: #FFF8F0;
+            --accent-hover: #FFE6CC;
+            --status-pending: #ffc107; /* Chờ xác nhận */
+            --status-confirmed: #317546; /* Đã xác nhận */
+            --status-cancelled: #dc3545; /* Đã hủy */
+            --status-processing: #17a2b8; /* Đang xử lý */
+            --status-delivering: #007bff; /* Đang vận chuyển */
+            --status-success: #ff6200; /* Thành công */
+            --status-failed: #dc3545; /* Thất bại */
+        }
+
+        body {
+            background-color: var(--background-gray);
+            font-family: 'Roboto', sans-serif;
+            color: var(--text-dark);
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        .container-fluid { padding: 0; }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #fff3e6;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-header {
+            padding: 20px;
+            background-color: #ff6200;
+            color: #fff;
+            text-align: center;
+            font-weight: 700;
+        }
+        .sidebar-nav {
+            padding: 10px 0;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar-nav a:hover {
+            background-color: #ffe6cc;
+        }
+        .sidebar-nav a.active {
+            background-color: #ff6200;
+            color: #fff;
+        }
+        .sidebar-nav a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        h2 {
+            color: var(--amazon-green);
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+
+        .navbar-toggler {
+            display: none;
+            margin: 15px;
+        }
+
+        .navbar-toggler:hover { color: var(--amazon-orange); }
+
+        .order-card {
+            background-color: #FFFFFF;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #EDEFF0;
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            background-color: #FDFDFD;
+        }
+
+        .order-card h2 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .order-card p {
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .status-icon {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        .chart-container {
+            background-color: #FFFFFF;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #EDEFF0;
+            transition: box-shadow 0.3s ease;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chart-container:hover { box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); }
+
+        .chart-container canvas {
+            max-height: 100% !important;
+            width: 100% !important;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #DC3545;
+            font-style: italic;
+            font-size: 0.85rem;
+            padding: 12px;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 1050;
+        }
+
+        .toast-header {
+            background: linear-gradient(135deg, var(--amazon-green), #00C896);
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        #charts {
+            min-height: 900px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Two equal-width columns */
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .navbar-toggler {
+                display: block;
+            }
+            .chart-container {
+                height: 350px;
+            }
+            #charts {
+                min-height: 1200px;
+                grid-template-columns: 1fr; /* Stack charts vertically on smaller screens */
+            }
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 16px;
+            font-size: 0.9rem;
+            color: var(--amazon-orange);
+        }
+
+        .error-message {
+            display: none;
+            color: #DC3545;
+            text-align: center;
+            padding: 16px;
+            font-size: 0.9rem;
+            background-color: #FFF5F5;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            Admin Dashboard
+        </div>
+        <div class="sidebar-nav">
+            <a th:href="@{/admin/dashboard}" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
+            <a th:href="@{/admin/manage-admin}" data-section="orders"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
+            <a th:href="@{/admin/accounts}" class="active"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
+            <a th:href="@{/admin/ManageProducts}"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+            <a th:href="@{/admin/import-orders}"><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
+            <a th:href="@{/}" data-section="settings"><i class="fas fa-cog"></i>Quay về trang Home</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div id="overview" class="section">
+            <h1 class="text-2xl font-bold mb-4 text-center" style="color: var(--amazon-green);">Admin Dashboard</h1>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...
+            </div>
+
+            <!-- Error Message -->
+            <div id="error" class="error-message">
+                Lỗi khi tải dữ liệu. Vui lòng kiểm tra kết nối cơ sở dữ liệu hoặc liên hệ quản trị viên.
+            </div>
+
+            <!-- Order Statistics -->
+            <div class="row mb-6" id="order-stats">
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('pending', event)">
+                        <h2><i class="fas fa-clock status-icon"></i>Chờ xác nhận</h2>
+                        <p id="pending-count" style="color: var(--status-pending);">0</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('confirmed', event)">
+                        <h2><i class="fas fa-check-circle status-icon"></i>Đã xác nhận</h2>
+                        <p id="confirmed-count" style="color: var(--status-confirmed);">0</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('canceled', event)">
+                        <h2><i class="fas fa-times-circle status-icon"></i>Đã hủy</h2>
+                        <p id="canceled-count" style="color: var(--status-cancelled);">0</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('processing', event)">
+                        <h2><i class="fas fa-cogs status-icon"></i>Đang xử lý</h2>
+                        <p id="processing-count" style="color: var(--status-processing);">0</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('delivering', event)">
+                        <h2><i class="fas fa-truck status-icon"></i>Đang vận chuyển</h2>
+                        <p id="delivering-count" style="color: var(--status-delivering);">0</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('success', event)">
+                        <h2><i class="fas fa-check-circle status-icon"></i>Thành công</h2>
+                        <p id="success-count" style="color: var(--status-success);">0</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <div class="order-card" onclick="navigateToOrders('failed', event)">
+                        <h2><i class="fas fa-times-circle status-icon"></i>Thất bại</h2>
+                        <p id="failed-count" style="color: var(--status-failed);">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div id="charts">
+                <div class="chart-container">
+                    <h2 class="text-lg font-semibold mb-3">Top 10 Danh mục bán chạy</h2>
+                    <div id="topCategoriesNoData" class="no-data" style="display: none;">
+                        Không có dữ liệu danh mục hoặc chi tiết đơn hàng (on_detail/off_detail) trống.
+                    </div>
+                    <canvas id="topCategoriesChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2 class="text-lg font-semibold mb-3">Top 10 Danh mục bán chậm</h2>
+                    <div id="bottomCategoriesNoData" class="no-data" style="display: none;">
+                        Không có dữ liệu danh mục hoặc chi tiết đơn hàng (on_detail/off_detail) trống.
+                    </div>
+                    <canvas id="bottomCategoriesChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2 class="text-lg font-semibold mb-3">Top 10 Sản phẩm bán chạy</h2>
+                    <div id="topProductsNoData" class="no-data" style="display: none;">
+                        Không có dữ liệu sản phẩm hoặc chi tiết đơn hàng (on_detail/off_detail) trống.
+                    </div>
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2 class="text-lg font-semibold mb-3">Top 10 Sản phẩm bán chậm</h2>
+                    <div id="bottomProductsNoData" class="no-data" style="display: none;">
+                        Không có dữ liệu sản phẩm hoặc chi tiết đơn hàng (on_detail/off_detail) trống.
+                    </div>
+                    <canvas id="bottomProductsChart"></canvas>
+                </div>
+                <div class="chart-container" style="grid-column: span 2;">
+                    <h2 class="text-lg font-semibold mb-3">Doanh thu theo tháng</h2>
+                    <div id="revenueNoData" class="no-data" style="display: none;">
+                        Không có dữ liệu doanh thu hoặc chi tiết đơn hàng (on_detail/off_detail) trống.
+                    </div>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container">
+    <div id="actionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script th:src="@{/js/app.js}"></script>
+<script>
+    function navigateToOrders(status, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const statusMap = {
+            'pending': '/admin/manage-admin?status=confirm-1',
+            'confirmed': '/admin/manage-admin?status=confirm-2',
+            'canceled': '/admin/manage-admin?status=confirm-3',
+            'processing': '/admin/manage-admin?status=delivery-2',
+            'delivering': '/admin/manage-admin?status=delivery-3',
+            'success': '/admin/manage-admin?status=delivery-4',
+            'failed': '/admin/manage-admin?status=delivery-5'
+        };
+        const url = statusMap[status] || '/admin/manage-admin';
+        console.log(`Navigating to: ${url}`);
+        window.location.href = url;
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('active');
+    }
+
+    function showSection(sectionId) {
+        console.log(`showSection called with sectionId: ${sectionId}`);
+        document.querySelectorAll('.section').forEach(section => {
+            section.style.display = section.id === sectionId ? 'block' : 'none';
+        });
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
+        });
+        let newUrl;
+        switch (sectionId) {
+            case 'overview': newUrl = '/admin/dashboard'; break;
+            case 'orders': newUrl = '/admin/manage-admin'; break;
+            case 'account': newUrl = '/admin/accounts'; break;
+            case 'products': newUrl = '/admin/ManageProducts'; break;
+            case 'import': newUrl = '/admin/import-orders'; break;
+            case 'settings': newUrl = '/admin/settings'; break;
+            default: newUrl = '/admin/dashboard';
+        }
+        console.log(`Setting URL to: ${newUrl}`);
+        window.history.pushState({ sectionId: sectionId }, '', newUrl);
+        localStorage.setItem('currentSection', sectionId);
+    }
+
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            const sectionId = link.getAttribute('data-section');
+            const href = link.getAttribute('href');
+            if (href && href !== '#') {
+                return;
+            }
+            e.preventDefault();
+            showSection(sectionId);
+            if (window.innerWidth <= 992) {
+                toggleSidebar();
+            }
+        });
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const path = window.location.pathname;
+        let sectionId = localStorage.getItem('currentSection') || 'overview';
+        if (path.includes('/admin/accounts')) {
+            sectionId = 'account';
+        } else if (path.includes('/admin/manage-admin')) {
+            sectionId = 'orders';
+        } else if (path.includes('/admin/ManageProducts')) {
+            sectionId = 'products';
+        } else if (path.includes('/admin/import-orders')) {
+            sectionId = 'import';
+        } else if (path.includes('/admin/settings')) {
+            sectionId = 'settings';
+        } else if (path.includes('/admin/dashboard')) {
+            sectionId = 'overview';
+        }
+        showSection(sectionId);
+    });
+
+    window.addEventListener('popstate', (event) => {
+        const sectionId = event.state ? event.state.sectionId : localStorage.getItem('currentSection') || 'overview';
+        showSection(sectionId);
+    });
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('actionToast');
+        const toastBody = toast.querySelector('.toast-body');
+        toastBody.textContent = message;
+        toast.classList.remove('bg-success', 'bg-danger');
+        toast.classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+    }
+
+    // Show loading spinner
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+    const orderStats = document.getElementById('order-stats');
+    const charts = document.getElementById('charts');
+    loading.style.display = 'block';
+    orderStats.style.display = 'none';
+    charts.style.display = 'none';
+
+    // Fetch dashboard data
+    fetch('/admin/dashboard/data')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Dashboard data:', JSON.stringify(data, null, 2));
+
+            // Hide loading spinner and show content
+            loading.style.display = 'none';
+            orderStats.style.display = 'flex';
+            charts.style.display = 'grid';
+
+            // Update order statistics
+            try {
+                document.getElementById('pending-count').textContent = data.orderStats.pending?.count || 0;
+                document.getElementById('confirmed-count').textContent = data.orderStats.confirmed?.count || 0;
+                document.getElementById('canceled-count').textContent = data.orderStats.canceled?.count || 0;
+                document.getElementById('processing-count').textContent = data.orderStats.processing?.count || 0;
+                document.getElementById('delivering-count').textContent = data.orderStats.delivering?.count || 0;
+                document.getElementById('success-count').textContent = data.orderStats.success?.count || 0;
+                document.getElementById('failed-count').textContent = data.orderStats.failed?.count || 0;
+            } catch (e) {
+                console.error('Error updating order stats:', e);
+                showToast('Lỗi khi hiển thị thống kê đơn hàng', 'danger');
+            }
+
+            // Top Categories Chart (Horizontal Bar, 1-10 Labels)
+            const topCategoriesCanvas = document.getElementById('topCategoriesChart');
+            const topCategoriesNoData = document.getElementById('topCategoriesNoData');
+            if (data.topCategories && Array.isArray(data.topCategories) && data.topCategories.length > 0) {
+                topCategoriesNoData.style.display = 'none';
+                topCategoriesCanvas.style.display = 'block';
+                // Pad data to ensure 10 bars
+                const topCatData = data.topCategories.slice(0, 10);
+                while (topCatData.length < 10) {
+                    topCatData.push({ name: 'N/A', sales: 0 });
+                }
+                new Chart(topCategoriesCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+                        datasets: [{
+                            label: 'Doanh số',
+                            data: topCatData.map(item => item.sales),
+                            backgroundColor: 'rgba(0, 168, 118, 0.6)', // --amazon-green
+                            borderColor: 'rgba(0, 168, 118, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Doanh số' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Xếp hạng' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        const index = context[0].dataIndex;
+                                        return `Hạng ${index + 1}: ${topCatData[index].name}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                topCategoriesNoData.style.display = 'block';
+                topCategoriesCanvas.style.display = 'none';
+            }
+
+            // Bottom Categories Chart (Horizontal Bar, 1-10 Labels)
+            const bottomCategoriesCanvas = document.getElementById('bottomCategoriesChart');
+            const bottomCategoriesNoData = document.getElementById('bottomCategoriesNoData');
+            if (data.bottomCategories && Array.isArray(data.bottomCategories) && data.bottomCategories.length > 0) {
+                bottomCategoriesNoData.style.display = 'none';
+                bottomCategoriesCanvas.style.display = 'block';
+                // Pad data to ensure 10 bars
+                let bottomCatData = data.bottomCategories.slice(0, 10);
+                while (bottomCatData.length < 10) {
+                    bottomCatData.push({ name: 'N/A', sales: 0 });
+                }
+                // Reverse the data so the least-selling category is at the top
+                bottomCatData = bottomCatData.reverse();
+                new Chart(bottomCategoriesCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+                        datasets: [{
+                            label: 'Doanh số',
+                            data: bottomCatData.map(item => item.sales),
+                            backgroundColor: 'rgba(255, 153, 0, 0.6)', // --amazon-orange
+                            borderColor: 'rgba(255, 153, 0, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Doanh số' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Xếp hạng' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        const index = context[0].dataIndex;
+                                        return `Hạng ${index + 1}: ${bottomCatData[index].name}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                bottomCategoriesNoData.style.display = 'block';
+                bottomCategoriesCanvas.style.display = 'none';
+            }
+
+            // Top Products Chart (Horizontal Bar, 1-10 Labels)
+            const topProductsCanvas = document.getElementById('topProductsChart');
+            const topProductsNoData = document.getElementById('topProductsNoData');
+            if (data.topProducts && Array.isArray(data.topProducts) && data.topProducts.length > 0) {
+                topProductsNoData.style.display = 'none';
+                topProductsCanvas.style.display = 'block';
+                // Pad data to ensure 10 bars
+                const topProdData = data.topProducts.slice(0, 10);
+                while (topProdData.length < 10) {
+                    topProdData.push({ name: 'N/A', sales: 0 });
+                }
+                new Chart(topProductsCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+                        datasets: [{
+                            label: 'Số lượng bán',
+                            data: topProdData.map(item => item.sales),
+                            backgroundColor: 'rgba(0, 168, 118, 0.6)', // --amazon-green
+                            borderColor: 'rgba(0, 168, 118, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Số lượng bán' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Xếp hạng' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        const index = context[0].dataIndex;
+                                        return `Hạng ${index + 1}: ${topProdData[index].name}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                topProductsNoData.style.display = 'block';
+                topProductsCanvas.style.display = 'none';
+            }
+
+            // Bottom Products Chart (Horizontal Bar, 1-10 Labels)
+            const bottomProductsCanvas = document.getElementById('bottomProductsChart');
+            const bottomProductsNoData = document.getElementById('bottomProductsNoData');
+            if (data.bottomProducts && Array.isArray(data.bottomProducts) && data.bottomProducts.length > 0) {
+                bottomProductsNoData.style.display = 'none';
+                bottomProductsCanvas.style.display = 'block';
+                // Pad data to ensure 10 bars
+                let bottomProdData = data.bottomProducts.slice(0, 10);
+                while (bottomProdData.length < 10) {
+                    bottomProdData.push({ name: 'N/A', sales: 0 });
+                }
+                // Reverse the data so the least-selling product is at the top
+                bottomProdData = bottomProdData.reverse();
+                new Chart(bottomProductsCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+                        datasets: [{
+                            label: 'Số lượng bán',
+                            data: bottomProdData.map(item => item.sales),
+                            backgroundColor: 'rgba(255, 153, 0, 0.6)', // --amazon-orange
+                            borderColor: 'rgba(255, 153, 0, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Số lượng bán' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Xếp hạng' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        const index = context[0].dataIndex;
+                                        return `Hạng ${index + 1}: ${bottomProdData[index].name}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                bottomProductsNoData.style.display = 'block';
+                bottomProductsCanvas.style.display = 'none';
+            }
+
+            // Revenue Chart (Line Chart)
+            const revenueCanvas = document.getElementById('revenueChart');
+            const revenueNoData = document.getElementById('revenueNoData');
+            if (data.revenue && Array.isArray(data.revenue) && data.revenue.length > 0) {
+                revenueNoData.style.display = 'none';
+                revenueCanvas.style.display = 'block';
+                new Chart(revenueCanvas.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: data.revenue.map(item => item.month),
+                        datasets: [{
+                            label: 'Doanh thu',
+                            data: data.revenue.map(item => parseFloat(item.amount)),
+                            backgroundColor: 'rgba(0, 168, 118, 0.2)',
+                            borderColor: 'rgba(0, 168, 118, 1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Doanh thu (VND)' }
+                            },
+                            x: {
+                                title: { display: true, text: 'Tháng' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: true, position: 'top' }
+                        }
+                    }
+                });
+            } else {
+                revenueNoData.style.display = 'block';
+                revenueCanvas.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching dashboard data:', error);
+            loading.style.display = 'none';
+            error.style.display = 'block';
+            showToast('Lỗi khi tải dữ liệu dashboard. Kiểm tra kết nối cơ sở dữ liệu.', 'danger');
+        });
+</script>
+</body>
+</html>

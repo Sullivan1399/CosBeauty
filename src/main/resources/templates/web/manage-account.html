@@ -3,12 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quản Lý Đơn Hàng Online - Admin</title>
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <!-- Google Fonts: Roboto -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -19,21 +15,20 @@
     .container-fluid {
       padding: 0;
     }
-    /* Sidebar */
     .sidebar {
       width: 250px;
       height: 100vh;
       position: fixed;
       top: 0;
       left: 0;
-      background-color: #fff3e6; /* Cam nhạt */
+      background-color: #fff3e6;
       box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
       overflow-y: auto;
       transition: transform 0.3s ease;
     }
     .sidebar-header {
       padding: 20px;
-      background-color: #ff6200; /* Cam */
+      background-color: #ff6200;
       color: #fff;
       text-align: center;
       font-weight: 700;
@@ -51,10 +46,10 @@
       transition: background-color 0.3s, color 0.3s;
     }
     .sidebar-nav a:hover {
-      background-color: #ffe6cc; /* Cam nhạt hơn */
+      background-color: #ffe6cc;
     }
     .sidebar-nav a.active {
-      background-color: #ff6200; /* Cam */
+      background-color: #ff6200;
       color: #fff;
     }
     .sidebar-nav a i {
@@ -62,7 +57,6 @@
       width: 20px;
       text-align: center;
     }
-    /* Main content */
     .main-content {
       margin-left: 250px;
       padding: 30px;
@@ -70,7 +64,7 @@
       transition: margin-left 0.3s ease;
     }
     h2 {
-      color: #ff6200; /* Cam */
+      color: #ff6200;
       font-weight: 700;
     }
     .table-container {
@@ -90,28 +84,36 @@
       border-bottom: 1px solid #e9ecef;
     }
     .table th {
-      background-color: #ff6200; /* Cam */
+      background-color: #ff6200;
       color: #fff;
       font-weight: 600;
     }
     .table tr:hover {
-      background-color: #fff3e6; /* Cam nhạt */
+      background-color: #fff3e6;
       transition: background-color 0.3s;
     }
     .status-pending { color: #ffc107; font-weight: 500; }
-    .status-confirmed { color: #317546; font-weight: 500; } /* Xanh lá đậm */
+    .status-confirmed { color: #317546; font-weight: 500; }
     .status-cancelled { color: #dc3545; font-weight: 500; }
     .status-processing { color: #17a2b8; font-weight: 500; }
     .status-delivering { color: #007bff; font-weight: 500; }
-    .status-success { color: #ff6200; font-weight: 500; } /* Cam */
+    .status-success { color: #ff6200; font-weight: 500; }
     .status-failed { color: #dc3545; font-weight: 500; }
+    .status-active {
+      color: #317546;
+      font-weight: 500;
+    }
+    .status-inactive {
+      color: #dc3545;
+      font-weight: 500;
+    }
     .modal-content {
       border-radius: 15px;
       border: none;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
     .modal-header {
-      background-color: #ff6200; /* Cam */
+      background-color: #ff6200;
       color: #fff;
       border-top-left-radius: 15px;
       border-top-right-radius: 15px;
@@ -119,7 +121,7 @@
     .modal-body table { width: 100%; }
     .modal-body th, .modal-body td { padding: 12px; }
     .btn-info {
-      background-color: #317546; /* Xanh lá đậm */
+      background-color: #317546;
       border-color: #317546;
       border-radius: 20px;
       font-weight: 500;
@@ -130,7 +132,7 @@
       border-color: #2a643c;
     }
     .btn-success {
-      background-color: #317546; /* Xanh lá đậm */
+      background-color: #317546;
       border-color: #317546;
       border-radius: 20px;
       font-weight: 500;
@@ -140,7 +142,7 @@
       border-color: #2a643c;
     }
     .btn-primary {
-      background-color: #ff6200; /* Cam */
+      background-color: #ff6200;
       border-color: #ff6200;
       border-radius: 20px;
       font-weight: 500;
@@ -148,6 +150,29 @@
     .btn-primary:hover {
       background-color: #e65b00;
       border-color: #e65b00;
+    }
+    .btn-toggle {
+      border-radius: 20px;
+      font-size: 12px;
+      padding: 4px 8px;
+      color: #fff;
+      margin-top: 8px;
+    }
+    .btn-toggle-active {
+      background-color: #317546;
+      border-color: #317546;
+    }
+    .btn-toggle-active:hover {
+      background-color: #2a643c;
+      border-color: #2a643c;
+    }
+    .btn-toggle-inactive {
+      background-color: #dc3545;
+      border-color: #dc3545;
+    }
+    .btn-toggle-inactive:hover {
+      background-color: #c82333;
+      border-color: #c82333;
     }
     .form-control, .form-select {
       border-radius: 20px;
@@ -166,26 +191,26 @@
       z-index: 1050;
     }
     .toast-header {
-      background-color: #317546; /* Xanh lá đậm */
+      background-color: #317546;
       color: #fff;
     }
     .action-column {
       white-space: nowrap;
-      width: 120px;
-      text-align: center; /* Căn giữa nút trong cột Hành động */
+      width: 100px;
+      text-align: center;
     }
     .role-column {
-      text-align: center; /* Căn giữa cột Vai trò */
+      text-align: center;
     }
-    .table th:nth-child(1), .table td:nth-child(1) { width: 8%; } /* ID */
-    .table th:nth-child(2), .table td:nth-child(2) { width: 15%; } /* Tên người dùng */
-    .table th:nth-child(3), .table td:nth-child(3) { width: 22%; } /* Email */
-    .table th:nth-child(4), .table td:nth-child(4) { width: 10%; } /* Số điện thoại */
-    .table th:nth-child(5), .table td:nth-child(5) { width: 9%; } /* Vai trò */
-    .table th:nth-child(6), .table td:nth-child(6) { width: 10%; } /* Hành động */
-    /* Nút Lưu */
+    .table th:nth-child(1), .table td:nth-child(1) { width: 5%; }
+    .table th:nth-child(2), .table td:nth-child(2) { width: 15%; }
+    .table th:nth-child(3), .table td:nth-child(3) { width: 20%; }
+    .table th:nth-child(4), .table td:nth-child(4) { width: 10%; }
+    .table th:nth-child(5), .table td:nth-child(5) { width: 9%; }
+    .table th:nth-child(6), .table td:nth-child(6) { width: 12%; }
+    .table th:nth-child(7), .table td:nth-child(7) { width: 8%; }
     .btn-save {
-      background-color: #ff6200; /* Cam */
+      background-color: #ff6200;
       border-color: #ff6200;
       color: #fff;
       border-radius: 20px;
@@ -195,19 +220,17 @@
       transition: all 0.3s ease;
     }
     .btn-save:hover {
-      background-color: #e65b00; /* Cam đậm */
+      background-color: #e65b00;
       border-color: #e65b00;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
     .btn-save i {
       margin-right: 5px;
     }
-    /* Hamburger menu */
     .navbar-toggler {
       display: none;
       margin: 15px;
     }
-    /* Pagination */
     .pagination-container {
       margin-top: 30px;
     }
@@ -225,13 +248,13 @@
       transition: all 0.3s ease;
     }
     .page-item.active .page-link {
-      background-color: #ff6200; /* Cam */
+      background-color: #ff6200;
       border-color: #ff6200;
       color: #fff;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
     .page-item:not(.disabled) .page-link:hover {
-      background-color: #ffe6cc; /* Cam nhạt */
+      background-color: #ffe6cc;
       border-color: #ff6200;
       color: #ff6200;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -269,24 +292,21 @@
 </head>
 <body>
 <div class="container-fluid">
-  <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       Admin Dashboard
     </div>
     <div class="sidebar-nav">
-      <a href="#" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
-      <a href="#" data-section="orders"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
+      <a th:href="@{/admin/dashboard}" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
+      <a th:href="@{/admin/manage-admin}" data-section="orders"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
       <a th:href="@{/admin/accounts}" class="active"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
       <a th:href="@{/admin/ManageProducts}"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
       <a th:href="@{/admin/import-orders}"><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
-      <a href="#" data-section="settings"><i class="fas fa-cog"></i> Cài Đặt</a>
+      <a th:href="@{/}" data-section="settings"><i class="fas fa-cog"></i>Quay về trang Home</a>
     </div>
   </div>
 
-  <!-- Main Content -->
   <div class="main-content">
-    <!-- Hamburger Menu -->
     <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
       <i class="fas fa-bars"></i>
     </button>
@@ -296,11 +316,9 @@
       <p>Chào mừng đến với bảng điều khiển quản trị. Đây là trang tổng quan.</p>
     </div>
 
-    <!-- Quản Lý Tài Khoản -->
     <div id="account" class="section" style="display: block;">
       <h2 class="text-center mb-4">Quản Lý Tài Khoản</h2>
 
-      <!-- Search Form -->
       <form th:action="@{/admin/accounts}" method="get" class="d-flex align-items-center mb-4" style="max-width: 500px;">
         <select name="searchType" class="form-select me-2" style="width: 150px;">
           <option value="username" th:selected="${searchType == 'username'}">Theo email</option>
@@ -320,7 +338,6 @@
           <a href="/admin/accounts/create-employee" class="btn btn-success">Thêm tài khoản Nhân viên</a>
         </div>
 
-        <!-- Filter Role -->
         <div class="mb-3">
           <form method="get" action="/admin/accounts" class="d-inline">
             <input type="hidden" name="role" value="customer" />
@@ -335,7 +352,6 @@
           </form>
         </div>
 
-        <!-- Danh sách -->
         <table class="table table-bordered table-striped align-middle">
           <thead class="table-light">
           <tr>
@@ -344,6 +360,7 @@
             <th class="role-column">Email</th>
             <th class="role-column">Số điện thoại</th>
             <th class="role-column">Vai trò</th>
+            <th class="role-column">Trạng thái</th>
             <th class="role-column">Hành động</th>
           </tr>
           </thead>
@@ -363,17 +380,33 @@
                 <span th:text="${account.role == 'ROLE_CUSTOMER' ? 'Khách hàng' : account.role == 'ROLE_EMPLOYEE' ? 'Nhân viên' : 'Quản trị'}"></span>
                 <input type="hidden" name="role" th:value="${account.role.replace('ROLE_', '')}" />
               </td>
+              <td class="role-column">
+                <div class="d-flex flex-column align-items-center">
+                  <span th:if="${account.role == 'ROLE_CUSTOMER' or account.role == 'ROLE_ADMIN'}" class="status-active">Đang hoạt động</span>
+                  <span th:if="${account.role == 'ROLE_EMPLOYEE' and employeeStatusMap[account.username] == true}" class="status-active">Đang hoạt động</span>
+                  <span th:if="${account.role == 'ROLE_EMPLOYEE' and employeeStatusMap[account.username] == false}" class="status-inactive">Không hoạt động</span>
+                  </form>
+                  <form th:if="${account.role == 'ROLE_EMPLOYEE'}" th:action="@{/admin/accounts/toggle-status}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" name="id" th:value="${account.ID}" />
+                    <button type="submit" class="btn btn-toggle" th:classappend="${employeeStatusMap[account.username] == true} ? 'btn-toggle-active' : 'btn-toggle-inactive'">
+                      <span th:text="${employeeStatusMap[account.username] == true} ? 'Tắt' : 'Bật'"></span>
+                    </button>
+                  </form>
+                </div>
+              </td>
               <td class="action-column">
-                <button type="submit" class="btn btn-save">Lưu
-                </button>
-                </form>
+                <div th:if="${account != null and account.role != 'ROLE_ADMIN' }">
+                <a th:href="@{/admin/accounts/details(id=${account.ID})}" class="btn btn-primary btn-sm">
+                  <i class="fas fa-eye"></i> View
+                </a>
+                </div>
               </td>
             </tr>
           </th:block>
           </tbody>
         </table>
 
-        <!-- Pagination -->
         <div class="pagination-container d-flex justify-content-center">
           <nav>
             <ul class="pagination">
@@ -399,7 +432,6 @@
   </div>
 </div>
 
-<!-- Toast Container -->
 <div class="toast-container">
   <div id="actionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header">
@@ -410,16 +442,13 @@
   </div>
 </div>
 
-<!-- Bootstrap JS and Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // Function to toggle sidebar on mobile
   function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.toggle('active');
   }
 
-  // Function to show section
   function showSection(sectionId) {
     document.querySelectorAll('.section').forEach(section => {
       section.style.display = section.id === sectionId ? 'block' : 'none';
@@ -428,85 +457,48 @@
       link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
     });
 
-    // Cập nhật URL dựa trên sectionId
     let newUrl;
     switch (sectionId) {
-      case 'overview':
-        newUrl = '/admin/dashboard';
-        break;
-      case 'orders':
-        newUrl = '/admin/orders';
-        break;
-      case 'account':
-        newUrl = '/admin/accounts';
-        break;
-      case 'products':
-        newUrl = '/admin/ManageProducts';
-        break;
-      case 'import':
-        newUrl = '/admin/import-orders';
-        break;
-      case 'settings':
-        newUrl = '/admin/settings';
-        break;
-      default:
-        newUrl = '/admin/dashboard';
+      case 'overview': newUrl = '/admin/dashboard'; break;
+      case 'orders': newUrl = '/admin/orders'; break;
+      case 'account': newUrl = '/admin/accounts'; break;
+      case 'products': newUrl = '/admin/products'; break;
+      case 'import': newUrl = '/admin/import-orders'; break;
+      case 'settings': newUrl = '/admin/settings'; break;
+      default: newUrl = '/admin/dashboard';
     }
     window.history.pushState({ sectionId: sectionId }, '', newUrl);
-
-    // Lưu section hiện tại vào localStorage
     localStorage.setItem('currentSection', sectionId);
   }
 
-  // Sidebar navigation
   document.querySelectorAll('.sidebar-nav a').forEach(link => {
     link.addEventListener('click', (e) => {
       const sectionId = link.getAttribute('data-section');
       const href = link.getAttribute('href');
-
-      // Nếu liên kết có href và không phải là "#", để trình duyệt xử lý chuyển hướng
-      if (href && href !== '#') {
-        return;
-      }
-
-      e.preventDefault(); // Ngăn tải lại trang cho các liên kết không có href thực
+      if (href && href !== '#') return;
+      e.preventDefault();
       showSection(sectionId);
-      if (window.innerWidth <= 992) {
-        toggleSidebar();
-      }
+      if (window.innerWidth <= 992) toggleSidebar();
     });
   });
 
-  // Xử lý khi tải trang: Kiểm tra URL để hiển thị section đúng
   window.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
     let sectionId = localStorage.getItem('currentSection') || 'overview';
-
-    // Kiểm tra URL để xác định section
-    if (path.includes('/admin/accounts')) {
-      sectionId = 'account';
-    } else if (path.includes('/admin/orders')) {
-      sectionId = 'orders';
-    } else if (path.includes('/admin/products')) {
-      sectionId = 'products';
-    } else if (path.includes('/admin/import-orders')) {
-      sectionId = 'import';
-    } else if (path.includes('/admin/settings')) {
-      sectionId = 'settings';
-    } else if (path.includes('/admin/dashboard')) {
-      sectionId = 'overview';
-    }
-
+    if (path.includes('/admin/accounts')) sectionId = 'account';
+    else if (path.includes('/admin/orders')) sectionId = 'orders';
+    else if (path.includes('/admin/products')) sectionId = 'products';
+    else if (path.includes('/admin/import-orders')) sectionId = 'import';
+    else if (path.includes('/admin/settings')) sectionId = 'settings';
+    else if (path.includes('/admin/dashboard')) sectionId = 'overview';
     showSection(sectionId);
   });
 
-  // Xử lý nút Back/Forward
   window.addEventListener('popstate', (event) => {
     const sectionId = event.state ? event.state.sectionId : localStorage.getItem('currentSection') || 'overview';
     showSection(sectionId);
   });
 
-  // Function to show toast
   function showToast(message, type = 'success') {
     const toast = document.getElementById('actionToast');
     const toastBody = toast.querySelector('.toast-body');

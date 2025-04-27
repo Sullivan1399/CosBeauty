@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - CosBeauty</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #2F855A 0%, #C6FFDD 100%);
+        }
+        .btn-orange {
+            background-color: #F6AD55;
+            transition: background-color 0.3s ease;
+        }
+        .btn-orange:hover {
+            background-color: #ED8936;
+        }
+        .text-green {
+            color: #2F855A;
+        }
+        .bg-green-light {
+            background-color: #E6FFFA;
+        }
+        .sidebar-active {
+            background-color: #1A4D39;
+            background-opacity: 0.4;
+        }
+        @media (max-width: 640px) {
+            .content-card {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            main {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+<div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 sidebar-gradient text-white shadow-lg p-6 fixed h-full">
+        <div class="flex items-center mb-10">
+            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3">
+                <i class="fas fa-user text-green text-xl"></i>
+            </div>
+            <span class="text-lg font-bold" th:text="${customer.name}">User Name</span>
+        </div>
+        <nav>
+            <ul class="space-y-3">
+                <li>
+                    <a th:href="@{/}" class="flex items-center px-4 py-3 text-white hover:bg-green-600 hover:bg-opacity-20 rounded-lg transition duration-200">
+                        <i class="fas fa-home mr-3"></i> Về trang chủ
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/api/customer/profile}" class="flex items-center px-4 py-3 text-white sidebar-active rounded-lg hover:bg-green-600 hover:bg-opacity-20 transition duration-200">
+                        <i class="fas fa-user mr-3"></i> Thông tin của tôi
+                    </a>
+                </li>
+                <li>
+                    <button onclick="changePassword()" class="flex items-center w-full text-left px-4 py-3 text-white hover:bg-green-600 hover:bg-opacity-20 rounded-lg transition duration-200">
+                        <i class="fas fa-lock mr-3"></i> Đổi mật khẩu
+                    </button>
+                </li>
+                <li>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="flex items-center w-full text-left px-4 py-3 text-white hover:bg-green-600 hover:bg-opacity-20 rounded-lg transition duration-200">
+                            <i class="fas fa-sign-out-alt mr-3"></i> Đăng xuất
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 ml-64 bg-gray-100">
+        <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 content-card">
+            <div class="flex items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 flex-1">Thông tin của tôi</h2>
+                <div class="w-10 h-10 bg-green-light rounded-full flex items-center justify-center">
+                    <i class="fas fa-id-card text-green"></i>
+                </div>
+            </div>
+
+            <div id="error" class="hidden bg-red-100 text-red-700 p-4 rounded-lg mb-6"></div>
+
+            <!-- Profile View -->
+            <div id="profile-view" class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-green-light p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Họ và tên</p>
+                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${customer.name}">User Name</p>
+                    </div>
+                    <div class="bg-green-light p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Email</p>
+                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${customer.email}">user@example.com</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-green-light p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Địa chỉ</p>
+                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${customer.address}">Address</p>
+                    </div>
+                    <div class="bg-green-light p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Số điện thoại</p>
+                        <p class="mt-2 text-lg text-gray-900 font-semibold" th:text="${customer.phone}">Phone</p>
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button onclick="showEditForm()" class="px-6 py-3 btn-orange text-white rounded-lg shadow-md">Edit Profile</button>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <form id="edit-form" class="hidden space-y-6 transition-opacity duration-300" onsubmit="updateProfile(event)">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Họ và tên</label>
+                    <input type="text" name="name" th:value="${customer.name}" class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green focus:ring focus:ring-green-200 focus:ring-opacity-50 py-3 px-4 transition duration-200" required/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" name="email" th:value="${customer.email}" disabled class="mt-2 block w-full rounded-lg border-gray-300 bg-gray-100 cursor-not-allowed py-3 px-4"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Địa chỉ</label>
+                    <input type="text" name="address" th:value="${customer.address}" class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green focus:ring focus:ring-green-200 focus:ring-opacity-50 py-3 px-4 transition duration-200" required/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                    <input type="tel" name="phone" th:value="${customer.phone}" pattern="[0-9]{10,11}" class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green focus:ring focus:ring-green-200 focus:ring-opacity-50 py-3 px-4 transition duration-200" required/>
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="hideEditForm()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">Hủy</button>
+                    <button type="submit" class="px-6 py-3 btn-orange text-white rounded-lg shadow-md">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script>
+    function showEditForm() {
+        document.getElementById('profile-view').classList.add('hidden');
+        document.getElementById('edit-form').classList.remove('hidden');
+        document.getElementById('error').classList.add('hidden');
+    }
+
+    function hideEditForm() {
+        document.getElementById('profile-view').classList.remove('hidden');
+        document.getElementById('edit-form').classList.add('hidden');
+        document.getElementById('error').classList.add('hidden');
+    }
+
+    function updateProfile(event) {
+        event.preventDefault();
+        const form = document.getElementById('edit-form');
+        const formData = {
+            name: form.querySelector('input[name="name"]').value,
+            address: form.querySelector('input[name="address"]').value,
+            phone: form.querySelector('input[name="phone"]').value
+        };
+
+        fetch('/api/customer/profile', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(formData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message || 'Failed to update profile'); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.message.includes('successfully')) {
+                    window.location.reload();
+                } else {
+                    document.getElementById('error').textContent = data.message || 'Failed to update profile';
+                    document.getElementById('error').classList.remove('hidden');
+                }
+            })
+            .catch(err => {
+                document.getElementById('error').textContent = err.message;
+                document.getElementById('error').classList.remove('hidden');
+            });
+    }
+
+    function changePassword() {
+        window.location.href = '/api/customer/change-password';
+    }
+</script>
+</body>
+</html>
