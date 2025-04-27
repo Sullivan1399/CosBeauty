@@ -78,6 +78,37 @@ public class DashboardController {
                     .map(row -> Map.of("name", row[0] != null ? row[0] : "Unknown", "sales", ((Number) row[1]).longValue()))
                     .collect(Collectors.toList());
 
+            // Top 10 and Bottom 10 Products by Sales
+            List<Object[]> productSales;
+            try {
+                productSales = entityManager.createNativeQuery(
+                                "SELECT p.product_name, COALESCE(SUM(COALESCE(od.quantity, 0) + COALESCE(offd.quantity, 0)), 0) as sales " +
+                                        "FROM product p " +
+                                        "LEFT JOIN on_detail od ON od.productid = p.productid " +
+                                        "LEFT JOIN off_detail offd ON offd.productid = p.productid " +
+                                        "GROUP BY p.productid, p.product_name " +
+                                        "ORDER BY sales DESC")
+                        .getResultList();
+                logger.info("Product sales query returned {} rows", productSales.size());
+                if (productSales.size() > 0) {
+                    logger.debug("Top product: {} with {} sales", productSales.get(0)[0], productSales.get(0)[1]);
+                }
+            } catch (Exception e) {
+                logger.error("Error fetching product sales", e);
+                productSales = List.of();
+            }
+
+            List<Map<String, Object>> topProducts = productSales.stream()
+                    .limit(10)
+                    .map(row -> Map.of("name", row[0] != null ? row[0] : "Unknown", "sales", ((Number) row[1]).longValue()))
+                    .collect(Collectors.toList());
+
+            List<Map<String, Object>> bottomProducts = productSales.stream()
+                    .skip(Math.max(0, productSales.size() - 10))
+                    .map(row -> Map.of("name", row[0] != null ? row[0] : "Unknown", "sales", ((Number) row[1]).longValue()))
+                    .collect(Collectors.toList());
+
+
             // Revenue by Month (unchanged)
             List<Object[]> revenue;
             try {
@@ -120,6 +151,8 @@ public class DashboardController {
                     "orderStats", orderStats,
                     "topCategories", topCategories,
                     "bottomCategories", bottomCategories,
+                    "topProducts", topProducts,      // Add this
+                    "bottomProducts", bottomProducts, // Add this
                     "revenue", revenueData
             );
         } catch (Exception e) {

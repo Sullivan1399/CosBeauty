@@ -320,6 +320,20 @@
                     </div>
                     <canvas id="bottomCategoriesChart"></canvas>
                 </div>
+                <div class="chart-container">
+                    <h2 class="text-lg font-semibold mb-3">Top 10 Sản phẩm bán chạy</h2>
+                    <div id="topProductsNoData" class="no-data" style="display: none;">
+                        Không có dữ liệu sản phẩm hoặc chi tiết đơn hàng (on_detail/off_detail) trống.
+                    </div>
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2 class="text-lg font-semibold mb-3">Top 10 Sản phẩm bán chậm</h2>
+                    <div id="bottomProductsNoData" class="no-data" style="display: none;">
+                        Không có dữ liệu sản phẩm hoặc chi tiết đơn hàng (on_detail/off_detail) trống.
+                    </div>
+                    <canvas id="bottomProductsChart"></canvas>
+                </div>
                 <div class="chart-container" style="grid-column: span 2;">
                     <h2 class="text-lg font-semibold mb-3">Doanh thu theo tháng</h2>
                     <div id="revenueNoData" class="no-data" style="display: none;">
@@ -487,51 +501,42 @@
                 topCategoriesNoData.style.display = 'none';
                 topCategoriesCanvas.style.display = 'block';
                 // Pad data to ensure 10 bars
-                const topData = data.topCategories.slice(0, 10);
-                while (topData.length < 10) {
-                    topData.push({ name: 'N/A', sales: 0 });
+                const topCatData = data.topCategories.slice(0, 10);
+                while (topCatData.length < 10) {
+                    topCatData.push({ name: 'N/A', sales: 0 });
                 }
                 new Chart(topCategoriesCanvas.getContext('2d'), {
                     type: 'bar',
                     data: {
-                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], // 1-10 labels
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
                         datasets: [{
                             label: 'Doanh số',
-                            data: topData.map(item => item.sales),
+                            data: topCatData.map(item => item.sales),
                             backgroundColor: 'rgba(0, 168, 118, 0.6)', // --amazon-green
                             borderColor: 'rgba(0, 168, 118, 1)',
                             borderWidth: 1
                         }]
                     },
                     options: {
-                        indexAxis: 'y', // Makes bars horizontal
+                        indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
                             x: {
                                 beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Doanh số'
-                                }
+                                title: { display: true, text: 'Doanh số' }
                             },
                             y: {
-                                title: {
-                                    display: true,
-                                    text: 'Xếp hạng'
-                                }
+                                title: { display: true, text: 'Xếp hạng' }
                             }
                         },
                         plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top'
-                            },
+                            legend: { display: true, position: 'top' },
                             tooltip: {
                                 callbacks: {
                                     title: function(context) {
                                         const index = context[0].dataIndex;
-                                        return `Hạng ${index + 1}: ${topData[index].name}`;
+                                        return `Hạng ${index + 1}: ${topCatData[index].name}`;
                                     }
                                 }
                             }
@@ -550,51 +555,44 @@
                 bottomCategoriesNoData.style.display = 'none';
                 bottomCategoriesCanvas.style.display = 'block';
                 // Pad data to ensure 10 bars
-                const bottomData = data.bottomCategories.slice(0, 10);
-                while (bottomData.length < 10) {
-                    bottomData.push({ name: 'N/A', sales: 0 });
+                let bottomCatData = data.bottomCategories.slice(0, 10);
+                while (bottomCatData.length < 10) {
+                    bottomCatData.push({ name: 'N/A', sales: 0 });
                 }
+                // Reverse the data so the least-selling category is at the top
+                bottomCatData = bottomCatData.reverse();
                 new Chart(bottomCategoriesCanvas.getContext('2d'), {
                     type: 'bar',
                     data: {
-                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], // 1-10 labels
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
                         datasets: [{
                             label: 'Doanh số',
-                            data: bottomData.map(item => item.sales),
+                            data: bottomCatData.map(item => item.sales),
                             backgroundColor: 'rgba(255, 153, 0, 0.6)', // --amazon-orange
                             borderColor: 'rgba(255, 153, 0, 1)',
                             borderWidth: 1
                         }]
                     },
                     options: {
-                        indexAxis: 'y', // Makes bars horizontal
+                        indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
                             x: {
                                 beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Doanh số'
-                                }
+                                title: { display: true, text: 'Doanh số' }
                             },
                             y: {
-                                title: {
-                                    display: true,
-                                    text: 'Xếp hạng'
-                                }
+                                title: { display: true, text: 'Xếp hạng' }
                             }
                         },
                         plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top'
-                            },
+                            legend: { display: true, position: 'top' },
                             tooltip: {
                                 callbacks: {
                                     title: function(context) {
                                         const index = context[0].dataIndex;
-                                        return `Hạng ${index + 1}: ${bottomData[index].name}`;
+                                        return `Hạng ${index + 1}: ${bottomCatData[index].name}`;
                                     }
                                 }
                             }
@@ -604,6 +602,116 @@
             } else {
                 bottomCategoriesNoData.style.display = 'block';
                 bottomCategoriesCanvas.style.display = 'none';
+            }
+
+            // Top Products Chart (Horizontal Bar, 1-10 Labels)
+            const topProductsCanvas = document.getElementById('topProductsChart');
+            const topProductsNoData = document.getElementById('topProductsNoData');
+            if (data.topProducts && Array.isArray(data.topProducts) && data.topProducts.length > 0) {
+                topProductsNoData.style.display = 'none';
+                topProductsCanvas.style.display = 'block';
+                // Pad data to ensure 10 bars
+                const topProdData = data.topProducts.slice(0, 10);
+                while (topProdData.length < 10) {
+                    topProdData.push({ name: 'N/A', sales: 0 });
+                }
+                new Chart(topProductsCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+                        datasets: [{
+                            label: 'Số lượng bán',
+                            data: topProdData.map(item => item.sales),
+                            backgroundColor: 'rgba(0, 168, 118, 0.6)', // --amazon-green
+                            borderColor: 'rgba(0, 168, 118, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Số lượng bán' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Xếp hạng' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        const index = context[0].dataIndex;
+                                        return `Hạng ${index + 1}: ${topProdData[index].name}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                topProductsNoData.style.display = 'block';
+                topProductsCanvas.style.display = 'none';
+            }
+
+            // Bottom Products Chart (Horizontal Bar, 1-10 Labels)
+            const bottomProductsCanvas = document.getElementById('bottomProductsChart');
+            const bottomProductsNoData = document.getElementById('bottomProductsNoData');
+            if (data.bottomProducts && Array.isArray(data.bottomProducts) && data.bottomProducts.length > 0) {
+                bottomProductsNoData.style.display = 'none';
+                bottomProductsCanvas.style.display = 'block';
+                // Pad data to ensure 10 bars
+                let bottomProdData = data.bottomProducts.slice(0, 10);
+                while (bottomProdData.length < 10) {
+                    bottomProdData.push({ name: 'N/A', sales: 0 });
+                }
+                // Reverse the data so the least-selling product is at the top
+                bottomProdData = bottomProdData.reverse();
+                new Chart(bottomProductsCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+                        datasets: [{
+                            label: 'Số lượng bán',
+                            data: bottomProdData.map(item => item.sales),
+                            backgroundColor: 'rgba(255, 153, 0, 0.6)', // --amazon-orange
+                            borderColor: 'rgba(255, 153, 0, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Số lượng bán' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Xếp hạng' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        const index = context[0].dataIndex;
+                                        return `Hạng ${index + 1}: ${bottomProdData[index].name}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                bottomProductsNoData.style.display = 'block';
+                bottomProductsCanvas.style.display = 'none';
             }
 
             // Revenue Chart (Line Chart)
@@ -631,23 +739,14 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Doanh thu (VND)'
-                                }
+                                title: { display: true, text: 'Doanh thu (VND)' }
                             },
                             x: {
-                                title: {
-                                    display: true,
-                                    text: 'Tháng'
-                                }
+                                title: { display: true, text: 'Tháng' }
                             }
                         },
                         plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top'
-                            }
+                            legend: { display: true, position: 'top' }
                         }
                     }
                 });
