@@ -127,6 +127,7 @@ public class ImportOrderController {
             Map<String, Object> map = new HashMap<>();
             map.put("importID", order.getImportID());
             map.put("cost", order.getCost());
+            map.put("supplierName", order.getSupplier() != null ? order.getSupplier().getSupName() : "N/A"); // Add supplier name
             map.put("importDate", order.getImportDate() != null
                     ? order.getImportDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                     : "N/A");
