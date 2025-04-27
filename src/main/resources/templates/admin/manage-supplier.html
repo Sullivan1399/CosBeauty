@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Đơn Hàng Online - Admin</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+        .container-fluid {
+            padding: 0;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #fff3e6; /* Cam nhạt */
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-header {
+            padding: 20px;
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+            text-align: center;
+            font-weight: 700;
+        }
+        .sidebar-nav {
+            padding: 10px 0;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar-nav a:hover {
+            background-color: #ffe6cc; /* Cam nhạt hơn */
+        }
+        .sidebar-nav a.active {
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+        }
+        .sidebar-nav a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        /* Main content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+        h2 {
+            color: #ff6200; /* Cam */
+            font-weight: 700;
+        }
+        .table-container {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .table th {
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+            font-weight: 600;
+        }
+        .table tr:hover {
+            background-color: #fff3e6; /* Cam nhạt */
+            transition: background-color 0.3s;
+        }
+        .status-pending { color: #ffc107; font-weight: 500; }
+        .status-confirmed { color: #317546; font-weight: 500; } /* Xanh lá đậm */
+        .status-cancelled { color: #dc3545; font-weight: 500; }
+        .status-processing { color: #17a2b8; font-weight: 500; }
+        .status-delivering { color: #007bff; font-weight: 500; }
+        .status-success { color: #ff6200; font-weight: 500; } /* Cam */
+        .status-failed { color: #dc3545; font-weight: 500; }
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        .modal-header {
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        .modal-body table { width: 100%; }
+        .modal-body th, .modal-body td { padding: 12px; }
+        .btn-info {
+            background-color: #317546; /* Xanh lá đậm */
+            border-color: #317546;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .btn-info:hover {
+            background-color: #2a643c;
+            border-color: #2a643c;
+        }
+        .btn-success {
+            background-color: #317546; /* Xanh lá đậm */
+            border-color: #317546;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .btn-success:hover {
+            background-color: #2a643c;
+            border-color: #2a643c;
+        }
+        .btn-primary {
+            background-color: #ff6200; /* Cam */
+            border-color: #ff6200;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #e65b00;
+            border-color: #e65b00;
+        }
+        .form-control, .form-select {
+            border-radius: 20px;
+            border: 1px solid #ced4da;
+            font-weight: 400;
+        }
+        .status-select {
+            width: 220px;
+            display: inline-block;
+        }
+        .status-icon { margin-right: 8px; }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+        .toast-header {
+            background-color: #317546; /* Xanh lá đậm */
+            color: #fff;
+        }
+        .action-column {
+            white-space: nowrap;
+            width: 120px;
+            text-align: center; /* Căn giữa nút trong cột Hành động */
+        }
+        .role-column {
+            text-align: center; /* Căn giữa cột Vai trò */
+        }
+        .table th:nth-child(1), .table td:nth-child(1) { width: 8%; } /* ID */
+        .table th:nth-child(2), .table td:nth-child(2) { width: 15%; } /* Tên người dùng */
+        .table th:nth-child(3), .table td:nth-child(3) { width: 22%; } /* Email */
+        .table th:nth-child(4), .table td:nth-child(4) { width: 10%; } /* Số điện thoại */
+        .table th:nth-child(5), .table td:nth-child(5) { width: 9%; } /* Vai trò */
+        .table th:nth-child(6), .table td:nth-child(6) { width: 10%; } /* Hành động */
+        /* Nút Lưu */
+        .btn-save {
+            background-color: #ff6200; /* Cam */
+            border-color: #ff6200;
+            color: #fff;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 6px 12px;
+            transition: all 0.3s ease;
+        }
+        .btn-save:hover {
+            background-color: #e65b00; /* Cam đậm */
+            border-color: #e65b00;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .btn-save i {
+            margin-right: 5px;
+        }
+        /* Hamburger menu */
+        .navbar-toggler {
+            display: none;
+            margin: 15px;
+        }
+        /* Pagination */
+        .pagination-container {
+            margin-top: 30px;
+        }
+        .pagination {
+            gap: 8px;
+        }
+        .page-item .page-link {
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 8px 14px;
+            color: #333;
+            border: 1px solid #ced4da;
+            background-color: #fff;
+            transition: all 0.3s ease;
+        }
+        .page-item.active .page-link {
+            background-color: #ff6200; /* Cam */
+            border-color: #ff6200;
+            color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .page-item:not(.disabled) .page-link:hover {
+            background-color: #ffe6cc; /* Cam nhạt */
+            border-color: #ff6200;
+            color: #ff6200;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .page-item.disabled .page-link {
+            color: #6c757d;
+            background-color: #f8f9fa;
+            border-color: #ced4da;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .navbar-toggler {
+                display: block;
+            }
+            .page-item .page-link {
+                font-size: 14px;
+                padding: 6px 12px;
+            }
+            .btn-save {
+                font-size: 13px;
+                padding: 5px 10px;
+            }
+            .btn-info {
+                background-color: #317546; /* Xanh lá đậm */
+                border-color: #317546;
+                border-radius: 20px;
+                font-weight: 500;
+                color: white !important; /* Màu chữ trắng */
+                transition: background-color 0.3s;
+            }
+
+            .btn-info:hover {
+                background-color: #2a643c;
+                border-color: #2a643c;
+            }
+
+            .btn-info i {
+                color: white; /* Đảm bảo icon cũng có màu trắng */
+            }
+
+
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            Admin Dashboard
+        </div>
+        <div class="sidebar-nav">
+            <a href="#" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
+            <a th:href="@{/admin/manage-admin}" data-section="orders"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
+            <a th:href="@{/admin/accounts}" class="active"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
+            <a th:href="@{/admin/ManageProducts}"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+            <a th:href="@{/admin/import-orders}"><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
+            <a th:href="@{/admin/manage-supplier}"><i class="fas fa-users"></i> Quản Lý Nhà Cung Cấp</a>
+            <a href="#" data-section="settings"><i class="fas fa-cog"></i> Cài Đặt</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Hamburger Menu -->
+        <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+
+        <!-- Quản Lý Tài Khoản -->
+        <div id="supplier" class="section" style="display: block;">
+            <h2 class="text-center mb-4">Quản Lý Nhà Cung Cấp</h2>
+
+<!--             Search Form-->
+            <form th:action="@{/admin/manage-supplier}" method="get" class="d-flex align-items-center mb-4" style="max-width: 500px;">
+                <input type="text" name="keyword" class="form-control me-2"
+                       placeholder="Nhập email hoặc tên để tìm kiếm"
+                       th:value="${keyword}" />
+                <button type="submit" class="btn btn-primary px-3">Tìm</button>
+            </form>
+
+            <div class="content" id="mainContent">
+                <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+
+                <!-- Danh sách -->
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên nhà cung cấp</th>
+                        <th>Địa chỉ</th>
+                        <th>Số điện thoại</th>
+                        <th>Email</th>
+                        <th>Chỉnh Sửa</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:each="supplier : ${suppliers}">
+                        <tr>
+                            <td th:text="${supplier.supID}"></td>
+                            <td th:text="${supplier.supName}"></td>
+                            <td th:text="${supplier.address}"></td>
+                            <td th:text="${supplier.phone}"></td>
+                            <td th:text="${supplier.email}"></td>
+                            <td class="action-column">
+                                <a style ="color: white" th:href="@{/admin/manage-supplier/update(id=${supplier.supID})}" class="btn btn-info btn-sm">
+                                    <i style ="color: white" class="fas fa-edit"></i> Cập nhật
+                                </a>
+                            </td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div class="pagination-container d-flex justify-content-center">
+                    <nav>
+                        <ul class="pagination">
+                            <!-- Previous Page Button -->
+                            <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/manage-supplier(page=${currentPage - 1})}" aria-label="Previous">
+                                    <span aria-hidden="true">« Trước</span>
+                                </a>
+                            </li>
+                            <!-- Page Number Buttons -->
+                            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+                                th:classappend="${i == currentPage} ? 'active'">
+                                <a class="page-link" th:href="@{/admin/manage-supplier(page=${i})}" th:text="${i}"></a>
+                            </li>
+                            <!-- Next Page Button -->
+                            <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/manage-supplier(page=${currentPage + 1})}" aria-label="Next">
+                                    <span aria-hidden="true">Tiếp »</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container">
+    <div id="actionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+<!-- Bootstrap JS and Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Function to toggle sidebar on mobile
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('active');
+    }
+
+    // Function to show section
+    function showSection(sectionId) {
+        document.querySelectorAll('.section').forEach(section => {
+            section.style.display = section.id === sectionId ? 'block' : 'none';
+        });
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
+        });
+
+        // Cập nhật URL dựa trên sectionId
+        let newUrl;
+        switch (sectionId) {
+            case 'overview':
+                newUrl = '/admin/dashboard';
+                break;
+            case 'orders':
+                newUrl = '/admin/orders';
+                break;
+            case 'account':
+                newUrl = '/admin/accounts';
+                break;
+            case 'products':
+                newUrl = '/admin/ManageProducts';
+                break;
+            case 'import':
+                newUrl = '/admin/import-orders';
+                break;
+            case 'settings':
+                newUrl = '/admin/settings';
+                break;
+            case 'supplier':
+                newUrl = '/admin/manage-supplier';
+                break;
+            default:
+                newUrl = '/admin/dashboard';
+        }
+        window.history.pushState({ sectionId: sectionId }, '', newUrl);
+
+        // Lưu section hiện tại vào localStorage
+        localStorage.setItem('currentSection', sectionId);
+    }
+
+    // Sidebar navigation
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            const sectionId = link.getAttribute('data-section');
+            const href = link.getAttribute('href');
+
+            // Nếu liên kết có href và không phải là "#", để trình duyệt xử lý chuyển hướng
+            if (href && href !== '#') {
+                return;
+            }
+
+            e.preventDefault(); // Ngăn tải lại trang cho các liên kết không có href thực
+            showSection(sectionId);
+            if (window.innerWidth <= 992) {
+                toggleSidebar();
+            }
+        });
+    });
+
+    // Xử lý khi tải trang: Kiểm tra URL để hiển thị section đúng
+    window.addEventListener('DOMContentLoaded', () => {
+        const path = window.location.pathname;
+        let sectionId = localStorage.getItem('currentSection') || 'overview';
+
+        // Kiểm tra URL để xác định section
+        if (path.includes('/admin/accounts')) {
+            sectionId = 'account';
+        } else if (path.includes('/admin/orders')) {
+            sectionId = 'orders';
+        } else if (path.includes('/admin/products')) {
+            sectionId = 'products';
+        } else if (path.includes('/admin/import-orders')) {
+            sectionId = 'import';
+        } else if (path.includes('/admin/settings')) {
+            sectionId = 'settings';
+        } else if (path.includes('/admin/dashboard')) {
+            sectionId = 'overview';
+        } else if (path.includes('/admin/manage-supplier'))
+            sectionId = "supplier";
+
+        showSection(sectionId);
+    });
+
+    // Xử lý nút Back/Forward
+    window.addEventListener('popstate', (event) => {
+        const sectionId = event.state ? event.state.sectionId : localStorage.getItem('currentSection') || 'overview';
+        showSection(sectionId);
+    });
+
+    // Function to show toast
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('actionToast');
+        const toastBody = toast.querySelector('.toast-body');
+        toastBody.textContent = message;
+        toast.classList.remove('bg-success', 'bg-danger');
+        toast.classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+    }
+</script>
+</body>
+</html>

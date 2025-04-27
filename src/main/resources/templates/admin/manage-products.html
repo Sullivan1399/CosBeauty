@@ -241,8 +241,11 @@
             </div>
             <div class="sidebar-nav">
                 <a th:href="@{/admin/dashboard}" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
-                <!-- Chỉ giữ lại mục sản phẩm trong nav bar -->
-                <a href="#" data-section="products" class="active"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+                <a th:href="@{/admin/manage-admin}" data-section="orders"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
+                <a th:href="@{/admin/accounts}" class="active"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
+                <a th:href="@{/admin/ManageProducts}"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+                <a th:href="@{/admin/import-orders}"><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
+                <a th:href="@{/}" data-section="settings"><i class="fas fa-cog"></i>Quay về trang Home</a>
             </div>
         </div>
 
@@ -423,13 +426,11 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script th:src="@{/js/scripts.js}"></script>
     <script>
-        // Function to toggle sidebar on mobile
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('active');
         }
 
-        // Function to show section
         function showSection(sectionId) {
             document.querySelectorAll('.section').forEach(section => {
                 section.style.display = section.id === sectionId ? 'block' : 'none';
@@ -437,9 +438,49 @@
             document.querySelectorAll('.sidebar-nav a').forEach(link => {
                 link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
             });
+
+            let newUrl;
+            switch (sectionId) {
+                case 'overview': newUrl = '/admin/dashboard'; break;
+                case 'orders': newUrl = '/admin/manage-admin'; break;
+                case 'account': newUrl = '/admin/accounts'; break;
+                case 'products': newUrl = '/admin/ManageProducts'; break;
+                case 'import': newUrl = '/admin/import-orders'; break;
+                case 'settings': newUrl = '/admin/settings'; break;
+                default: newUrl = '/admin/dashboard';
+            }
+            window.history.pushState({ sectionId: sectionId }, '', newUrl);
+            localStorage.setItem('currentSection', sectionId);
         }
 
-        // Function to show toast
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const sectionId = link.getAttribute('data-section');
+                const href = link.getAttribute('href');
+                if (href && href !== '#') return;
+                e.preventDefault();
+                showSection(sectionId);
+                if (window.innerWidth <= 992) toggleSidebar();
+            });
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const path = window.location.pathname;
+            let sectionId = localStorage.getItem('currentSection') || 'overview';
+            if (path.includes('/admin/accounts')) sectionId = 'account';
+            else if (path.includes('/admin/manage-admin')) sectionId = 'orders';
+            else if (path.includes('/admin/ManageProducts')) sectionId = 'products';
+            else if (path.includes('/admin/import-orders')) sectionId = 'import';
+            else if (path.includes('/admin/settings')) sectionId = 'settings';
+            else if (path.includes('/admin/dashboard')) sectionId = 'overview';
+            showSection(sectionId);
+        });
+
+        window.addEventListener('popstate', (event) => {
+            const sectionId = event.state ? event.state.sectionId : localStorage.getItem('currentSection') || 'overview';
+            showSection(sectionId);
+        });
+
         function showToast(message, type = 'success') {
             const toast = document.getElementById('actionToast');
             const toastBody = toast.querySelector('.toast-body');

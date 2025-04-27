@@ -248,7 +248,7 @@
                          (${order.getConfirm()} == 2 ? 'Đã xác nhận' : 'Đã hủy'))">
             </div>
 
-            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${order.getCost()} + ' đ'"></div>
+            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' +${@formatter.formatPrice(order.getCost())}"></div>
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
@@ -279,7 +279,7 @@
                          (${order.confirm} == 2 ? 'Đã xác nhận' : 'Đã hủy'))">
             </div>
 
-            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${order.getCost()} + ' đ'"></div>
+            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${@formatter.formatPrice(order.getCost())}"></div>
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
@@ -310,7 +310,7 @@
                              (${order.getConfirm()} == 2 ? 'Đã xác nhận' : 'Trạng thái khác'))">
             </div>
 
-            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${order.getCost()} + ' đ'"></div>
+            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${@formatter.formatPrice(order.getCost())}"></div>
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
@@ -350,7 +350,7 @@
             </span>
             </div>
 
-            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${order.getCost()} + ' đ'"></div>
+            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${@formatter.formatPrice(order.getCost())}"></div>
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
@@ -389,7 +389,7 @@
             </span>
             </div>
 
-            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${order.getCost()} + ' đ'"></div>
+            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${@formatter.formatPrice(order.getCost())}"></div>
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
@@ -428,7 +428,7 @@
             </span>
             </div>
 
-            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${order.getCost()} + ' đ'"></div>
+            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${@formatter.formatPrice(order.getCost())}"></div>
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">
@@ -465,7 +465,7 @@
             </span>
             </div>
 
-            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${order.getCost()} + ' đ'"></div>
+            <div class="total" th:text="'Tổng tiền (' + ${order.getOnOrderDetails().size()} + ' sản phẩm): ' + ${@formatter.formatPrice(order.getCost())}"></div>
             <a th:href="@{'/order/' + ${order.getOnOrderID()}}" class="text-decoration-none text-primary">Chi Tiết</a>
           </div>
           <div th:each="item : ${order.getOnOrderDetails()}" class="order-item d-flex">

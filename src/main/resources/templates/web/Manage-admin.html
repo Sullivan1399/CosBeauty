@@ -212,12 +212,12 @@
                 Admin Dashboard
             </div>
             <div class="sidebar-nav">
-                <a href="#" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
-                <a href="#" data-section="orders" class="active"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
-                <a href="#" data-section="account"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
-                <a href="#" data-section="products"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
-                <a href="#" data-section="customers"><i class="fas fa-users"></i> Quản Lý Khách Hàng</a>
-                <a href="#" data-section="settings"><i class="fas fa-cog"></i> Cài Đặt</a>
+                <a th:href="@{/admin/dashboard}" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
+                <a th:href="@{/admin/manage-admin}" data-section="orders"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
+                <a th:href="@{/admin/accounts}" class="active"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
+                <a th:href="@{/admin/ManageProducts}"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+                <a th:href="@{/admin/import-orders}"><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
+                <a th:href="@{/}" data-section="settings"><i class="fas fa-cog"></i>Quay về trang Home</a>
             </div>
         </div>
 
@@ -229,10 +229,6 @@
             </button>
 
 
-            <div id="overview" class="section" style="display: none;">
-                <h2 class="text-center mb-4">Tổng Quan</h2>
-                <p>Chào mừng đến với bảng điều khiển quản trị. Đây là trang tổng quan.</p>
-            </div>
 
             <!--Quan ly  don hang - Ngoc Han -->
             <div id="orders" class="section">
@@ -256,7 +252,7 @@
                         </select>
                     </div>
                     <div class="col-md-4 mb-2">
-                        <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                        <button type="submit" class="btn btn-primary w-100">Lọc </button>
                     </div>
                 </form>
                 <!-- Thông báo khi không có kết quả -->
@@ -326,23 +322,6 @@
                 </div>
             </div>
 
-
-            <!-- // Quan Lý Tài Khoản -->
-            <div id="account" class="section" style="display: none;">
-                <h2 class="text-center mb-4">Quản Lý Tài Khoản</h2>
-            </div>
-            <div id="products" class="section" style="display: none;">
-                <h2 class="text-center mb-4">Quản Lý Sản Phẩm</h2>
-                <p>Trang quản lý sản phẩm đang phát triển.</p>
-            </div>
-            <div id="customers" class="section" style="display: none;">
-                <h2 class="text-center mb-4">Quản Lý Khách Hàng</h2>
-                <p>Trang quản lý khách hàng đang phát triển.</p>
-            </div>
-            <div id="settings" class="section" style="display: none;">
-                <h2 class="text-center mb-4">Cài Đặt</h2>
-                <p>Trang cài đặt đang phát triển.</p>
-            </div>
         </div>
     </div>
 
@@ -361,7 +340,7 @@
     <!-- Bootstrap JS and Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-            // Function to toggle sidebar on mobile
+        // Function to toggle sidebar on mobile
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('active');
@@ -375,18 +354,53 @@
             document.querySelectorAll('.sidebar-nav a').forEach(link => {
                 link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
             });
+
+            // Cập nhật URL dựa trên sectionId
+            let newUrl;
+            switch (sectionId) {
+                case 'overview': newUrl = '/admin/dashboard'; break;
+                case 'orders': newUrl = '/admin/manage-admin'; break;
+                case 'account': newUrl = '/admin/accounts'; break;
+                case 'products': newUrl = '/admin/ManageProducts'; break;
+                case 'import': newUrl = '/admin/import-orders'; break;
+                case 'settings': newUrl = '/admin/settings'; break;
+                default: newUrl = '/admin/dashboard';
+            }
+            window.history.pushState({ sectionId: sectionId }, '', newUrl);
+
+            // Lưu section hiện tại vào localStorage
+            localStorage.setItem('currentSection', sectionId);
         }
 
         // Sidebar navigation
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', (e) => {
-                e.preventDefault();
                 const sectionId = link.getAttribute('data-section');
+                const href = link.getAttribute('href');
+                if (href && href !== '#') return;
+                e.preventDefault();
                 showSection(sectionId);
-                if (window.innerWidth <= 992) {
-                    toggleSidebar();
-                }
+                if (window.innerWidth <= 992) toggleSidebar();
             });
+        });
+
+        // Xử lý khi tải trang: Kiểm tra URL để hiển thị section đúng
+        window.addEventListener('DOMContentLoaded', () => {
+            const path = window.location.pathname;
+            let sectionId = localStorage.getItem('currentSection') || 'overview';
+            if (path.includes('/admin/accounts')) sectionId = 'account';
+            else if (path.includes('/admin/manage-admin')) sectionId = 'orders';
+            else if (path.includes('/admin/ManageProducts')) sectionId = 'products';
+            else if (path.includes('/admin/import-orders')) sectionId = 'import';
+            else if (path.includes('/admin/settings')) sectionId = 'settings';
+            else if (path.includes('/admin/dashboard')) sectionId = 'overview';
+            showSection(sectionId);
+        });
+
+        // Xử lý nút Back/Forward
+        window.addEventListener('popstate', (event) => {
+            const sectionId = event.state ? event.state.sectionId : localStorage.getItem('currentSection') || 'overview';
+            showSection(sectionId);
         });
 
         // Function to show toast
@@ -399,12 +413,6 @@
             const bsToast = new bootstrap.Toast(toast);
             bsToast.show();
         }
-            // document.addEventListener('DOMContentLoaded', function () {
-            //     const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
-            //     modal.show();
-            // });
-
-
     </script>
 </body>
 </html>

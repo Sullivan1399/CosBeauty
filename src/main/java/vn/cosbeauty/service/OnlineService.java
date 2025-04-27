@@ -1,4 +1,6 @@
 package vn.cosbeauty.service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +11,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -165,6 +169,19 @@ public class OnlineService {
                 .collect(Collectors.toList());
         List<Comment> reviews = commentRepository.findByCustomer_CustomerIDAndProduct_ProductIDIn(customerId, productIds);
         return !reviews.isEmpty(); // True if any reviews exist
+    }
+    private static final Logger logger = LoggerFactory.getLogger(OnlineService.class);
+    public Map<String, Long> getOrderStatusCounts() {
+        Map<String, Long> counts = new HashMap<>();
+        counts.put("pending", (long) filterOrders("confirm-1").size());
+        counts.put("confirmed", (long) filterOrders("confirm-2").size());
+        counts.put("canceled", (long) filterOrders("confirm-3").size());
+        counts.put("processing", (long) filterOrders("delivery-2").size());
+        counts.put("delivering", (long) filterOrders("delivery-3").size());
+        counts.put("success", (long) filterOrders("delivery-4").size());
+        counts.put("failed", (long) filterOrders("delivery-5").size());
+        logger.info("Order status counts: {}", counts);
+        return counts;
     }
 
 }

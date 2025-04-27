@@ -14,14 +14,45 @@
       margin-top: 20px;
       margin-bottom: 10px;
     }
-    .add-row-btn {
-      margin-top: 10px;
-    }
-    .form-control {
+    .form-control, .form-select {
       border-radius: 0.5rem;
     }
     .btn {
       border-radius: 0.5rem;
+    }
+    .position-relative {
+      position: relative;
+    }
+    #product-search-results {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      position: absolute;
+      background: white;
+      width: 100%;
+      z-index: 1000;
+      top: 100%;
+      left: 0;
+    }
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      cursor: pointer;
+    }
+    .search-result-item:hover {
+      background-color: #f8f9fa;
+    }
+    .search-result-item img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      margin-right: 10px;
+      border-radius: 4px;
+    }
+    .search-result-item .product-info {
+      flex-grow: 1;
     }
   </style>
 </head>
@@ -29,23 +60,38 @@
 
 <h2 class="mb-4">Tạo đơn nhập hàng mới</h2>
 
+<!-- Error/Success Messages -->
+<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
 
 <!-- Form tạo đơn -->
-<form th:action="@{/employee/import-orders/create}" method="post" class="row g-3">
+<form th:action="@{/employee/import-orders/create}" method="post" class="row g-3" id="import-order-form">
+<!--  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
 
   <!-- Nhà cung cấp -->
   <div class="col-md-6">
     <label for="supplier" class="form-label">Nhà cung cấp</label>
-    <select id="supplier" name="supplierId" class="form-select" required>
+    <select id="supplier" name="supplierId" class="form-select" required onchange="handleSupplierChange()">
       <option value="" disabled selected>-- Chọn nhà cung cấp --</option>
       <option th:each="sup : ${suppliers}" th:value="${sup.supID}" th:text="${sup.supName}"></option>
     </select>
+    <input type="hidden" id="supplierIdHidden" name="supplierId">
   </div>
 
   <!-- Tổng chi phí -->
   <div class="col-md-6">
     <label for="totalCost" class="form-label">Tổng chi phí</label>
-    <input type="number" id="totalCost" name="cost" step="1000" class="form-control" placeholder="Nhập tổng chi phí..." required>
+    <input type="text" id="totalCost" class="form-control" readonly>
+    <input type="hidden" id="totalCostHidden" name="cost">
+  </div>
+
+  <!-- Tìm kiếm sản phẩm -->
+  <div class="col-12">
+    <h5 class="form-section-title">Tìm kiếm sản phẩm</h5>
+    <div class="position-relative">
+      <input type="text" id="product-search" class="form-control" placeholder="Nhập tên sản phẩm để tìm kiếm..." disabled>
+      <div id="product-search-results" style="display: none;"></div>
+    </div>
   </div>
 
   <!-- Chi tiết sản phẩm -->
@@ -57,26 +103,12 @@
         <th>Sản phẩm</th>
         <th>Số lượng</th>
         <th>Giá nhập</th>
+        <th>Tổng</th>
         <th>Thao tác</th>
       </tr>
       </thead>
-      <tbody>
-      <tr>
-        <td>
-          <select name="productIds" class="form-select" required>
-            <option value="" disabled selected>-- Chọn sản phẩm --</option>
-            <option th:each="p : ${products}" th:value="${p.productID}" th:text="${p.productName}"></option>
-          </select>
-        </td>
-        <td><input type="number" name="quantities" class="form-control" min="1" required></td>
-        <td><input type="number" name="costs" class="form-control" step="1000" required></td>
-        <td class="text-center">
-          <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(this)">X</button>
-        </td>
-      </tr>
-      </tbody>
+      <tbody></tbody>
     </table>
-    <button type="button" class="btn btn-outline-primary btn-sm add-row-btn" onclick="addProductRow()">+ Thêm sản phẩm</button>
   </div>
 
   <!-- Nút Lưu -->
@@ -84,42 +116,225 @@
     <button type="submit" class="btn btn-success">Tạo đơn nhập</button>
     <a href="/employee/import-orders" class="btn btn-secondary ms-2">Quay lại</a>
   </div>
-
 </form>
 
-<!-- Template option sản phẩm -->
-<div id="product-options-template" hidden>
-  <option value="" disabled selected>-- Chọn sản phẩm --</option>
-  <option th:each="p : ${products}" th:value="${p.productID}" th:text="${p.productName}"></option>
-</div>
-
-<!-- Script thêm & xóa dòng sản phẩm -->
 <script>
-  function addProductRow() {
-    const container = document.querySelector('#product-details tbody');
-    const newRow = container.firstElementChild.cloneNode(true);
+  let allProducts = [];
+  let selectedProducts = [];
+  let selectedSupplierId = null;
 
-    // Clear input values
-    newRow.querySelectorAll('input').forEach(el => el.value = '');
+  // Handle supplier change
+  function handleSupplierChange() {
+    const supplierSelect = document.getElementById('supplier');
+    const supplierIdHidden = document.getElementById('supplierIdHidden');
+    const newSupplierId = supplierSelect.value;
 
-    // Reset select
-    const productSelect = newRow.querySelector('select[name="productIds"]');
-    const optionTemplate = document.getElementById('product-options-template').innerHTML;
-    productSelect.innerHTML = optionTemplate;
+    // Set the hidden input value
+    supplierIdHidden.value = newSupplierId;
 
-    container.appendChild(newRow);
-  }
-
-  function removeProductRow(button) {
-    const row = button.closest('tr');
-    const table = document.querySelector('#product-details tbody');
-
-    if (table.rows.length > 1) {
-      row.remove();
+    if (selectedProducts.length > 0 && newSupplierId !== selectedSupplierId) {
+      if (confirm('Thay đổi nhà cung cấp sẽ xóa tất cả sản phẩm đã chọn. Bạn có muốn tiếp tục?')) {
+        selectedProducts = [];
+        selectedSupplierId = newSupplierId;
+        supplierSelect.disabled = false;
+        loadProducts();
+        updateTable();
+      } else {
+        supplierSelect.value = selectedSupplierId || '';
+        supplierIdHidden.value = selectedSupplierId || '';
+      }
     } else {
-      alert("Phải có ít nhất một dòng sản phẩm.");
+      selectedSupplierId = newSupplierId;
+      loadProducts();
     }
   }
+
+  // Prevent form submission without supplier
+  document.getElementById('import-order-form').addEventListener('submit', function(event) {
+    const supplierId = document.getElementById('supplier').value;
+    if (!supplierId) {
+      event.preventDefault();
+      alert('Vui lòng chọn nhà cung cấp trước khi tạo đơn nhập hàng!');
+    }
+  });
+
+  // Show all products for the selected supplier
+  // Show all products for the selected supplier
+  function showAllProducts() {
+    const resultsContainer = document.getElementById('product-search-results');
+    const availableProducts = allProducts.filter(p =>
+            !selectedProducts.some(sp => sp.productID === p.productID)
+    );
+
+    if (availableProducts.length === 0) {
+      resultsContainer.innerHTML = '<div class="search-result-item">Không còn sản phẩm nào để chọn</div>';
+    } else {
+      resultsContainer.innerHTML = availableProducts.map(p => `
+            <div class="search-result-item" onclick="addProduct(${p.productID}, '${(p.productName || 'Unknown').replace(/'/g, "\\'")}', ${p.price || 0}, '${(p.imageUrl || '').replace(/'/g, "\\'")}')">
+                <img src="${p.imageUrl || '/images/placeholder.jpg'}" alt="${p.productName || 'Unknown'}" onerror="this.src='/images/placeholder.jpg'">
+                <div class="product-info">
+                    ${p.productName || 'Unknown'} - ${(p.price || 0).toLocaleString()} VND
+                </div>
+            </div>
+        `).join('');
+    }
+    resultsContainer.style.display = 'block';
+  }
+
+  // Search products
+  document.getElementById('product-search').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase().trim();
+    const resultsContainer = document.getElementById('product-search-results');
+
+    const filteredProducts = allProducts.filter(p =>
+            (p.productName || '').toLowerCase().includes(searchTerm) &&
+            !selectedProducts.some(sp => sp.productID === p.productID)
+    );
+
+    if (filteredProducts.length === 0) {
+      resultsContainer.innerHTML = '<div class="search-result-item">Không tìm thấy sản phẩm</div>';
+    } else {
+      resultsContainer.innerHTML = filteredProducts.map(p => `
+            <div class="search-result-item" onclick="addProduct(${p.productID}, '${(p.productName || 'Unknown').replace(/'/g, "\\'")}', ${p.price || 0}, '${(p.imageUrl || '').replace(/'/g, "\\'")}')">
+                <img src="${p.imageUrl || '/images/placeholder.jpg'}" alt="${p.productName || 'Unknown'}" onerror="this.src='/images/placeholder.jpg'">
+                <div class="product-info">
+                    ${p.productName || 'Unknown'} - ${(p.price || 0).toLocaleString()} VND
+                </div>
+            </div>
+        `).join('');
+    }
+    resultsContainer.style.display = 'block';
+  });
+
+  // Add product to table
+  function addProduct(productId, productName, price, imageUrl) {
+    const product = allProducts.find(p => p.productID === productId);
+    if (product) {
+      selectedProducts.push({
+        productID: product.productID,
+        productName: product.productName,
+        quantity: 1,
+        price: parseFloat(price) || 0,
+        imageUrl: imageUrl || '/images/placeholder.jpg'
+      });
+      document.getElementById('supplier').disabled = true; // Lock supplier dropdown
+      updateTable();
+      document.getElementById('product-search').value = '';
+      showAllProducts(); // Refresh search results
+    }
+  }
+  // Load products for the selected supplier
+  async function loadProducts() {
+    const supplierId = document.getElementById('supplier').value;
+    const searchInput = document.getElementById('product-search');
+    const resultsContainer = document.getElementById('product-search-results');
+
+    if (supplierId) {
+      try {
+        const response = await fetch(`/api/products?supplierId=${supplierId}`, {
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        allProducts = await response.json();
+        console.log('Fetched products:', allProducts); // Debug log
+        if (allProducts.length === 0) {
+          searchInput.disabled = true;
+          resultsContainer.innerHTML = '<div class="search-result-item">Không có sản phẩm nào cho nhà cung cấp này</div>';
+          resultsContainer.style.display = 'block';
+        } else {
+          searchInput.disabled = false;
+          searchInput.value = '';
+          showAllProducts(); // Show all products initially
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+        searchInput.disabled = true;
+        resultsContainer.innerHTML = '<div class="search-result-item text-danger">Lỗi khi tải sản phẩm: ' + error.message + '</div>';
+        resultsContainer.style.display = 'block';
+        alert('Không thể tải danh sách sản phẩm! Vui lòng thử lại.');
+        allProducts = [];
+        selectedProducts = [];
+        updateTable();
+      }
+    } else {
+      searchInput.disabled = true;
+      allProducts = [];
+      selectedProducts = [];
+      resultsContainer.style.display = 'none';
+      updateTable();
+    }
+  }
+
+  // Update table and total cost
+  function updateTable() {
+    const tbody = document.querySelector('#product-details tbody');
+    tbody.innerHTML = selectedProducts.map((p, index) => `
+            <tr>
+                <td>
+                    ${p.productName}
+                    <input type="hidden" name="productIds" value="${p.productID}">
+                </td>
+                <td>
+                    <input type="number" name="quantities" class="form-control quantity"
+                           min="1" value="${p.quantity}" onchange="updateProduct(${index}, this)">
+                </td>
+                <td>
+                    ${p.price.toLocaleString()} VND
+                </td>
+                <td class="subtotal">${(p.quantity * p.price).toLocaleString()} VND</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm"
+                            onclick="removeProduct(${index})">X</button>
+                </td>
+            </tr>
+        `).join('');
+
+    // Unlock supplier dropdown if no products are selected
+    document.getElementById('supplier').disabled = selectedProducts.length > 0;
+    updateTotalCost();
+  }
+
+  // Update product details
+  function updateProduct(index, element) {
+    if (element.classList.contains('quantity')) {
+      selectedProducts[index].quantity = parseInt(element.value) || 1;
+    }
+    updateTable();
+  }
+
+  // Remove product
+  function removeProduct(index) {
+    selectedProducts.splice(index, 1);
+    updateTable();
+    showAllProducts(); // Refresh search results
+  }
+
+  // Calculate and update total cost
+  function updateTotalCost() {
+    const total = selectedProducts.reduce((sum, p) => sum + (p.quantity * p.price), 0);
+    document.getElementById('totalCost').value = total.toLocaleString() + ' VND';
+    document.getElementById('totalCostHidden').value = total;
+  }
+
+  // Hide search results when clicking outside
+  document.addEventListener('click', function(e) {
+    const searchContainer = document.getElementById('product-search-results');
+    const searchInput = document.getElementById('product-search');
+    if (!searchContainer.contains(e.target) && !searchInput.contains(e.target)) {
+      searchContainer.style.display = 'none';
+    }
+  });
+
+  // Show all products when search bar is clicked
+  document.getElementById('product-search').addEventListener('click', function() {
+    if (!this.disabled) {
+      showAllProducts();
+    }
+  });
 </script>
 
 </body>

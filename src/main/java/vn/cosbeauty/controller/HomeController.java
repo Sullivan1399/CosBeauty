@@ -16,6 +16,9 @@ import vn.cosbeauty.service.CategoryService;
 import vn.cosbeauty.service.CustomerService;
 import vn.cosbeauty.service.EmployeeService;
 import vn.cosbeauty.service.ProductService;
+import vn.cosbeauty.entity.Supplier;
+import vn.cosbeauty.service.*;
+
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -31,9 +34,11 @@ public class HomeController {
     private CustomerService customerService;
     @Autowired
     private CartService cartService;
+    @Autowired
+    private SupplierService supplierService;
 
     @GetMapping("/")
-    public String getAll(Model model, 
+    public String getAll(Model model,
             @RequestParam(value = "logout", required = false) String logout,
             @RequestParam(value = "keyword",defaultValue = "") String keyword,
             @RequestParam(value="page", required=false, defaultValue="1") int page,
@@ -51,9 +56,16 @@ public class HomeController {
 	        if (customerService.isCustomer()) {
 	            Long id = customerService.getCurrentCustomerID();
 	            cartItems = cartService.getCartItemsByCustomerId(id);
-	            totalAmount = cartItems.stream()
-		                .map(item -> BigDecimal.valueOf(item.getProduct().getPrice()).multiply(new BigDecimal(item.getQuantity())))
-		                .reduce(BigDecimal.ZERO, BigDecimal::add); // Tính tổng giá trị
+                 totalAmount = cartItems.stream()
+                        .map(item -> {
+                            BigDecimal price = BigDecimal.valueOf(item.getProduct().getPrice());
+                            BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
+                            BigDecimal discountPercent = BigDecimal.valueOf( item.getProduct().getDiscount() );
+                            BigDecimal discountMultiplier = BigDecimal.ONE.subtract(discountPercent.divide(BigDecimal.valueOf(100)));
+
+                            return price.multiply(quantity).multiply(discountMultiplier);
+                        })
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
 	        } else {
 	            cartItems = Collections.emptyList();
 	        }
@@ -64,16 +76,21 @@ public class HomeController {
 	        model.addAttribute("products", products);
 	        return "web/index";
     }
-    
+
     @GetMapping("/web/shop-grid")
-    public String shopGrid(Model model, 
+    public String shopGrid(Model model,
     		@RequestParam(value="page", required=false, defaultValue="1") int page,
     		HttpServletRequest request) {
     	List<Category> categories = categoryService.getAllCategory();
     	Page<Product> products = productService.getProductHome(page, 10);
     	List<Product> productOfCurrentPage = products.getContent();
-        Long customerId = 1L; // hoặc lấy từ session, user login
-        model.addAttribute("customerId", customerId);
+        List<Supplier> suppliers = supplierService.getAllSupplier();
+        List<Product> topSellingProducts = productService.getTopSellingProducts();
+
+
+        // Truyền danh sách sản phẩm vào model để hiển thị trong view
+        model.addAttribute("topSellingProducts", topSellingProducts);
+        model.addAttribute("suppliers", suppliers);
         model.addAttribute("categories", categories);
         model.addAttribute("products", productOfCurrentPage);
         model.addAttribute("currentPage", page);
@@ -81,12 +98,17 @@ public class HomeController {
         model.addAttribute("requestURI", request.getRequestURI());
         return "web/shop-grid";
     }
-    
+
+    @GetMapping("/instore")
+    public String instore() {
+        return "web/instore";
+    }
+
     @GetMapping({"/shoping-cart"})
     public String cart() {
         return "web/shoping-cart";
     }
-    
+
     @GetMapping({"/shop-details"})
     public String shopDetails() {
         return "web/shop-details";

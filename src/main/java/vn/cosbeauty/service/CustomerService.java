@@ -2,11 +2,13 @@ package vn.cosbeauty.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.awt.print.Pageable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
 
 import vn.cosbeauty.entity.Customer;
 import vn.cosbeauty.repository.CustomerRepository;

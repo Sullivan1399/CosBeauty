@@ -27,14 +27,16 @@ public class SecurityConfig {
 	@Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-        	.csrf(csrf -> csrf.disable())
+//        	.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                 		"/",
                 		"/web/**",
                 		"/register", 
                 		"/verify", 
-                		"/login", 
+                		"/login",
+						"/forgot",
+						"/reset-password",
                 		"/css/**", 
                 		"/js/**", 
                 		"/fonts/**",
@@ -52,7 +54,7 @@ public class SecurityConfig {
 						for (GrantedAuthority authority : authentication.getAuthorities()) {
 							String role = authority.getAuthority();
 							if (role.equals("ROLE_ADMIN")) {
-								response.sendRedirect("/admin/accounts");
+								response.sendRedirect("/admin/dashboard");
 								return;
 							} else if (role.equals("ROLE_EMPLOYEE")) {
 								response.sendRedirect("/employee/import-orders");
