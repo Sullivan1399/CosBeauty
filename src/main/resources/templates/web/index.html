@@ -389,7 +389,7 @@
                                                 <i class="fa fa-key"></i> Đổi mật khẩu
                                             </a>
                                         </div>
-                                        <div sec:authorize="hasRole('ROLE_EMPLOYEE')">
+                                        <div sec:authorize="hasRole('ROLE_CUSTOMER')">
                                             <a th:href="@{/employee/orders}">
                                                 <i class="fa fa-shopping-basket"></i> Đơn hàng của tôi
                                             </a>

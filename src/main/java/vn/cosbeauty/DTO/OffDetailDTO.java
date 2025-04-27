@@ -1,7 +1,5 @@
 package vn.cosbeauty.DTO;
 
-import java.math.BigDecimal;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,8 +21,8 @@ public class OffDetailDTO {
         this.quantity = quantity;
         this.discount = discount;
     }
-    public OffDetailDTO()
-    {
+    
+    public OffDetailDTO() {
 
     }
 }

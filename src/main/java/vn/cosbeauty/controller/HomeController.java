@@ -14,6 +14,7 @@ import vn.cosbeauty.entity.Product;
 import vn.cosbeauty.service.CartService;
 import vn.cosbeauty.service.CategoryService;
 import vn.cosbeauty.service.CustomerService;
+import vn.cosbeauty.service.EmployeeService;
 import vn.cosbeauty.service.ProductService;
 
 import java.math.BigDecimal;
@@ -81,11 +82,6 @@ public class HomeController {
         return "web/shop-grid";
     }
     
-    @GetMapping("/employee/OfflineOrder")
-    public String instore() {
-        return "employee/offline-order";
-    }
-
     @GetMapping({"/shoping-cart"})
     public String cart() {
         return "web/shoping-cart";

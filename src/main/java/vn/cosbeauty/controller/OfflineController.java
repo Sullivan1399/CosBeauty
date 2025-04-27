@@ -1,57 +1,59 @@
 package vn.cosbeauty.controller;
 
-import java.util.ArrayList;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import vn.cosbeauty.entity.OffOrderDetail;
+import vn.cosbeauty.entity.OfflineOrder;
+import vn.cosbeauty.repository.OfflineOrderRepository;
+import vn.cosbeauty.service.EmployeeService;
+import vn.cosbeauty.service.OfflineOrderService;
+
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttributes;
-
-import vn.cosbeauty.DTO.OffDetailDTO;
-import vn.cosbeauty.service.ProductService;
-
-@RestController
-@RequestMapping("/api/OffOrder")
-@SessionAttributes("OffOrder")
+@Controller
 public class OfflineController {
-
-    @Autowired
-    private ProductService productService;
-
-    @ModelAttribute("OffOrder")
-    public List<OffDetailDTO> OffOrder() {
-        return new ArrayList<>();
+	
+	@Autowired
+	private EmployeeService employeeService;
+	@Autowired
+	private OfflineOrderService offlineOrderService;
+	
+	@GetMapping("/employee/manage-offline")
+	public String manageOfflineOrder(Model model,
+			@RequestParam(value = "keyword", required = false, defaultValue = "") String keyword) {
+		List<OfflineOrder> offlineOrders;
+		if (keyword == null) {
+			offlineOrders = offlineOrderService.getAllOffOrder();
+		} else {
+			offlineOrders = offlineOrderService.searchOrders(keyword);
+		}
+		model.addAttribute("offOrders", offlineOrders);
+		model.addAttribute("keyword", keyword);
+		model.addAttribute("hasResults", !offlineOrders.isEmpty());
+		
+		return "employee/manage-offline";
+	}
+	
+	@GetMapping("/employee/create-offline-order")
+    public String formCreateOffOrder(Model model) {
+		int id = employeeService.getCurrentEmployeeID();
+    	String name = employeeService.getCurrentEmployeeName();
+    	model.addAttribute("employeeId", id);
+    	model.addAttribute("employeeName", name);
+        return "employee/offline-order";
     }
-
-    @GetMapping("/search")
-    public List<OffDetailDTO> search(@RequestParam("q") String keyword) {
-        return productService.searchByName(keyword);
-    }
-
-    @PostMapping("/addItems")
-    public List<OffDetailDTO> addItem(@RequestBody OffDetailDTO item,
-                                    @ModelAttribute("OffOrder") List<OffDetailDTO> OffOrder) {
-    	OffOrder.add(item);
-        return OffOrder;
-    }
-
-    @DeleteMapping("/items/{id}")
-    public List<OffDetailDTO> removeItem(@PathVariable Long id,
-                                       @ModelAttribute("cart") List<OffDetailDTO> OffOrder) {
-    	OffOrder.removeIf(p -> p.getId().equals(id));
-        return OffOrder;
-    }
-
-    @GetMapping("/items")
-    public List<OffDetailDTO> getItems(@ModelAttribute("OffOrder") List<OffDetailDTO> OffOrder) {
-        return OffOrder;
-    }
+	
+	@GetMapping("/employee/offline-detail/{id}")
+	public String formOffOrderDetail(@PathVariable Long id, Model model) {
+		OfflineOrder offlineOrder = offlineOrderService.getOrderById(id);
+		List<OffOrderDetail> offOrderDetails = offlineOrderService.getOffOrderDetail(id);
+		model.addAttribute("order", offlineOrder);
+		model.addAttribute("offOrderDetails", offOrderDetails);
+		return "employee/offline-detail";
+	}
 }
