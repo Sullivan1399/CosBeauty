@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>My Profile - CosBeauty</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -86,7 +88,10 @@
                 </div>
             </div>
 
-            <div id="error" class="hidden bg-red-100 text-red-700 p-4 rounded-lg mb-6"></div>
+            <!-- Success Message -->
+            <div id="success" th:if="${success}" th:text="${success}" class="bg-green-100 text-green-700 p-4 rounded-lg mb-6"></div>
+            <!-- Error Message -->
+            <div id="error" th:if="${error}" th:text="${error}" class="bg-red-100 text-red-700 p-4 rounded-lg mb-6"></div>
 
             <!-- Profile View -->
             <div id="profile-view" class="space-y-8">
@@ -116,7 +121,8 @@
             </div>
 
             <!-- Edit Form -->
-            <form id="edit-form" class="hidden space-y-6 transition-opacity duration-300" onsubmit="updateProfile(event)">
+            <form id="edit-form" th:action="@{/api/customer/profile}" method="post" class="hidden space-y-6 transition-opacity duration-300">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Họ và tên</label>
                     <input type="text" name="name" th:value="${customer.name}" class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green focus:ring focus:ring-green-200 focus:ring-opacity-50 py-3 px-4 transition duration-200" required/>
@@ -146,53 +152,29 @@
     function showEditForm() {
         document.getElementById('profile-view').classList.add('hidden');
         document.getElementById('edit-form').classList.remove('hidden');
-        document.getElementById('error').classList.add('hidden');
+        // Clear any existing success/error messages when opening the form
+        document.getElementById('success')?.classList.add('hidden');
+        document.getElementById('error')?.classList.add('hidden');
     }
 
     function hideEditForm() {
         document.getElementById('profile-view').classList.remove('hidden');
         document.getElementById('edit-form').classList.add('hidden');
-        document.getElementById('error').classList.add('hidden');
-    }
-
-    function updateProfile(event) {
-        event.preventDefault();
-        const form = document.getElementById('edit-form');
-        const formData = {
-            name: form.querySelector('input[name="name"]').value,
-            address: form.querySelector('input[name="address"]').value,
-            phone: form.querySelector('input[name="phone"]').value
-        };
-
-        fetch('/api/customer/profile', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify(formData)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.message || 'Failed to update profile'); });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.message.includes('successfully')) {
-                    window.location.reload();
-                } else {
-                    document.getElementById('error').textContent = data.message || 'Failed to update profile';
-                    document.getElementById('error').classList.remove('hidden');
-                }
-            })
-            .catch(err => {
-                document.getElementById('error').textContent = err.message;
-                document.getElementById('error').classList.remove('hidden');
-            });
+        // Clear any existing success/error messages when canceling
+        document.getElementById('success')?.classList.add('hidden');
+        document.getElementById('error')?.classList.add('hidden');
     }
 
     function changePassword() {
         window.location.href = '/api/customer/change-password';
     }
+
+    // Show edit form if there's an error (e.g., validation failed)
+    window.onload = function() {
+        if (document.getElementById('error').textContent) {
+            showEditForm();
+        }
+    };
 </script>
 </body>
 </html>

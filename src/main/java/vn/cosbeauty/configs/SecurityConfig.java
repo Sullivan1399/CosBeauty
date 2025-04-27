@@ -16,8 +16,16 @@ import org.springframework.security.core.GrantedAuthority;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+
 
 import java.io.IOException;
+
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 
 @Configuration
@@ -27,7 +35,7 @@ public class SecurityConfig {
 	@Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-//        	.csrf(csrf -> csrf.disable())
+//				.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                 		"/",
@@ -84,5 +92,10 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
     	return new BCryptPasswordEncoder();
     }
+
+	private static org.springframework.security.web.util.matcher.AntPathRequestMatcher antMatcher(String pattern) {
+		return new org.springframework.security.web.util.matcher.AntPathRequestMatcher(pattern);
+	}
+
 
 }

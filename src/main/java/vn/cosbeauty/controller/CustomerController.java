@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.cosbeauty.entity.Account;
 import vn.cosbeauty.entity.Customer;
 import vn.cosbeauty.repository.AccountRepository;
@@ -70,7 +71,7 @@ public class CustomerController {
         }
     }
 
-    // Endpoint to fetch profile data (JSON)
+    // Existing GET /api/customer/data endpoint (unchanged)
     @GetMapping("/data")
     @ResponseBody
     public ResponseEntity<?> getCustomerData() {
@@ -107,21 +108,21 @@ public class CustomerController {
         return ResponseEntity.ok(response);
     }
 
-    // Update customer profile
-    @PutMapping("/profile")
-    @ResponseBody
-    public ResponseEntity<?> updateCustomerProfile(@RequestBody CustomerUpdateRequest request) {
-        logger.debug("Handling PUT /api/customer/profile");
+    // Modified POST /api/customer/profile endpoint (changed from PUT to POST)
+    @PostMapping("/profile")
+    public String updateCustomerProfile(@ModelAttribute CustomerUpdateRequest request, RedirectAttributes redirectAttributes) {
+        logger.debug("Handling POST /api/customer/profile");
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         if (username == null || username.equals("anonymousUser")) {
             logger.warn("Unauthenticated access to /api/customer/profile");
-            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+            return "redirect:/login";
         }
 
         Account account = accountRepository.findByUsername(username);
         if (account == null) {
             logger.warn("Account not found for username: {}", username);
-            return ResponseEntity.badRequest().body(Map.of("message", "Account not found"));
+            redirectAttributes.addFlashAttribute("error", "Tài khoản không tồn tại");
+            return "redirect:/api/customer/profile";
         }
 
         Customer customer = customerRepository.findByEmail(account.getUsername());
@@ -137,11 +138,13 @@ public class CustomerController {
         // Validate input
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             logger.warn("Invalid input: Name is empty");
-            return ResponseEntity.badRequest().body(Map.of("message", "Name cannot be empty"));
+            redirectAttributes.addFlashAttribute("error", "Tên không được để trống");
+            return "redirect:/api/customer/profile";
         }
         if (request.getPhone() != null && !request.getPhone().matches("[0-9]{10,11}")) {
             logger.warn("Invalid input: Phone number {}", request.getPhone());
-            return ResponseEntity.badRequest().body(Map.of("message", "Invalid phone number"));
+            redirectAttributes.addFlashAttribute("error", "Số điện thoại không hợp lệ");
+            return "redirect:/api/customer/profile";
         }
 
         customer.setName(request.getName().trim());
@@ -150,7 +153,8 @@ public class CustomerController {
 
         customerRepository.save(customer);
         logger.info("Profile updated successfully for customer: {}", customer.getEmail());
-        return ResponseEntity.ok(Map.of("message", "Profile updated successfully"));
+        redirectAttributes.addFlashAttribute("success", "Đã lưu thông tin thành công");
+        return "redirect:/api/customer/profile";
     }
 
     // Render change-password.html
