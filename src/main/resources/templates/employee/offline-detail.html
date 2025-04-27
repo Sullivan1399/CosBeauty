@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết đơn hàng offline</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/order-detail.css}" type="text/css">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <a th:href="@{/employee/manage-offline}">Quay lại</a>
+        <h2>Chi tiết đơn hàng #<span th:text="${order.getOffOrderID()}" style="color: #317546 "></span></h2>
+<!--        <a href="#" class="payment-method" th:text="${order.getPaymentType() ?: 'Thanh toán khi nhận hàng'}"></a>-->
+    </div>
+
+    <div class="top-section">
+        <div class="order-info">
+            <h3>Mã đơn hàng: #<span th:text="${order.offOrderID}"></span></h3>
+            <p>Ngày đặt: <span th:text="${#temporals.format(order.getOrderDate(), 'dd/MM/yyyy HH:mm')}"></span></p>
+            <p th:text="${order.customer.name} + ' - ' + ${order.phone}"></p>
+        </div>
+
+        <div class="payment-info" th:href="@{/employee/manage-offline}">
+            <h3>Hình thức thanh toán: <span class="payment-method"
+                                           th:text="${order.paymentType == 1 ? 'Tiền mặt' : 'Chuyển khoản'}" style="color: orangered">
+            </span></h3>
+            <p>Tổng Tiền Hàng: <span class="amount" th:text="${@formatter.formatPrice(order.cost)}"></span></p>
+            <p>Giảm giá: <span class="amount" th:text="${order.discount}+'%'"></span></p>
+            <p>Thành tiền: <span class="total" th:text="${@formatter.formatPrice(order.cost)}"></span></p>
+        </div>
+    </div>
+
+    <div class="product-info">
+
+      Tổng tiền (<span th:text="${offOrderDetails.size()}"></span> sản phẩm): <span class="total" th:text="${@formatter.formatPrice(order.cost)} "></span></p>
+        <div th:each="detail : ${offOrderDetails}" class="product" >
+        	
+            <img th:src="@{'/images/' + ${detail.getProduct().getImageUrl()}}" alt="Sản phẩm">
+            <div class="product-details">
+                <p th:text="${detail.product.productName}"></p>
+            </div>
+            <span style="margin-right:720px;" th:text="${detail.product.discount}+'%'"></span>
+            <div class="product-price">
+                <span th:text="${detail.quantity} + ' x ' + ${@formatter.formatPrice(detail.product.price)}"></span>
+            </div>
+        </div>
+    </div>
+
+<!--    <a th:href="@{'/reorder/' + ${order.getOnOrderID()}}" class="button">Mua lại</a>-->
+<!--    <script>-->
+<!--        function confirmReorder(url) {-->
+<!--            if (confirm('Bạn có muốn thêm các sản phẩm này vào giỏ hàng không?')) {-->
+<!--                window.location.href = url;-->
+<!--            }-->
+<!--        }-->
+<!--    </script>-->
+    <script>
+        function confirmReorder(url) {
+            if (confirm('Bạn có muốn thêm các sản phẩm này vào giỏ hàng không?')) {
+                window.location.href = url;
+            }
+        }
+    </script>
+    <p class="thanks">Cảm ơn bạn đã mua sắm!</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    function confirmReorder(url) {
+        if (confirm('Bạn có muốn thêm các sản phẩm này vào giỏ hàng không?')) {
+            window.location.href = url;
+            return true;
+        }
+        return false;
+    }
+    </script>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

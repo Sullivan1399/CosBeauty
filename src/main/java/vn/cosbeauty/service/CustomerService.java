@@ -33,9 +33,9 @@ public class CustomerService {
         return customerRepository.save(customer);
     }
 
-    public Optional<Customer> findById(Long id) {
-        return customerRepository.findById(id);
-    }
+    public Customer findById(Long id) {
+        return customerRepository.findById(id).orElse(null);
+    }	
   
     public Long getCurrentCustomerID() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

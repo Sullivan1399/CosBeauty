@@ -23,7 +23,7 @@ public class OffOrderDetail {
     @ManyToOne
     @JoinColumn(name = "productID")
     private Product product;
-
+    
     public OffOrderDetail(Product product, BigDecimal cost, int quantity)
     {
         this.product=product;

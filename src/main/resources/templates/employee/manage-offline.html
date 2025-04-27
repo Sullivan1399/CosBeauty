@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Đơn Hàng Offline</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+        .container-fluid {
+            padding: 0;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #fff3e6; /* Cam nhạt */
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-header {
+            padding: 20px;
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+            text-align: center;
+            font-weight: 700;
+        }
+        .sidebar-nav {
+            padding: 10px 0;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar-nav a:hover {
+            background-color: #ffe6cc; /* Cam nhạt hơn */
+        }
+        .sidebar-nav a.active {
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+        }
+        .sidebar-nav a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        /* Main content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+        h2 {
+            color: #ff6200; /* Cam */
+            font-weight: 700;
+        }
+        .table-container {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .table th {
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+            font-weight: 600;
+        }
+        .table tr:hover {
+            background-color: #fff3e6; /* Cam nhạt */
+            transition: background-color 0.3s;
+        }
+        .status-pending { color: #ffc107; font-weight: 500; }
+        .status-confirmed { color: #317546; font-weight: 500; } /* Xanh lá đậm */
+        .status-cancelled { color: #dc3545; font-weight: 500; }
+        .status-processing { color: #17a2b8; font-weight: 500; }
+        .status-delivering { color: #007bff; font-weight: 500; }
+        .status-success { color: #ff6200; font-weight: 500; } /* Cam */
+        .status-failed { color: #dc3545; font-weight: 500; }
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        .modal-header {
+            background-color: #ff6200; /* Cam */
+            color: #fff;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        .modal-body table { width: 100%; }
+        .modal-body th, .modal-body td { padding: 12px; }
+        .btn-info {
+            background-color: #317546; /* Xanh lá đậm */
+            border-color: #317546;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .btn-info:hover {
+            background-color: #2a643c;
+            border-color: #2a643c;
+        }
+        .btn-success {
+            background-color: #317546; /* Xanh lá đậm */
+            border-color: #317546;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .btn-success:hover {
+            background-color: #2a643c;
+            border-color: #2a643c;
+        }
+        .btn-primary {
+            background-color: #ff6200; /* Cam */
+            border-color: #ff6200;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #e65b00;
+            border-color: #e65b00;
+        }
+        .form-control, .form-select {
+            border-radius: 20px;
+            border: 1px solid #ced4da;
+            font-weight: 400;
+        }
+        .status-select {
+            width: 220px;
+            display: inline-block;
+        }
+        .status-icon { margin-right: 8px; }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+        .toast-header {
+            background-color: #317546; /* Xanh lá đậm */
+            color: #fff;
+        }
+        .action-column {
+            white-space: nowrap;
+            width: 120px;
+        }
+        .table th:nth-child(1), .table td:nth-child(1) { width: 8%; } /* Mã ĐH */
+        .table th:nth-child(2), .table td:nth-child(2) { width: 15%; } /* Khách Hàng */
+        .table th:nth-child(3), .table td:nth-child(3) { width: 20%; } /* Địa Chỉ */
+        .table th:nth-child(4), .table td:nth-child(4) { width: 12%; } /* SĐT */
+        .table th:nth-child(5), .table td:nth-child(5) { width: 12%; } /* Tổng Tiền */
+        .table th:nth-child(6), .table td:nth-child(6) { width: 12%; } /* Trạng Thái Xác Nhận */
+        .table th:nth-child(7), .table td:nth-child(7) { width: 12%; } /* Trạng Thái Giao */
+        .table th:nth-child(8), .table td:nth-child(8) { width: 14%; } /* Ngày Đặt */
+        /* Hamburger menu */
+        .navbar-toggler {
+            display: none;
+            margin: 15px;
+        }
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .navbar-toggler {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                Employee Dashboard
+            </div>
+            <div class="sidebar-nav">
+                <a href="#" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
+                <a th:href="@{/employee/manage-offline}" class="active"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Offline</a>
+                <a href="#" data-section="account"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
+                <a href="#" data-section="products"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+                <a href="#" data-section="customers"><i class="fas fa-users"></i> Quản Lý Khách Hàng</a>
+                <a href="#" data-section="settings"><i class="fas fa-cog"></i> Cài Đặt</a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Hamburger Menu -->
+            <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div id="orders" class="section">
+                <h2 class="text-center mb-4">Quản Lý Đơn Hàng Offline</h2>
+
+                <!-- Filter and Search -->
+                <form th:action="@{/admin/manage-account}" method="get" class="row mb-4 align-items-center">
+				    <div class="col-md-10 mb-2">
+				        <input type="text" class="form-control" id="searchInputOrders" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm theo tên, số điện thoại...">
+				    </div>
+				    <div class="col-md-2 mb-2 text-end">
+				        <button type="submit" class="btn btn-primary" style="background-color: #ff6200; border-color: #ff6200; width: 150px;">Lọc</button>
+				    </div>
+				</form>
+                <!-- Thông báo khi không có kết quả -->
+                <div th:if="${!hasResults}" class="alert alert-warning" role="alert">
+                    Không tìm thấy đơn hàng phù hợp với từ khóa hoặc trạng thái.
+                </div>
+
+                <!-- Order Table -->
+                <div class="table-container">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Mã ĐH</th>
+                                <th>Khách Hàng</th>
+                                <th>SĐT</th>
+                                <th>Tổng Tiền</th>
+                                <th>Ghi chú</th>
+                                <th>Ngày Đặt</th>
+                                <th class="action-column">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderTableBody">
+                        <tr th:each="order : ${offOrders}">
+                            <td th:text="${order.offOrderID}"></td>
+                            <td th:text="${order.customer.name}"></td>
+                            <td th:text="${order.phone}"></td>
+                            <td th:text="${@formatter.formatPrice(order.cost)}"></td>
+                            <td th:text="${order.note}"></td>
+                            <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy')}"></td>
+                            <td class="action-column">
+                                <a th:href="@{/employee/offline-detail/{id}(id=${order.offOrderID})}" class="btn btn-sm btn-info text-detail">
+                                    <i class="fas fa-eye"></i> Chi tiết
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container">
+        <div id="actionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Thông báo</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+            // Function to toggle sidebar on mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Function to show toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('actionToast');
+            const toastBody = toast.querySelector('.toast-body');
+            toastBody.textContent = message;
+            toast.classList.remove('bg-success', 'bg-danger');
+            toast.classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+
+    </script>
+</body>
+</html>

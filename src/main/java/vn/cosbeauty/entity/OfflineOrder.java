@@ -20,7 +20,9 @@ public class OfflineOrder
     private Long offOrderID;
     private BigDecimal cost;
     private String phone;
+    private int discount;
     private int paymentType;
+    private String note;
     private LocalDateTime orderDate;
 
     @ManyToOne
@@ -32,13 +34,15 @@ public class OfflineOrder
     @OneToMany(mappedBy = "offlineOrder", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OffOrderDetail> offlineDetails=new ArrayList<>();
     
-    public OfflineOrder(Customer customer, Employee employee, String phone, BigDecimal cost, int paymentType)
+    public OfflineOrder(Customer customer, Employee employee, String phone, int discount, BigDecimal cost, int paymentType, String note)
     {
         this.customer = customer;
         this.employee = employee;
         this.phone = phone;
+        this.discount = discount;
         this.cost = cost;
         this.paymentType = paymentType;
+        this.note = note;
         this.orderDate = LocalDateTime.now();
     }
     public OfflineOrder()

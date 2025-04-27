@@ -6,6 +6,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import vn.cosbeauty.DTO.OffDetailDTO;
 import vn.cosbeauty.DTO.ProductDTO;
 import vn.cosbeauty.entity.Category;
 import vn.cosbeauty.entity.Product;
@@ -98,6 +100,19 @@ public class ProductService {
     	Pageable pageable = PageRequest.of(page-1, size);
     	return productRepository.getListProduct_outOfStock(pageable);
     }
-
+    
+    public List<String> getProductCategory(Long productID) {
+    	return productRepository.getProductCategory(productID);
+    }
+    
+    public List<String> getProductSupplier(Long productID) {
+    	return productRepository.getProductSupplier(productID);
+    }
+    
+    public List<OffDetailDTO> searchByName(String keyword) {
+        return productRepository.findByProductNameContainingIgnoreCase(keyword)
+                   .stream().map(p -> new OffDetailDTO(p.getProductID(), p.getProductName(), p.getImageUrl(), p.getPrice(), p.getQuantity(), p.getDiscount()))
+                   .collect(Collectors.toList());
+    }
 
 }

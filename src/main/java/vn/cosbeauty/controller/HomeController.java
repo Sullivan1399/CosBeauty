@@ -11,8 +11,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import vn.cosbeauty.entity.CartItem;
 import vn.cosbeauty.entity.Category;
 import vn.cosbeauty.entity.Product;
+import vn.cosbeauty.service.CartService;
+import vn.cosbeauty.service.CategoryService;
+import vn.cosbeauty.service.CustomerService;
+import vn.cosbeauty.service.EmployeeService;
+import vn.cosbeauty.service.ProductService;
 import vn.cosbeauty.entity.Supplier;
 import vn.cosbeauty.service.*;
+
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -97,7 +103,6 @@ public class HomeController {
     public String instore() {
         return "web/instore";
     }
-
 
     @GetMapping({"/shoping-cart"})
     public String cart() {
