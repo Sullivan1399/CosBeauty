@@ -50,9 +50,16 @@ public class HomeController {
 	        if (customerService.isCustomer()) {
 	            Long id = customerService.getCurrentCustomerID();
 	            cartItems = cartService.getCartItemsByCustomerId(id);
-	            totalAmount = cartItems.stream()
-		                .map(item -> BigDecimal.valueOf(item.getProduct().getPrice()).multiply(new BigDecimal(item.getQuantity())))
-		                .reduce(BigDecimal.ZERO, BigDecimal::add); // Tính tổng giá trị
+                 totalAmount = cartItems.stream()
+                        .map(item -> {
+                            BigDecimal price = BigDecimal.valueOf(item.getProduct().getPrice());
+                            BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
+                            BigDecimal discountPercent = BigDecimal.valueOf( item.getProduct().getDiscount() );
+                            BigDecimal discountMultiplier = BigDecimal.ONE.subtract(discountPercent.divide(BigDecimal.valueOf(100)));
+
+                            return price.multiply(quantity).multiply(discountMultiplier);
+                        })
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
 	        } else {
 	            cartItems = Collections.emptyList();
 	        }
@@ -73,6 +80,7 @@ public class HomeController {
     	List<Product> productOfCurrentPage = products.getContent();
         List<Supplier> suppliers = supplierService.getAllSupplier();
         List<Product> topSellingProducts = productService.getTopSellingProducts();
+
 
         // Truyền danh sách sản phẩm vào model để hiển thị trong view
         model.addAttribute("topSellingProducts", topSellingProducts);

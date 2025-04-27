@@ -294,7 +294,10 @@
                                     <li style="display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center;" class="cart-item">
                                         <span style="flex: 1;" th:text="${item.getProduct().getProductName()}"></span>
                                         <span style="width: 70px; text-align: center;" th:text="${item.getQuantity()}" th:attr="data-quantity-check=${item.getQuantity()}" class="item-quantity"></span>
-                                        <span style="width: 100px; text-align: right;" th:text="${@formatter.formatPrice(item.getProduct().getPrice())}" th:attr="data-price-check=${item.getProduct().getPrice()}" class="item-price"></span>
+                                        <span style="width: 100px; text-align: right;"
+                                              th:text="${@formatter.formatPrice(item.getProduct().getPrice() * (1.0 - item.getProduct().getDiscount() / 100.0))}"
+                                              th:attr="data-price-check=${item.getProduct().getPrice() * (1.0 - item.getProduct().getDiscount() / 100.0)}" class="item-price">
+                                        </span>
                                     </li>
                                 </ul>
                                 <!-- Tổng tiền -->
