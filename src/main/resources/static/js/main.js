@@ -232,19 +232,6 @@
 })(jQuery);
 
 
-//     (function($){
-//     'use strict';
-//
-//     // 1) Thêm nút +/– vào mỗi .pro-qty (cái bạn đã có sẵn)
-//     var proQty = $('.pro-qty');
-//     proQty.prepend('<span class="dec qtybtn">-</span>');
-//     proQty.append('<span class="inc qtybtn">+</span>');
-//
-//     // 2) Hàm định dạng VND
-//     function formatVND(amount) {
-//     return amount.toLocaleString('vi-VN') + '₫';
-// }
-
     // 3) Hàm tính lại tổng giỏ hàng
 
 (function($){
@@ -256,18 +243,37 @@
     }
 
     // Hàm tính lại tổng giỏ hàng
-    function recalcCart(){
+    // function recalcCart(){
+    //     let total = 0;
+    //     $('tbody tr').each(function(){
+    //         const $row   = $(this);
+    //         const price  = parseFloat($row.find('.shoping__cart__price').data('price')) || 0;
+    //         const qty    = parseInt($row.find('input.quantity-input').val(), 10) || 0;
+    //         const line   = price * qty;
+    //         total += line;
+    //         $row.find('.shoping__cart__total').text(formatVND(line));
+    //     });
+    //     $('#checkout-total').text(formatVND(total));
+    // }
+    function recalcCart() {
         let total = 0;
-        $('tbody tr').each(function(){
-            const $row   = $(this);
-            const price  = parseFloat($row.find('.shoping__cart__price').data('price')) || 0;
-            const qty    = parseInt($row.find('input.quantity-input').val(), 10) || 0;
-            const line   = price * qty;
+        $('tbody tr').each(function() {
+            const $row = $(this);
+
+            const price = parseFloat($row.find('.shoping__cart__price').data('price')) || 0;
+            const discount = parseFloat($row.find('.shoping__cart__discount').data('price')) || 0; // LẤY DISCOUNT
+            const qty = parseInt($row.find('input.quantity-input').val(), 10) || 0;
+
+            const realPrice = price * (1 - discount / 100); // GIÁ THỰC SAU KHI GIẢM
+            const line = realPrice * qty;                   // TÍNH TIỀN CHO 1 DÒNG
+
             total += line;
+
             $row.find('.shoping__cart__total').text(formatVND(line));
         });
         $('#checkout-total').text(formatVND(total));
     }
+
 
     // Thêm nút + – nếu chưa có
     $('.pro-qty').each(function(){
@@ -320,103 +326,29 @@ $('#update-cart-form').on('submit', function(e){
 
     $form.off('submit').submit(); // Submit thật sự sau khi đã gắn input
 });
+$('#checkout-form').on('submit', function(e) {
+    e.preventDefault();
 
-// phi ship
-// document.addEventListener("DOMContentLoaded", function () {
-//     var addressInput = document.getElementById("address-input");
-//     var shippingFeeElement = document.getElementById("shipping-fee");
-//
-//     function updateShippingFee() {
-//         var address = addressInput.value.toLowerCase();
-//         if (address.includes("tp. hồ chí minh") || address.includes("tp. ho chi minh") || address.includes("tp.hcm")) {
-//             shippingFeeElement.textContent = "0 đ";
-//         } else if (address.trim() === "") {
-//             shippingFeeElement.textContent = "0 đ"; // Trường hợp trống
-//         } else {
-//             shippingFeeElement.textContent = "25.000 đ";
-//         }
-//     }
-//
-//     // Cập nhật phí ship khi người dùng gõ địa chỉ
-//     addressInput.addEventListener("input", updateShippingFee);
-//
-//     // Gọi ngay khi trang tải để kiểm tra giá trị ban đầu
-//     updateShippingFee();
-// });
-//
-// // Tong tien hang
-// function calculateTotal() {
-//     let total = 0;
-//     const items = document.querySelectorAll(".cart-item"); // Truy xuất tất cả các mục giỏ hàng
-//
-//     console.log('Total items:', items.length); // Kiểm tra số lượng phần tử
-//
-//     items.forEach(item => {
-//         // Lấy giá trị từ các thuộc tính data-price-check và data-quantity-check
-//         const price = parseInt(item.querySelector('.item-price').getAttribute('data-price-check'));
-//         const quantity = parseInt(item.querySelector('.item-quantity').getAttribute('data-quantity-check'));
-//
-//         console.log(`Item:`, item);
-//         console.log(`Price: ${price}, Quantity: ${quantity}`);
-//
-//         // Kiểm tra nếu giá trị hợp lệ
-//         if (isNaN(price) || isNaN(quantity)) {
-//             console.log("Skipping invalid item.");
-//             return; // Bỏ qua sản phẩm không hợp lệ
-//         }
-//
-//         total += price * quantity;
-//     });
-//
-//     console.log(`Total calculated: ${total}`); // Kiểm tra tổng tính được
-//
-//     // Hiển thị tổng tiền hàng
-//     document.getElementById("checkout-total-check").textContent = total.toLocaleString() + ' đ';
-// }
-//
-// // Tính tổng ngay khi trang tải
-// window.onload = function() {
-//     console.log("Window loaded");
-//     calculateTotal();
-// };
-// // tih finish total
-// document.addEventListener('DOMContentLoaded', function() {
-//     // Hàm định dạng giá tiền sang định dạng VND
-//     function formatPrice(price) {
-//         return price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-//     }
-//
-//     // Lấy các phần tử HTML
-//     const checkoutTotalCheck = document.getElementById('checkout-total-check');
-//     const shippingFeeElement = document.getElementById('shipping-fee');
-//     const grandTotalElement = document.getElementById('grand-total');
-//
-//     // Giả sử tổng tiền hàng được lấy từ một nguồn nào đó (ví dụ: từ server hoặc giỏ hàng)
-//     // Ở đây, tôi sẽ dùng một giá trị mẫu, bạn có thể thay bằng dữ liệu thực tế
-//     let totalCheck = 1000000; // Tổng tiền hàng mẫu (1,000,000 VND)
-//     let shippingFee = parseFloat(shippingFeeElement.textContent.replace(' đ', '').replace('.', '')) || 0;
-//
-//     // Cập nhật tổng tiền hàng
-//     checkoutTotalCheck.textContent = formatPrice(totalCheck);
-//
-//     // Tính tổng cộng (grand total)
-//     let grandTotal = totalCheck + shippingFee;
-//
-//     // Cập nhật tổng cộng
-//     grandTotalElement.textContent = formatPrice(grandTotal);
-//
-//     // Hàm cập nhật phí ship (nếu cần thay đổi động)
-//     function updateShippingFee(newFee) {
-//         shippingFee = newFee;
-//         shippingFeeElement.textContent = formatPrice(newFee);
-//         grandTotal = totalCheck + shippingFee;
-//         grandTotalElement.textContent = formatPrice(grandTotal);
-//     }
-//
-//     // Ví dụ: Gọi hàm updateShippingFee khi phí ship thay đổi
-//     // updateShippingFee(30000); // Cập nhật phí ship mới nếu cần
-// });
-//
+    const $form = $(this);
+    // Xóa input cũ tránh trùng
+    $form.find('input[name^="quantities["]').remove();
+
+    $('tbody tr').each(function() {
+        const $row = $(this);
+        const productId = $row.find('input.quantity-input').attr('id').split('-')[1];
+        const quantity = $row.find('input.quantity-input').val();
+
+        $('<input>')
+            .attr('type', 'hidden')
+            .attr('name', 'quantities[' + productId + ']')
+            .val(quantity)
+            .appendTo($form);
+    });
+
+    $form.off('submit').submit();
+});
+
+
 
 // full full
 // Đảm bảo mã chỉ chạy một lần

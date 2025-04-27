@@ -258,6 +258,7 @@
                     <th class="shoping__product">Sản phẩm</th>
                     <th>Giá</th>
                     <th>Số lượng</th>
+                    <th>Chiết khấu</th>
                     <th>Tổng tiền</th>
                     <th></th>
                   </tr>
@@ -282,9 +283,12 @@
                         </div>
                       </div>
                     </td>
+                    <td class="shoping__cart__discount" th:text="${item.getProduct().discount +'%'}"
+                        th:attr="data-price=${item.getProduct().discount}"></td>
                     <td class="shoping__cart__total" th:text="${@formatter.formatPrice(item.getProduct().getPrice() * item.getQuantity())}"></td>
-<!--                    <td class="shoping__cart__item__close">-->
-<!--                      <span class="icon_close"></span>-->
+<!--                    <td class="shoping__cart__total"-->
+<!--                        th:attr="data-price=${item.getProduct().getPrice() * (1 - item.getProduct().getDiscount() / 100.0)}"-->
+<!--                        th:text="${@formatter.formatPrice(item.getProduct().getPrice() * item.getQuantity() * (1 - item.getProduct().getDiscount() / 100.0))}">-->
 <!--                    </td>-->
                     <td class="shoping__cart__item__close">
                       <form th:action="@{/api/cart/remove}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xoá sản phẩm này?');">
@@ -317,8 +321,8 @@
               <ul>
                 <li>Tổng tiền hàng <span id="checkout-total"></span></li>
               </ul>
-              <form th:action="@{/api/cart/goCheckout}" method="post">
-                <button type="submit" class="primary-btn">PROCEED TO CHECKOUT</button>
+              <form id="checkout-form" th:action="@{/api/cart/goCheckout}" method="post">
+                <button type="submit" class="primary-btn">Thanh Toán</button>
               </form>
 
             </div>
