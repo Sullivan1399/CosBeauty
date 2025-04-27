@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f7fa;
+            font-family: 'Roboto', sans-serif;
+            color: #2d3748;
+            overflow-x: hidden;
+        }
+        .container-fluid {
+            padding: 0;
+        }
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: linear-gradient(180deg, #fff7ed 0%, #fef5e7 100%);
+            box-shadow: 3px 0 15px rgba(0, 0, 0, 0.08);
+            overflow-y: auto;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 1000;
+        }
+        .sidebar-header {
+            padding: 25px;
+            background: linear-gradient(45deg, #ff6f00, #ff8f00);
+            color: #fff;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .sidebar-nav {
+            padding: 15px 0;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 14px 25px;
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .sidebar-nav a:hover {
+            background-color: #fed7aa;
+            color: #2d3748;
+            transform: translateX(5px);
+        }
+        .sidebar-nav a.active {
+            background-color: #ff6f00;
+            color: #fff;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar-nav a i {
+            margin-right: 12px;
+            width: 22px;
+            text-align: center;
+        }
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+            background-color: #f4f7fa;
+        }
+        h2 {
+            color: #ff6f00;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        h4 {
+            color: #ff6f00;
+            font-weight: 700;
+            font-size: 1.5rem;
+            background-color: #fff7ed;
+            padding: 10px 15px;
+            border-left: 4px solid #ff6f00;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            letter-spacing: 0.3px;
+        }
+        h5 {
+            color: #ff6f00;
+            font-weight: 700;
+            font-size: 1.25rem;
+            background-color: #fff7ed;
+            padding: 8px 12px;
+            border-left: 4px solid #ff6f00;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            letter-spacing: 0.3px;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 40px;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            background: linear-gradient(45deg, #ff6f00, #ff8f00);
+            color: #fff;
+            border-radius: 15px 15px 0 0;
+            padding: 20px;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .card-body {
+            padding: 25px;
+        }
+        .detail-label {
+            font-weight: 500;
+            color: #4a5568;
+            font-size: 1rem;
+        }
+        .detail-value {
+            font-weight: 400;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+        .status-active {
+            color: #38a169;
+            font-weight: 600;
+        }
+        .status-inactive {
+            color: #e53e3e;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background-color: #ff6f00;
+            border-color: #ff6f00;
+            border-radius: 25px;
+            font-weight: 500;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #e65b00;
+            border-color: #e65b00;
+            transform: translateY(-2px);
+        }
+        .btn-save {
+            background-color: #2f855a;
+            border-color: #2f855a;
+            border-radius: 25px;
+            font-weight: 500;
+            padding: 10px 20px;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        .btn-save:hover {
+            background-color: #2b6cb0;
+            border-color: #2b6cb0;
+            transform: translateY(-2px);
+        }
+        .btn-back {
+            background-color: #e65b00;
+            border-color: #e65b00;
+            border-radius: 25px;
+            font-weight: 500;
+            color: #fff;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+        .btn-back:hover {
+            background-color: #2f855a;
+            border-color: #2f855a;
+            transform: translateY(-2px);
+        }
+        .navbar-toggler {
+            display: none;
+            margin: 20px;
+            border: none;
+            font-size: 1.5rem;
+            color: #ff6f00;
+        }
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+                box-shadow: 5px 0 20px rgba(0, 0, 0, 0.2);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .navbar-toggler {
+                display: block;
+            }
+        }
+        @media (max-width: 768px) {
+            .two-column-layout .col-md-6 {
+                margin-bottom: 20px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            Admin Dashboard
+        </div>
+        <div class="sidebar-nav">
+            <a th:href="@{/admin/dashboard}" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
+            <a th:href="@{/admin/manage-admin}" data-section="orders"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
+            <a th:href="@{/admin/accounts}" class="active"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
+            <a th:href="@{/admin/ManageProducts}"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+            <a th:href="@{/admin/import-orders}"><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
+            <a th:href="@{/}" data-section="settings"><i class="fas fa-cog"></i> Quay về trang Home</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="card">
+            <div class="card-header">
+                Thông Tin Chi Tiết Tài Khoản
+            </div>
+            <div class="card-body">
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                <div th:if="${account == null}" class="alert alert-warning">Không tìm thấy tài khoản!</div>
+                <div th:if="${account != null}">
+
+                    <!-- Customer Information -->
+                    <div th:if="${account != null and account.role == 'ROLE_CUSTOMER' and customer != null}">
+                        <h5 class="mb-3">Thông Tin Khách Hàng</h5>
+                        <div class="row two-column-layout">
+                            <div class="col-md-6">
+                                <div class="row mb-3">
+                                    <div class="col-5 detail-label">Họ và tên:</div>
+                                    <div class="col-7 detail-value" th:text="${customer.name}"></div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-5 detail-label">Địa chỉ:</div>
+                                    <div class="col-7 detail-value" th:text="${customer.address} ?: 'Chưa cung cấp'"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row mb-3">
+                                    <div class="col-5 detail-label">Số điện thoại:</div>
+                                    <div class="col-7 detail-value" th:text="${customer.phone} ?: 'Chưa cung cấp'"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="button-container">
+                            <a th:href="@{/admin/accounts}" class="btn btn-back">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Employee Information -->
+                    <div th:if="${account != null and account.role == 'ROLE_EMPLOYEE' and employee != null}">
+                        <h5 class="mb-3">Thông Tin Nhân Viên</h5>
+                        <form th:action="@{/admin/accounts/updateEmployee}" th:object="${employee}" method="post">
+                            <input type="hidden" th:field="*{employeeID}" />
+                            <div class="row two-column-layout">
+                                <div class="col-md-6">
+                                    <div class="row mb-3">
+                                        <div class="col-5 detail-label">Họ và tên:</div>
+                                        <div class="col-7">
+                                            <input type="text" class="form-control" th:field="*{name}" th:class="${#fields.hasErrors('name')} ? 'form-control is-invalid' : 'form-control'" />
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-5 detail-label">Email:</div>
+                                        <div class="col-7">
+                                            <input type="email" class="form-control" th:field="*{email}" th:class="${#fields.hasErrors('email')} ? 'form-control is-invalid' : 'form-control'" />
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-5 detail-label">Địa chỉ:</div>
+                                        <div class="col-7">
+                                            <input type="text" class="form-control" th:field="*{address}" th:class="${#fields.hasErrors('address')} ? 'form-control is-invalid' : 'form-control'" />
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-5 detail-label">Số điện thoại:</div>
+                                        <div class="col-7">
+                                            <input type="tel" class="form-control" th:field="*{phone}" th:class="${#fields.hasErrors('phone')} ? 'form-control is-invalid' : 'form-control'" />
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row mb-3">
+                                        <div class="col-5 detail-label">Giới tính:</div>
+                                        <div class="col-7">
+                                            <select class="form-select" th:field="*{sex}" th:class="${#fields.hasErrors('sex')} ? 'form-select is-invalid' : 'form-select'">
+                                                <option value="" th:text="'Chưa cung cấp'"></option>
+                                                <option value="true" th:text="'Nam'"></option>
+                                                <option value="false" th:text="'Nữ'"></option>
+                                            </select>
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('sex')}" th:errors="*{sex}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-5 detail-label">Trạng thái:</div>
+                                        <div class="col-7">
+                                            <input type="text" class="form-control" th:value="${employee.status != null ? (employee.status ? 'Đang hoạt động' : 'Không hoạt động') : 'Chưa cung cấp'}" disabled />
+                                            <input type="hidden" th:field="*{status}" />
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-5 detail-label">Ngày sinh:</div>
+                                        <div class="col-7">
+                                            <input type="date" class="form-control" th:value="*{birthDate}" disabled th:class="${#fields.hasErrors('birthDate')} ? 'form-control is-invalid' : 'form-control'" />
+                                            <input type="hidden" th:field="*{birthDate}" />
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-5 detail-label">Ngày tuyển dụng:</div>
+                                        <div class="col-7">
+                                            <input type="date" class="form-control" th:value="*{recruitDate}" disabled th:class="${#fields.hasErrors('recruitDate')} ? 'form-control is-invalid' : 'form-control'" />
+                                            <input type="hidden" th:field="*{recruitDate}" />
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('recruitDate')}" th:errors="*{recruitDate}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="button-container">
+                                <button type="submit" class="btn btn-save">
+                                    Lưu
+                                </button>
+                                <a th:href="@{/admin/accounts}" class="btn btn-back">
+                                    <i class="fas fa-arrow-left"></i> Quay lại
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('active');
+    }
+</script>
+</body>
+</html>

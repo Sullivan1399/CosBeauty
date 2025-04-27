@@ -2,11 +2,14 @@ package vn.cosbeauty.controller;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -277,6 +280,55 @@ public class AccountController {
         var authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         logger.debug("User {} has authorities: {}", username, authorities);
         return "admin/change-password-3";
+    }
+
+    @GetMapping("admin/accounts/details")
+    public String viewAccountDetails(@RequestParam("id") Long id, Model model) {
+        System.out.println("Handling /admin/accounts/details?id=" + id);
+        try {
+            Account account = accountService.findById(id);
+            if (account == null) {
+                model.addAttribute("error", "Không tìm thấy tài khoản với ID: " + id);
+                return "web/account-details";
+            }
+            Customer customer = accountService.getCustomerByEmail(account.getUsername());
+            Employee employee = accountService.getEmployeeByEmail(account.getUsername());
+            model.addAttribute("account", account);
+            model.addAttribute("customer", customer);
+            model.addAttribute("employee", employee);
+            return "web/account-details";
+        } catch (Exception e) {
+            model.addAttribute("error", "Lỗi khi tải thông tin tài khoản: " + e.getMessage());
+            return "web/account-details";
+        }
+    }
+    @PostMapping("/admin/accounts/updateEmployee")
+    public String updateEmployee(
+            @ModelAttribute("employee") Employee employee,
+            BindingResult result,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        if (result.hasErrors()) {
+            result.getAllErrors().forEach(error -> System.out.println("Validation error: " + error.toString()));
+            model.addAttribute("error", "Vui lòng kiểm tra lại thông tin nhập vào.");
+            model.addAttribute("account", employeeService.getAccountByEmployeeId(employee.getEmployeeID()));
+            model.addAttribute("employee", employee);
+            return "web/account-details";
+        }
+
+        try {
+            employeeService.saveOrUpdateEmployee(employee);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin nhân viên thành công!");
+        } catch (Exception e) {
+            System.err.println("Error updating employee: " + e.getMessage());
+            model.addAttribute("error", "Có lỗi xảy ra khi cập nhật thông tin nhân viên: " + e.getMessage());
+            model.addAttribute("account", employeeService.getAccountByEmployeeId(employee.getEmployeeID()));
+            model.addAttribute("employee", employee);
+            return "web/account-details";
+        }
+
+        return "redirect:/admin/accounts";
     }
 
     @PostMapping("/api/admin/change-password")

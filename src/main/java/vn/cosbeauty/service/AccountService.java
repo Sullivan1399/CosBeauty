@@ -4,7 +4,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -35,7 +39,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class AccountService implements UserDetailsService{
-
+    private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
@@ -48,6 +52,9 @@ public class AccountService implements UserDetailsService{
     
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @PersistenceContext
+    private EntityManager entityManager;
     
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -167,15 +174,32 @@ public class AccountService implements UserDetailsService{
 
 
     public List<Account> enrichDisplayNames(List<Account> accounts) {
+        // Code as updated above
+        List<String> emails = accounts.stream().map(Account::getUsername).collect(Collectors.toList());
+        List<Customer> customers = customerRepository.findByEmailIn(emails);
+        List<Employee> employees = employeeRepository.findByEmailIn(emails);
+
+        Map<String, Customer> customerMap = customers.stream()
+                .collect(Collectors.toMap(Customer::getEmail, c -> c));
+        Map<String, Employee> employeeMap = employees.stream()
+                .collect(Collectors.toMap(Employee::getEmail, e -> e));
+
         for (Account account : accounts) {
+            String username = account.getUsername();
             switch (account.getRole()) {
                 case "ROLE_CUSTOMER":
-                    Customer customer = customerRepository.findByEmail(account.getUsername());
-                    account.setDisplayName(customer != null ? customer.getName() : "[Không xác định]");
+                    Customer customer = customerMap.get(username);
+                    String customerName = customer != null && customer.getName() != null && !customer.getName().isEmpty()
+                            ? customer.getName()
+                            : "[Không xác định]";
+                    account.setDisplayName(customerName);
                     break;
                 case "ROLE_EMPLOYEE":
-                    Employee employee = employeeRepository.findByEmail(account.getUsername());
-                    account.setDisplayName(employee != null ? employee.getName() : "[Không xác định]");
+                    Employee employee = employeeMap.get(username);
+                    String employeeName = employee != null && employee.getName() != null && !employee.getName().isEmpty()
+                            ? employee.getName()
+                            : "[Không xác định]";
+                    account.setDisplayName(employeeName);
                     break;
                 case "ROLE_ADMIN":
                     account.setDisplayName("Admin");
@@ -186,42 +210,40 @@ public class AccountService implements UserDetailsService{
         }
         return accounts;
     }
-    public Optional<Account> findById(Long id) {
-        return accountRepository.findById(id);
+    public Account findById(Long id) {
+        return accountRepository.findById(id).orElse(null);
     }
 
     public Optional<Account> findByUsername(String username) {
         return Optional.ofNullable(accountRepository.findByUsername(username));
     }
+    public Customer getCustomerByEmail(String email) {
+        return customerRepository.findByEmail(email);
+    }
 
+    public Employee getEmployeeByEmail(String email) {
+        return employeeRepository.findByEmail(email);
+    }
 
-    @Transactional
-    public void updateAccountAndCustomer(AccountDTO dto) {
-        Account acc = accountRepository.findById(dto.getId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+    public void updateAccountAndCustomer(AccountDTO accountDTO) {
+        Account account = accountRepository.findById(accountDTO.getId())
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        account.setDisplayName(accountDTO.getNewName());
+        account.setRole("ROLE_" + accountDTO.getRole().toUpperCase());
+        accountRepository.save(account);
 
-        if ("CUSTOMER".equalsIgnoreCase(dto.getRole())) {
-            Customer customer = customerRepository.findByEmail(acc.getUsername());
-            if (customer == null) {
-                throw new RuntimeException("Không tìm thấy khách hàng với email = " + acc.getUsername());
-            }
-
-            customer.setName(dto.getNewName());
-            customer.setPhone(dto.getNewPhone()); // cập nhật số điện thoại
+        // Cập nhật Customer nếu tồn tại
+        Customer customer = customerRepository.findByEmail(account.getUsername());
+        if (customer != null) {
+            customer.setPhone(accountDTO.getNewPhone());
             customerRepository.save(customer);
-
-        } else if ("EMPLOYEE".equalsIgnoreCase(dto.getRole())) {
-            Employee emp = employeeRepository.findByEmail(acc.getUsername());
-            if (emp == null) {
-                throw new RuntimeException("Không tìm thấy nhân viên với email = " + acc.getUsername());
-            }
-
-            emp.setName(dto.getNewName());
-            emp.setPhone(dto.getNewPhone()); //  cập nhật số điện thoại
-            employeeRepository.save(emp);
         }
-
-        accountRepository.save(acc);
+        // Cập nhật Employee nếu tồn tại
+        Employee employee = employeeRepository.findByEmail(account.getUsername());
+        if (employee != null) {
+            employee.setPhone(accountDTO.getNewPhone());
+            employeeRepository.save(employee);
+        }
     }
 
     public Map<String, String> getPhoneMap(List<Account> accounts) {
@@ -397,6 +419,7 @@ public class AccountService implements UserDetailsService{
         }
         return statusMap;
     }
+
     @Transactional
     public void toggleEmployeeStatus(Long accountId) {
         Account account = accountRepository.findById(accountId)

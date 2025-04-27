@@ -369,7 +369,7 @@
             <tr>
               <td>
                 <form th:action="@{/admin/accounts}" method="post">
-<!--                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />-->
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                   <input type="hidden" name="id" th:value="${account.ID}" />
                   <span th:text="${account.ID}"></span>
               </td>
@@ -387,7 +387,7 @@
                   <span th:if="${account.role == 'ROLE_EMPLOYEE' and employeeStatusMap[account.username] == false}" class="status-inactive">Không hoạt động</span>
                   </form>
                   <form th:if="${account.role == 'ROLE_EMPLOYEE'}" th:action="@{/admin/accounts/toggle-status}" method="post">
-<!--                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />-->
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <input type="hidden" name="id" th:value="${account.ID}" />
                     <button type="submit" class="btn btn-toggle" th:classappend="${employeeStatusMap[account.username] == true} ? 'btn-toggle-active' : 'btn-toggle-inactive'">
                       <span th:text="${employeeStatusMap[account.username] == true} ? 'Tắt' : 'Bật'"></span>
@@ -396,7 +396,11 @@
                 </div>
               </td>
               <td class="action-column">
-                <button type="submit" class="btn btn-save mb-1">Lưu</button>
+                <div th:if="${account != null and account.role != 'ROLE_ADMIN' }">
+                <a th:href="@{/admin/accounts/details(id=${account.ID})}" class="btn btn-primary btn-sm">
+                  <i class="fas fa-eye"></i> View
+                </a>
+                </div>
               </td>
             </tr>
           </th:block>
@@ -456,9 +460,9 @@
     let newUrl;
     switch (sectionId) {
       case 'overview': newUrl = '/admin/dashboard'; break;
-      case 'orders': newUrl = '/admin/manage-admin'; break;
+      case 'orders': newUrl = '/admin/orders'; break;
       case 'account': newUrl = '/admin/accounts'; break;
-      case 'products': newUrl = '/admin/ManageProducts'; break;
+      case 'products': newUrl = '/admin/products'; break;
       case 'import': newUrl = '/admin/import-orders'; break;
       case 'settings': newUrl = '/admin/settings'; break;
       default: newUrl = '/admin/dashboard';
@@ -482,8 +486,8 @@
     const path = window.location.pathname;
     let sectionId = localStorage.getItem('currentSection') || 'overview';
     if (path.includes('/admin/accounts')) sectionId = 'account';
-    else if (path.includes('/admin/manage-admin')) sectionId = 'orders';
-    else if (path.includes('/admin/ManageProducts')) sectionId = 'products';
+    else if (path.includes('/admin/orders')) sectionId = 'orders';
+    else if (path.includes('/admin/products')) sectionId = 'products';
     else if (path.includes('/admin/import-orders')) sectionId = 'import';
     else if (path.includes('/admin/settings')) sectionId = 'settings';
     else if (path.includes('/admin/dashboard')) sectionId = 'overview';

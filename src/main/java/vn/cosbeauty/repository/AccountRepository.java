@@ -2,6 +2,7 @@ package vn.cosbeauty.repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,7 +28,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 			"CAST(a.ID AS string) LIKE %:keyword% OR " +
 			"LOWER(a.username) LIKE LOWER(CONCAT('%', :keyword, '%'))")
 	List<Account> searchByIdOrUsername(@Param("keyword") String keyword);
-
 
 
 

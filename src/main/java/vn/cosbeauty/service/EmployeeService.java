@@ -1,12 +1,19 @@
 package vn.cosbeauty.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import vn.cosbeauty.entity.Account;
 import vn.cosbeauty.entity.Customer;
 import vn.cosbeauty.entity.Employee;
+import vn.cosbeauty.repository.AccountRepository;
 import vn.cosbeauty.repository.EmployeeRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -14,6 +21,8 @@ public class EmployeeService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+    @Autowired
+    private AccountRepository accountRepository;
 
     public Employee findByEmail(String email) {
         Employee employee = employeeRepository.findByEmail(email);
@@ -34,4 +43,27 @@ public class EmployeeService {
                 .map(Employee::getPhone)
                 .toList();
     }
+
+    @Transactional
+    public Employee saveOrUpdateEmployee(Employee employee) {
+        if (employee == null) {
+            throw new IllegalArgumentException("Employee cannot be null");
+        }
+        return employeeRepository.save(employee);
+    }
+
+    public Account getAccountByEmployeeId(int employeeID) {
+        Optional<Employee> employeeOpt = employeeRepository.findById(employeeID);
+        if (employeeOpt.isEmpty()) {
+            return null;
+        }
+        String email = employeeOpt.get().getEmail();
+        return accountRepository.findByUsername(email);
+    }
+
+
+    public Page<Employee> findAllEmployees(Pageable pageable) {
+        return employeeRepository.findAll(pageable);
+    }
+
 }
