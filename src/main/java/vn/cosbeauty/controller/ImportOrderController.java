@@ -6,10 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import vn.cosbeauty.entity.Employee;
-import vn.cosbeauty.entity.ImportOrder;
-import vn.cosbeauty.entity.Product;
-import vn.cosbeauty.entity.Supplier;
+import vn.cosbeauty.entity.*;
 import vn.cosbeauty.repository.*;
 import vn.cosbeauty.service.ImportOrderService;
 
@@ -44,6 +41,9 @@ public class ImportOrderController {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private ImportOrderDetailRepository importOrderDetailRepository;
 
     @GetMapping("/employee/import-orders/create")
     public String showCreateForm(Model model) {
@@ -240,6 +240,27 @@ public class ImportOrderController {
                     model.addAttribute("warning", "Đơn hàng đã bị hủy, không thể duyệt!");
                     model.addAttribute("importOrder", importOrder);
                     return "web/import-order-action";
+                }
+                // Cập nhật số lượng sản phẩm
+                List<ImportOrderDetail> importDetails = importOrderDetailRepository.findByImportOrder(importOrder);
+                if (importDetails == null || importDetails.isEmpty()) {
+                    redirectAttributes.addFlashAttribute("error", "Đơn nhập hàng không có sản phẩm!");
+                    return "redirect:/admin/import-orders";
+                }
+
+                for (ImportOrderDetail detail : importDetails) {
+                    Product product = detail.getProduct();
+                    if (product == null) {
+                        redirectAttributes.addFlashAttribute("error", "Sản phẩm không tồn tại trong chi tiết đơn nhập!");
+                        return "redirect:/admin/import-orders";
+                    }
+                    Integer quantity = detail.getQuantity();
+                    if (quantity == null || quantity <= 0) {
+                        redirectAttributes.addFlashAttribute("error", "Số lượng sản phẩm phải lớn hơn 0!");
+                        return "redirect:/admin/import-orders";
+                    }
+                    product.setQuantity(product.getQuantity() + quantity);
+                    productRepository.save(product);
                 }
                 importOrder.setStatus(1);
                 importOrderService.saveOrder(importOrder);
