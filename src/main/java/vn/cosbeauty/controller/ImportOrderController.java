@@ -181,6 +181,7 @@ public class ImportOrderController {
         List<Map<String, Object>> formattedImportOrders = importOrdersPage.getContent().stream().map(order -> {
             Map<String, Object> map = new HashMap<>();
             map.put("importID", order.getImportID());
+            map.put("supplierName", order.getSupplier() != null ? order.getSupplier().getSupName() : "N/A"); // Add supplier name
             map.put("cost", order.getCost());
             map.put("importDate", order.getImportDate() != null
                     ? order.getImportDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))

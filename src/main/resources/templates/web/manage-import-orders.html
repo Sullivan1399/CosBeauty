@@ -267,6 +267,7 @@
                     <thead>
                     <tr>
                         <th>#</th>
+                        <th>Tên nhà cung cấp</th>
                         <th>Chi Phí</th>
                         <th>Ngày Nhập</th>
                         <th>Trạng Thái</th>
@@ -277,6 +278,7 @@
                     <tbody>
                     <tr th:each="importOrder : ${importOrders}">
                         <td th:text="${importOrder.importID}"></td>
+                        <td th:text="${importOrder.supplierName}"></td>
                         <td th:text="${importOrder.cost}"></td>
                         <td th:text="${importOrder.importDate != null ? importOrder.importDate : 'N/A'}"></td>
                         <td>
