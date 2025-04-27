@@ -178,7 +178,7 @@
         #charts {
             min-height: 900px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(2, 1fr); /* Two equal-width columns */
             gap: 24px;
             margin-bottom: 24px;
         }
@@ -201,6 +201,7 @@
             }
             #charts {
                 min-height: 1200px;
+                grid-template-columns: 1fr; /* Stack charts vertically on smaller screens */
             }
         }
 
