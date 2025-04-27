@@ -202,6 +202,16 @@
                 display: block;
             }
         }
+        .btn-success {
+	      background-color: #317546; /* Xanh lá đậm */
+	      border-color: #317546;
+	      border-radius: 20px;
+	      font-weight: 500;
+	    }
+	    .btn-success:hover {
+	      background-color: #2a643c;
+	      border-color: #2a643c;
+	    }
     </style>
 </head>
 <body>
@@ -212,12 +222,12 @@
                 Employee Dashboard
             </div>
             <div class="sidebar-nav">
-                <a href="#" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
-                <a th:href="@{/employee/manage-offline}" class="active"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Offline</a>
-                <a href="#" data-section="account"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
-                <a href="#" data-section="products"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
-                <a href="#" data-section="customers"><i class="fas fa-users"></i> Quản Lý Khách Hàng</a>
-                <a href="#" data-section="settings"><i class="fas fa-cog"></i> Cài Đặt</a>
+                <a th:href="@{/employee/manage-offline}" ><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Offline</a>
+                <!-- <a th:href="@{/orders}" ><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a> -->
+                <a th:href="@{/employee/import-orders}" ><i class="fas fa-warehouse"></i> Quản Lý Đơn Hàng Nhập</a>
+                <a th:href="@{/api/employee/profile}" ><i class="fas fa-user"></i> Thông tin tài khoản</a>
+                <a th:href="@{/}" ><i class="fas fa-home"></i> Quay về trang Home</a>
+                <a th:href="@{/logout}" method="post"><i class="fa fa-sign-out"></i> Đăng xuất</a>
             </div>
         </div>
 
@@ -230,16 +240,23 @@
 
             <div id="orders" class="section">
                 <h2 class="text-center mb-4">Quản Lý Đơn Hàng Offline</h2>
-
-                <!-- Filter and Search -->
-                <form th:action="@{/admin/manage-account}" method="get" class="row mb-4 align-items-center">
-				    <div class="col-md-10 mb-2">
-				        <input type="text" class="form-control" id="searchInputOrders" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm theo tên, số điện thoại...">
+				
+				<div class="d-flex align-items-center mb-4">
+				    <!-- Nút Tạo Hóa Đơn -->
+				    <div class="me-3">
+				        <a th:href="@{/employee/create-offline-order}" class="btn btn-success">Tạo Hóa Đơn</a>
 				    </div>
-				    <div class="col-md-2 mb-2 text-end">
-				        <button type="submit" class="btn btn-primary" style="background-color: #ff6200; border-color: #ff6200; width: 150px;">Lọc</button>
-				    </div>
-				</form>
+				    
+				    <!-- Form tìm kiếm -->
+				    <form th:action="@{/employee/manage-offline}" method="get" class="d-flex flex-grow-1 align-items-center">
+				        <div class="flex-grow-1 me-3">
+				            <input type="text" class="form-control" id="searchInputOrders" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm theo tên, số điện thoại...">
+				        </div>
+				        <div>
+				            <button type="submit" class="btn btn-primary" style="background-color: #ff6200; border-color: #ff6200; width: 150px;">Lọc</button>
+				        </div>
+				    </form>
+				</div>
                 <!-- Thông báo khi không có kết quả -->
                 <div th:if="${!hasResults}" class="alert alert-warning" role="alert">
                     Không tìm thấy đơn hàng phù hợp với từ khóa hoặc trạng thái.

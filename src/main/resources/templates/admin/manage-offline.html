@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Đơn Hàng Online - Admin</title>
+    <title>Quản Lý Đơn Hàng Offline</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome for icons -->
@@ -202,6 +202,16 @@
                 display: block;
             }
         }
+        .btn-success {
+	      background-color: #317546; /* Xanh lá đậm */
+	      border-color: #317546;
+	      border-radius: 20px;
+	      font-weight: 500;
+	    }
+	    .btn-success:hover {
+	      background-color: #2a643c;
+	      border-color: #2a643c;
+	    }
     </style>
 </head>
 <body>
@@ -213,7 +223,7 @@
             </div>
             <div class="sidebar-nav">
                 <a th:href="@{/admin/dashboard}" ><i class="fas fa-home"></i> Tổng Quan</a>
-                <a th:href="@{/admin/manage-admin}" ><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
+                <a th:href="@{/admin/manage-admin}"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
                 <a th:href="@{/admin/manage-offline}"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Offline</a>
                 <a th:href="@{/admin/import-orders}"><i class="fas fa-warehouse"></i> Quản Lý Đơn Hàng Nhập</a>
                 <a th:href="@{/admin/accounts}" ><i class="fas fa-users"></i> Quản Lý Tài Khoản</a>
@@ -230,33 +240,25 @@
                 <i class="fas fa-bars"></i>
             </button>
 
-
-
-            <!--Quan ly  don hang - Ngoc Han -->
             <div id="orders" class="section">
-                <h2 class="text-center mb-4">Quản Lý Đơn Hàng Online</h2>
-
-                <!-- Filter and Search -->
-                <form th:action="@{/admin/manage-admin}" method="get" class="row mb-4">
-                    <div class="col-md-4 mb-2">
-                        <input type="text" class="form-control" id="searchInputOrders" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm theo tên, số điện thoại...">
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <select class="form-select" id="statusFilterOrders" name="status">
-                            <option value="" th:selected="${status == ''}">Tất cả trạng thái</option>
-                            <option value="confirm-1" th:selected="${status == 'confirm-1'}">Chờ xác nhận</option>
-                            <option value="confirm-2" th:selected="${status == 'confirm-2'}">Đã xác nhận</option>
-                            <option value="confirm-3" th:selected="${status == 'confirm-3'}">Đã hủy</option>
-                            <option value="delivery-2" th:selected="${status == 'delivery-2'}">Đang xử lý</option>
-                            <option value="delivery-3" th:selected="${status == 'delivery-3'}">Đang vận chuyển</option>
-                            <option value="delivery-4" th:selected="${status == 'delivery-4'}">Thành công</option>
-                            <option value="delivery-5" th:selected="${status == 'delivery-5'}">Thất bại</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <button type="submit" class="btn btn-primary w-100">Lọc </button>
-                    </div>
-                </form>
+                <h2 class="text-center mb-4">Quản Lý Đơn Hàng Offline</h2>
+				
+				<div class="d-flex align-items-center mb-4">
+				    <!-- Nút Tạo Hóa Đơn -->
+				    <!-- <div class="me-3">
+				        <a th:href="@{/employee/create-offline-order}" class="btn btn-success">Tạo Hóa Đơn</a>
+				    </div> -->
+				    
+				    <!-- Form tìm kiếm -->
+				    <form th:action="@{/admin/manage-offline}" method="get" class="d-flex flex-grow-1 align-items-center">
+				        <div class="flex-grow-1 me-3">
+				            <input type="text" class="form-control" id="searchInputOrders" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm theo tên, số điện thoại...">
+				        </div>
+				        <div>
+				            <button type="submit" class="btn btn-primary" style="background-color: #ff6200; border-color: #ff6200; width: 150px;">Lọc</button>
+				        </div>
+				    </form>
+				</div>
                 <!-- Thông báo khi không có kết quả -->
                 <div th:if="${!hasResults}" class="alert alert-warning" role="alert">
                     Không tìm thấy đơn hàng phù hợp với từ khóa hoặc trạng thái.
@@ -269,52 +271,23 @@
                             <tr>
                                 <th>Mã ĐH</th>
                                 <th>Khách Hàng</th>
-                                <th>Địa Chỉ</th>
                                 <th>SĐT</th>
                                 <th>Tổng Tiền</th>
-                                <th>Trạng Thái Xác Nhận</th>
-                                <th>Trạng Thái Giao</th>
+                                <th>Ghi chú</th>
                                 <th>Ngày Đặt</th>
                                 <th class="action-column">Thao Tác</th>
                             </tr>
                         </thead>
                         <tbody id="orderTableBody">
-                        <tr th:each="order : ${orders}">
-                            <td th:text="${order.onOrderID}"></td>
-                            <td th:text="${order.name}"></td>
-                            <td th:text="${order.address}"></td>
+                        <tr th:each="order : ${offOrders}">
+                            <td th:text="${order.offOrderID}"></td>
+                            <td th:text="${order.customer.name}"></td>
                             <td th:text="${order.phone}"></td>
                             <td th:text="${@formatter.formatPrice(order.cost)}"></td>
-                            <td>
-    <span>
-        <i th:class="${order.confirm == 1 ? 'fas fa-clock' :
-                      (order.confirm == 2 ? 'fas fa-check-circle' :
-                      (order.confirm == 3 ? 'fas fa-times-circle' :
-                      'fas fa-question-circle'))}"></i>
-        <span th:text="${order.confirm == 1 ? 'Chưa xác nhận' :
-                        (order.confirm == 2 ? 'Đã xác nhận' :
-                        (order.confirm == 3 ? 'Đã hủy' : ''))}"></span>
-    </span>
-                            </td>
-
-                            <td>
-    <span>
-        <i th:class="${order.deliveryStatus == 2 ? 'fas fa-cogs' :
-                      (order.deliveryStatus == 3 ? 'fas fa-truck' :
-                      (order.deliveryStatus == 4 ? 'fas fa-check-circle' :
-                      (order.deliveryStatus == 5 ? 'fas fa-times-circle' :
-                      'fas fa-question-circle')))}"></i>
-        <span th:text="${order.deliveryStatus == 1 ? 'Chưa cập nhật' :
-                        (order.deliveryStatus == 2 ? 'Đang xử lý' :
-                        (order.deliveryStatus == 3 ? 'Đang vận chuyển' :
-                        (order.deliveryStatus == 4 ? 'Giao thành công' :
-                        (order.deliveryStatus == 5 ? 'Giao thất bại' :''))))}"></span>
-    </span>
-                            </td>
-
+                            <td th:text="${order.note}"></td>
                             <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy')}"></td>
                             <td class="action-column">
-                                <a th:href="@{/admin/admin-detail/{id}(id=${order.onOrderID})}" class="btn btn-sm btn-info text-detail">
+                                <a th:href="@{/employee/offline-detail/{id}(id=${order.offOrderID})}" class="btn btn-sm btn-info text-detail">
                                     <i class="fas fa-eye"></i> Chi tiết
                                 </a>
                             </td>
@@ -323,7 +296,6 @@
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -342,68 +314,11 @@
     <!-- Bootstrap JS and Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Function to toggle sidebar on mobile
+            // Function to toggle sidebar on mobile
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('active');
         }
-
-        // Function to show section
-        function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(section => {
-                section.style.display = section.id === sectionId ? 'block' : 'none';
-            });
-            document.querySelectorAll('.sidebar-nav a').forEach(link => {
-                link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
-            });
-
-            // Cập nhật URL dựa trên sectionId
-            let newUrl;
-            switch (sectionId) {
-                case 'overview': newUrl = '/admin/dashboard'; break;
-                case 'orders': newUrl = '/admin/manage-admin'; break;
-                case 'account': newUrl = '/admin/accounts'; break;
-                case 'products': newUrl = '/admin/ManageProducts'; break;
-                case 'import': newUrl = '/admin/import-orders'; break;
-                case 'settings': newUrl = '/admin/settings'; break;
-                default: newUrl = '/admin/dashboard';
-            }
-            window.history.pushState({ sectionId: sectionId }, '', newUrl);
-
-            // Lưu section hiện tại vào localStorage
-            localStorage.setItem('currentSection', sectionId);
-        }
-
-        // Sidebar navigation
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                const sectionId = link.getAttribute('data-section');
-                const href = link.getAttribute('href');
-                if (href && href !== '#') return;
-                e.preventDefault();
-                showSection(sectionId);
-                if (window.innerWidth <= 992) toggleSidebar();
-            });
-        });
-
-        // Xử lý khi tải trang: Kiểm tra URL để hiển thị section đúng
-        window.addEventListener('DOMContentLoaded', () => {
-            const path = window.location.pathname;
-            let sectionId = localStorage.getItem('currentSection') || 'overview';
-            if (path.includes('/admin/accounts')) sectionId = 'account';
-            else if (path.includes('/admin/manage-admin')) sectionId = 'orders';
-            else if (path.includes('/admin/ManageProducts')) sectionId = 'products';
-            else if (path.includes('/admin/import-orders')) sectionId = 'import';
-            else if (path.includes('/admin/settings')) sectionId = 'settings';
-            else if (path.includes('/admin/dashboard')) sectionId = 'overview';
-            showSection(sectionId);
-        });
-
-        // Xử lý nút Back/Forward
-        window.addEventListener('popstate', (event) => {
-            const sectionId = event.state ? event.state.sectionId : localStorage.getItem('currentSection') || 'overview';
-            showSection(sectionId);
-        });
 
         // Function to show toast
         function showToast(message, type = 'success') {
@@ -415,6 +330,7 @@
             const bsToast = new bootstrap.Toast(toast);
             bsToast.show();
         }
+
     </script>
 </body>
 </html>

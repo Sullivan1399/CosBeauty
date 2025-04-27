@@ -292,18 +292,21 @@
 </head>
 <body>
 <div class="container-fluid">
+  <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      Admin Dashboard
-    </div>
-    <div class="sidebar-nav">
-      <a th:href="@{/admin/dashboard}" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
-      <a th:href="@{/admin/manage-admin}" data-section="orders"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
-      <a th:href="@{/admin/accounts}" class="active"><i class="fas fa-user"></i> Quản Lý Tài Khoản</a>
-      <a th:href="@{/admin/ManageProducts}"><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
-      <a th:href="@{/admin/import-orders}"><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
-      <a th:href="@{/}" data-section="settings"><i class="fas fa-cog"></i>Quay về trang Home</a>
-    </div>
+      <div class="sidebar-header">
+          Admin Dashboard
+      </div>
+      <div class="sidebar-nav">
+          <a th:href="@{/admin/dashboard}" ><i class="fas fa-home"></i> Tổng Quan</a>
+          <a th:href="@{/admin/manage-admin}"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
+          <a th:href="@{/admin/manage-offline}"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Offline</a>
+          <a th:href="@{/admin/import-orders}"><i class="fas fa-warehouse"></i> Quản Lý Đơn Hàng Nhập</a>
+          <a th:href="@{/admin/accounts}" ><i class="fas fa-users"></i> Quản Lý Tài Khoản</a>
+          <a th:href="@{/admin/ManageProducts}" ><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+          <a th:href="@{/}" ><i class="fas fa-cog"></i>Quay về trang Home</a>
+          <a th:href="@{/logout}" method="post"><i class="fa fa-sign-out"></i> Đăng xuất</a>
+      </div>
   </div>
 
   <div class="main-content">

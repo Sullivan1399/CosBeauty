@@ -73,7 +73,7 @@
             padding: 20px 0; 
             text-align: center;
             margin-top: -50px; 
-            margin-bottom: -10px;
+            margin-bottom: 10px;
             height: 180px;
         }
         
@@ -748,11 +748,14 @@
                 <div class="col-lg-9">
                     <div class="hero__search">
                         <div class="hero__search__form">
-                            <form action="#">
-                                <input type="text" placeholder="What do you need?">
-                                <button type="submit" class="site-btn">SEARCH</button>
-                            </form>
-                        </div>
+						  <form th:action="@{/web/shop-grid}" method="get">
+						    <input type="text"
+						           name="keyword"
+						           placeholder="Bạn cần gì?" 
+						           th:value="${keyword}" />
+						    <button type="submit" class="site-btn">SEARCH</button>
+						  </form>
+						</div>
                         <div class="hero__search__phone">
                             <div class="hero__search__phone__icon">
                                 <i class="fa fa-phone"></i>
@@ -800,14 +803,14 @@
                     
                     <h3 th:text="'Giá: ' + ${@formatter.formatPrice(product.price)} " style="margin-top:10px; margin-bottom: 10px;"></h3>
                     
-                    <div class="product__details__quantity">
-                        <div class="quantity">
-                            <div class="pro-qty">
-                                <input type="text" value="1">
-                            </div>
+					<div class="product__details__quantity">
+                        <div class="pro-qty">
+                          <input type="number" value="1" th:id="'quantity-' + ${product.getProductID()}"
+                                 class="quantity-input" th:attr="data-max=${product.getQuantity()}"
+                                 min="1"  />
                         </div>
-                    </div>
-                    <form th:action="@{/api/cart/add/{id}(id=${product.productID})}" method="post" style="display:inline;">
+                      </div>
+					<form th:action="@{/api/cart/add/{id}(id=${product.productID})}" method="post" id="addToCartForm" style="display:inline;">
 					    <button type="submit" class="primary-btn">ADD TO CART</button>
 					</form>
                     
@@ -817,6 +820,7 @@
                         <li><b>Hãng</b> <span th:text="${product.supplier.getSupName()}"></span></li>
                     </ul>
                 </div>
+                <span style="color:red; font-size:13px;">(Cửa hàng không hỗ trợ hoàn trả dưới mọi hình thức)</span>
             </div>
             <div class="col-lg-12">
                 <div class="product__details__tab">
@@ -1181,6 +1185,56 @@
                 });
             }
         });
+        
+        $(function() {
+          // Khi nhấn + hoặc - trên bất kỳ item nào
+          $('.pro-qty').each(function() {
+            var $container = $(this);
+            var $input = $container.find('.quantity-input');
+            var maxQty = parseInt($input.attr('data-max'), 10) || 1;
+
+            // Nút tăng
+            $container.find('.inc').click(function(e) {
+              e.preventDefault();
+              var current = parseInt($input.val(), 10) || 1;
+              if (current < maxQty) {
+                $input.val(current + 1);
+              }
+            });
+
+            // Nút giảm
+            $container.find('.dec').click(function(e) {
+              e.preventDefault();
+              var current = parseInt($input.val(), 10) || 1;
+              if (current > 1) {
+                $input.val(current - 1);
+              }
+            });
+
+            // Chỉ cho nhập số, enforce min/max khi tự nhập
+            $input.on('input', function() {
+              var val = $(this).val().replace(/\D/g, '');
+              var num = parseInt(val, 10);
+              if (isNaN(num) || num < 1) num = 1;
+              else if (num > maxQty) num = maxQty;
+              $(this).val(num);
+            });
+          });
+
+          // Khi bấm nút Add to Cart (hoặc cập nhật giỏ hàng),
+          // bạn lấy giá trị của mỗi input và gửi lên server
+          $('#updateCartButton').click(function() {
+            var quantities = {};
+            $('.quantity-input').each(function() {
+              var productId = this.id.split('-')[1]; // từ "quantity-123" => "123"
+              quantities[productId] = parseInt($(this).val(), 10) || 1;
+            });
+            // Ví dụ: gửi AJAX hoặc đặt vào form ẩn rồi submit
+            console.log('Quantities to send:', quantities);
+            // TODO: AJAX POST tới endpoint cập nhật giỏ hàng
+          });
+        });
+
 </script>
 
 </body>

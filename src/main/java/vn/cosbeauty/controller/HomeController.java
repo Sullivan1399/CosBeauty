@@ -79,15 +79,35 @@ public class HomeController {
 
     @GetMapping("/web/shop-grid")
     public String shopGrid(Model model,
+    		@RequestParam(value="keyword", required=false, defaultValue="") String keyword,
     		@RequestParam(value="page", required=false, defaultValue="1") int page,
     		HttpServletRequest request) {
     	List<Category> categories = categoryService.getAllCategory();
-    	Page<Product> products = productService.getProductHome(page, 10);
+    	Page<Product> products = productService.searchProducts(keyword, page, 10);
     	List<Product> productOfCurrentPage = products.getContent();
         List<Supplier> suppliers = supplierService.getAllSupplier();
         List<Product> topSellingProducts = productService.getTopSellingProducts();
+        List<CartItem> cartItems;
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        if (customerService.isCustomer()) {
+            Long id = customerService.getCurrentCustomerID();
+            cartItems = cartService.getCartItemsByCustomerId(id);
+             totalAmount = cartItems.stream()
+                    .map(item -> {
+                        BigDecimal price = BigDecimal.valueOf(item.getProduct().getPrice());
+                        BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
+                        BigDecimal discountPercent = BigDecimal.valueOf( item.getProduct().getDiscount() );
+                        BigDecimal discountMultiplier = BigDecimal.ONE.subtract(discountPercent.divide(BigDecimal.valueOf(100)));
 
+                        return price.multiply(quantity).multiply(discountMultiplier);
+                    })
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        } else {
+            cartItems = Collections.emptyList();
+        }
 
+        model.addAttribute("cartItems", cartItems);
+        model.addAttribute("totalAmount", totalAmount);
         // Truyền danh sách sản phẩm vào model để hiển thị trong view
         model.addAttribute("topSellingProducts", topSellingProducts);
         model.addAttribute("suppliers", suppliers);

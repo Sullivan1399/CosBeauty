@@ -56,4 +56,39 @@ public class OfflineController {
 		model.addAttribute("offOrderDetails", offOrderDetails);
 		return "employee/offline-detail";
 	}
+	
+	
+	@GetMapping("/admin/manage-offline")
+	public String manageOfflineOrderForAd(Model model,
+			@RequestParam(value = "keyword", required = false, defaultValue = "") String keyword) {
+		List<OfflineOrder> offlineOrders;
+		if (keyword == null) {
+			offlineOrders = offlineOrderService.getAllOffOrder();
+		} else {
+			offlineOrders = offlineOrderService.searchOrders(keyword);
+		}
+		model.addAttribute("offOrders", offlineOrders);
+		model.addAttribute("keyword", keyword);
+		model.addAttribute("hasResults", !offlineOrders.isEmpty());
+		
+		return "admin/manage-offline";
+	}
+//	
+//	@GetMapping("/admin/create-offline-order")
+//    public String formCreateOffOrderForAd(Model model) {
+//		int id = employeeService.getCurrentEmployeeID();
+//    	String name = employeeService.getCurrentEmployeeName();
+//    	model.addAttribute("employeeId", id);
+//    	model.addAttribute("employeeName", name);
+//        return "admin/offline-order";
+//    }
+	
+	@GetMapping("/admin/offline-detail/{id}")
+	public String formOffOrderDetailForAd(@PathVariable Long id, Model model) {
+		OfflineOrder offlineOrder = offlineOrderService.getOrderById(id);
+		List<OffOrderDetail> offOrderDetails = offlineOrderService.getOffOrderDetail(id);
+		model.addAttribute("order", offlineOrder);
+		model.addAttribute("offOrderDetails", offOrderDetails);
+		return "admin/offline-detail";
+	}
 }

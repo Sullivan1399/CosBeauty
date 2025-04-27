@@ -27,7 +27,7 @@ public class SecurityConfig {
 	@Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-//        	.csrf(csrf -> csrf.disable())
+        	.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                 		"/",
@@ -57,7 +57,7 @@ public class SecurityConfig {
 								response.sendRedirect("/admin/dashboard");
 								return;
 							} else if (role.equals("ROLE_EMPLOYEE")) {
-								response.sendRedirect("/employee/import-orders");
+								response.sendRedirect("/employee/manage-offline");
 								return;
 							}
 						}

@@ -121,21 +121,29 @@ public class OfflineRestController {
         order.setPaymentType(orderRequest.getPaymentType());
         order.setNote(orderRequest.getNote());
         order.setOrderDate(LocalDateTime.now());
-
+        
         // Tạo danh sách OffOrderDetail
         List<OffOrderDetail> details = new ArrayList<>();
         for (OffOrderItemDTO item : orderRequest.getItems()) {
             Product product = productRepository.findById(item.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product not found"));
+            int quantity = item.getQuantity();
+            int currentStock = product.getQuantity();
+            if (currentStock < quantity) {
+                throw new RuntimeException("Sản phẩm " + product.getProductName() + " không đủ hàng.");
+            }
+            product.setQuantity(currentStock - quantity);
+            
+            productRepository.save(product);
             OffOrderDetail detail = new OffOrderDetail();
             detail.setOfflineOrder(order);
             detail.setProduct(product);
-            detail.setQuantity(item.getQuantity());
+            detail.setQuantity(quantity);
             detail.setCost(item.getCost());
             details.add(detail);
         }
         order.setOfflineDetails(details);
-
+        
         // Lưu đơn hàng
         OfflineOrder savedOrder = offlineOrderRepository.save(order);
         

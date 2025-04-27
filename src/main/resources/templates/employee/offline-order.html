@@ -472,29 +472,14 @@
           <ul id="suggestions" class="list-group"></ul>
         </div>
       </div>
+ 	<div class="user-menu">
+     <a style="color:white; text-decoration: none; font-weight:Bold; font-size:16px;" th:href="@{/employee/manage-offline}">
+     	<i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Offline
+     </a>
+    </div>
       
-      <div class="user-menu">
-        <a href="#" class="dropdown-toggle" id="accountDropdown">
-          <i class="fas fa-user"></i> Tài khoản của tôi
-        </a>
-        <div class="dropdown-menu" aria-labelledby="accountDropdown">
-          <a th:href="@{/employee/formProfile}">
-            <i class="fas fa-user"></i> Thông tin cá nhân
-          </a>
-          <a th:href="@{/employee/form_changePassword}">
-            <i class="fas fa-key"></i> Đổi mật khẩu
-          </a>
-          <a th:href="@{/employee/bill}">
-            <i class="fas fa-file-invoice"></i> Quản lý hóa đơn
-          </a>
-          <div class="dropdown-divider"></div>
-          <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn">
-              <i class="fas fa-sign-out-alt"></i> Đăng xuất
-            </button>
-          </form>
-        </div>
-      </div>
+          
+          
     </div>
   </div>
   

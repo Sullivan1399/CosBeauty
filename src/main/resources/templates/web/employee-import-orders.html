@@ -264,14 +264,16 @@
 <div class="container-fluid">
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      Employee Dashboard
-    </div>
-    <div class="sidebar-nav">
-      <a href="#" data-section="overview"><i class="fas fa-home"></i> Tổng Quan</a>
-      <a th:href="@{/employee/import-orders}" ><i class="fas fa-users"></i> Quản Lý Đơn Hàng Nhập</a>
-      <a th:href="@{/}" ><i class="fas fa-users"></i> Quay về trang Home</a>
-    </div>
+      <div class="sidebar-header">
+          Employee Dashboard
+      </div>
+      <div class="sidebar-nav">
+          <a th:href="@{/employee/manage-offline}" ><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Offline</a>
+          <a th:href="@{/employee/import-orders}" ><i class="fas fa-warehouse"></i> Quản Lý Đơn Hàng Nhập</a>
+          <a th:href="@{/api/employee/profile}" ><i class="fas fa-user"></i> Thông tin tài khoản</a>
+          <a th:href="@{/}" ><i class="fas fa-home"></i> Quay về trang Home</a>
+          <a th:href="@{/logout}" method="post"><i class="fa fa-sign-out"></i> Đăng xuất</a>
+      </div>
   </div>
 
   <!-- Main Content -->

@@ -25,7 +25,8 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    public Page<Product> searchProducts(String productName, Pageable pageable) {
+    public Page<Product> searchProducts(String productName, int page, int size) {
+    	Pageable pageable = PageRequest.of(page-1, size);
         return productRepository.findByProductNameContainingIgnoreCase(productName, pageable);
     }
     public List<Product> getTopSellingProducts() {
@@ -66,7 +67,7 @@ public class ProductService {
     public void updateProduct(Product product) {
     	productRepository.save(product);
     }
-    public Page<Product> searchProducts(String keyword, int page, int size) {
+    public Page<Product> searchProduct2(String keyword, int page, int size) {
     	Pageable pageable = PageRequest.of(page-1, size);
         return productRepository.findProductsByProductName(keyword,pageable);
     }
@@ -101,13 +102,13 @@ public class ProductService {
     	return productRepository.getListProduct_outOfStock(pageable);
     }
     
-    public List<String> getProductCategory(Long productID) {
-    	return productRepository.getProductCategory(productID);
-    }
-    
-    public List<String> getProductSupplier(Long productID) {
-    	return productRepository.getProductSupplier(productID);
-    }
+//    public List<String> getProductCategory(Long productID) {
+//    	return productRepository.getProductCategory(productID);
+//    }
+//    
+//    public List<String> getProductSupplier(Long productID) {
+//    	return productRepository.getProductSupplier(productID);
+//    }
     
     public List<OffDetailDTO> searchByName(String keyword) {
         return productRepository.findByProductNameContainingIgnoreCase(keyword)

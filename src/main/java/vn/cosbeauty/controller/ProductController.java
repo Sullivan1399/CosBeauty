@@ -245,6 +245,7 @@ public class ProductController {
             model.addAttribute("error", "Sản phẩm không tồn tại");
             return "error-page";
         }
+        model.addAttribute("quantities", product.getQuantity());
         List<Comment> comments = commentService.getCommentsForProduct(product);
         if (comments == null) {
             comments = new ArrayList<>();
