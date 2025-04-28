@@ -1,4 +1,5 @@
 package vn.cosbeauty.controller;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -116,6 +117,22 @@ public class CartController {
         Long customerid = customerService.getCurrentCustomerID();
         cartService.addToCart(customerid, id);
         redirectAttributes.addFlashAttribute("message", "Sản phẩm đã được thêm vào giỏ hàng!");
+        return "redirect:/";
+    }
+    @PostMapping("/add2/{id}")
+    public String addToCart2(@PathVariable String id,
+                            @RequestParam("quantity") Integer quantity,
+                            RedirectAttributes redirectAttributes) {
+        Long productID = Long.parseLong(id);
+        Long customerId = customerService.getCurrentCustomerID();
+        System.out.println(productID);
+        System.out.println(customerId);
+        if (quantity < 1) {
+            redirectAttributes.addFlashAttribute("error", "Số lượng sản phẩm phải lớn hơn 0!");
+            return "redirect:/";
+        }
+        cartService.addToCart(customerId, productID, quantity);
+        redirectAttributes.addFlashAttribute("message", "Đã thêm " + quantity + " sản phẩm vào giỏ hàng!");
         return "redirect:/";
     }
 
