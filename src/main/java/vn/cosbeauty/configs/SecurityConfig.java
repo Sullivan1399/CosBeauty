@@ -40,8 +40,7 @@ public class SecurityConfig {
 								"/public/**",
 								"/profile",
 								"/",
-								"/login",
-								"/logout"
+								"/index"
 						)
 				)
             .authorizeHttpRequests(auth -> auth
