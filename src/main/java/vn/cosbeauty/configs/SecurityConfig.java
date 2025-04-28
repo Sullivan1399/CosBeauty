@@ -1,5 +1,6 @@
 package vn.cosbeauty.configs;
 
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
 //        	.csrf(csrf -> csrf.disable())
+				.sessionManagement(session -> session
+						.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+				)
 				.csrf(csrf -> csrf
 						.ignoringRequestMatchers(
 								"/web/**",
@@ -41,9 +45,11 @@ public class SecurityConfig {
 								"/public/**",
 								"/profile",
 								"/",
-
 								"/index",
-								"/shop-grid"
+								"/login",
+								"/logout",
+								"/add-to-cart",
+								"/cart/add"
 						)
 				)
 				.authorizeHttpRequests(auth -> auth
