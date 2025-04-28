@@ -47,7 +47,6 @@ public class SecurityConfig {
 								"/",
 								"/index",
 								"/login",
-								"/logout",
 								"/add-to-cart",
 								"/cart/add"
 						)
