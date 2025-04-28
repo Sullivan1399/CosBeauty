@@ -136,17 +136,35 @@ public class OnlineController {
         model.addAttribute("orderDetails", orderDetails);
         return "web/admin-detail";
     }
+    @GetMapping("/employee/admin-detail/{id}")
+    public String getOrderDetailAsEmployee(@PathVariable Long id, Model model) {
+        OnlineOrder order = onlineService.getOrderById(id);
+        List<OnOrderDetail> orderDetails = onlineService.getOrderDetailsByOrderId(id);
+        model.addAttribute("order", order);
+        model.addAttribute("orderDetails", orderDetails);
+        return "employee/admin-detail";
+    }
 
     @PostMapping("/admin/confirm/{id}")
     public String confirmOrder(@PathVariable Long id) {
         onlineService.confirmOrder(id);
         return "redirect:/admin/manage-admin";
     }
+    @PostMapping("/employee/confirm/{id}")
+    public String confirmOrderAsEmployee(@PathVariable Long id) {
+        onlineService.confirmOrder(id);
+        return "redirect:/employee/manage-admin";
+    }
 
     @PostMapping("/admin/cancel/{id}")
     public String cancelOrder(@PathVariable Long id, @RequestParam("cancelReason") String cancelReason) {
         onlineService.cancelOrder(id, cancelReason);
         return "redirect:/admin/manage-admin";
+    }
+    @PostMapping("/employee/cancel/{id}")
+    public String cancelOrderAsEmployee(@PathVariable Long id, @RequestParam("cancelReason") String cancelReason) {
+        onlineService.cancelOrder(id, cancelReason);
+        return "redirect:/employee/manage-admin";
     }
     @PostMapping("/admin/update-delivery/{id}")
     public String updateDeliveryStatus(@PathVariable Long id, @RequestParam int deliveryStatus, RedirectAttributes redirectAttributes) {
@@ -159,8 +177,49 @@ public class OnlineController {
         }
         return "redirect:/admin/manage-admin";
     }
-    @GetMapping("/admin/manage-admin")
+    @PostMapping("/employee/update-delivery/{id}")
+    public String updateDeliveryStatusAsEmployee(@PathVariable Long id, @RequestParam int deliveryStatus, RedirectAttributes redirectAttributes) {
+        try {
+            onlineService.updateDeliveryStatus(id, deliveryStatus);
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái giao hàng thành công!");
+
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/employee/manage-admin";
+    }
+//    @GetMapping({"/admin/manage-admin", "/employee/manage-admin"})
+
+    @GetMapping("/employee/manage-admin")
     public String manageAdmin(
+            @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
+            @RequestParam(value = "status", required = false, defaultValue = "") String status,
+            Model model) {
+        List<OnlineOrder> orders;
+
+        // Nếu không có keyword và status, lấy tất cả đơn hàng
+        if ((keyword == null || keyword.trim().isEmpty()) && (status == null || status.isEmpty())) {
+            orders = onlineService.getAllOnlineOrder();
+        } else {
+            // Lấy danh sách theo trạng thái hoặc tất cả nếu status rỗng
+            orders = status != null && !status.isEmpty() ? onlineService.filterOrders(status) : onlineService.getAllOnlineOrder();
+
+            // Áp dụng tìm kiếm nếu có keyword
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                List<OnlineOrder> searchedOrders = onlineService.searchOrders(keyword);
+                orders.retainAll(searchedOrders); // Giữ đơn hàng thỏa mãn cả lọc và tìm kiếm
+            }
+        }
+
+        model.addAttribute("orders", orders);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("status", status);
+        model.addAttribute("hasResults", !orders.isEmpty());
+
+        return "employee/Manage-admin";
+    }
+    @GetMapping("/admin/manage-admin")
+    public String manageAdminAsAdmin(
             @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
             @RequestParam(value = "status", required = false, defaultValue = "") String status,
             Model model) {
