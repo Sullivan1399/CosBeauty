@@ -802,15 +802,14 @@
                     </div>
                     
                     <h3 th:text="'Giá: ' + ${@formatter.formatPrice(product.price)} " style="margin-top:10px; margin-bottom: 10px;"></h3>
-                    
-					<div class="product__details__quantity">
-                        <div class="pro-qty">
-                          <input type="number" value="1" th:id="'quantity-' + ${product.getProductID()}"
-                                 class="quantity-input" th:attr="data-max=${product.getQuantity()}"
-                                 min="1"  />
+                    <form th:action="@{/api/cart/add2/{id}(id=${product.productID})}" method="post" id="addToCartForm" style="display:inline;">
+                        <div class="product__details__quantity">
+                            <div class="pro-qty">
+                              <input type="number" name="quantity" value="1" th:id="'quantity-' + ${product.getProductID()}"
+                                     class="quantity-input" th:attr="data-max=${product.getQuantity()}"
+                                     min="1"  />
+                            </div>
                         </div>
-                      </div>
-					<form th:action="@{/api/cart/add/{id}(id=${product.productID})}" method="post" id="addToCartForm" style="display:inline;">
 					    <button type="submit" class="primary-btn">ADD TO CART</button>
 					</form>
                     

@@ -14,13 +14,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletRequest;
 import vn.cosbeauty.DTO.ProductDTO;
-import vn.cosbeauty.entity.Category;
-import vn.cosbeauty.entity.Comment;
-import vn.cosbeauty.entity.Product;
-import vn.cosbeauty.entity.Supplier;
+import vn.cosbeauty.entity.*;
 import vn.cosbeauty.service.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +35,10 @@ public class ProductController {
     private FileService fileService;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private CustomerService customerService;
+    @Autowired
+    private CartService cartService;
 
     @GetMapping("/products/category/{categoryId}")
     public String getProductsByCategory(@PathVariable Long categoryId,
@@ -55,6 +58,27 @@ public class ProductController {
         List<Supplier> suppliers = supplierService.getAllSupplier();
 
         List<Product> topSellingProducts = productService.getTopSellingProducts();
+        List<CartItem> cartItems;
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        if (customerService.isCustomer()) {
+            Long id = customerService.getCurrentCustomerID();
+            cartItems = cartService.getCartItemsByCustomerId(id);
+            totalAmount = cartItems.stream()
+                    .map(item -> {
+                        BigDecimal price = BigDecimal.valueOf(item.getProduct().getPrice());
+                        BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
+                        BigDecimal discountPercent = BigDecimal.valueOf( item.getProduct().getDiscount() );
+                        BigDecimal discountMultiplier = BigDecimal.ONE.subtract(discountPercent.divide(BigDecimal.valueOf(100)));
+
+                        return price.multiply(quantity).multiply(discountMultiplier);
+                    })
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        } else {
+            cartItems = Collections.emptyList();
+        }
+
+        model.addAttribute("cartItems", cartItems);
+        model.addAttribute("totalAmount", totalAmount);
 
         // Truyền danh sách sản phẩm vào model để hiển thị trong view
         model.addAttribute("topSellingProducts", topSellingProducts);
@@ -89,6 +113,27 @@ public class ProductController {
         List<Supplier> suppliers = supplierService.getAllSupplier();
 
         List<Product> topSellingProducts = productService.getTopSellingProducts();
+        List<CartItem> cartItems;
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        if (customerService.isCustomer()) {
+            Long id = customerService.getCurrentCustomerID();
+            cartItems = cartService.getCartItemsByCustomerId(id);
+            totalAmount = cartItems.stream()
+                    .map(item -> {
+                        BigDecimal price = BigDecimal.valueOf(item.getProduct().getPrice());
+                        BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
+                        BigDecimal discountPercent = BigDecimal.valueOf( item.getProduct().getDiscount() );
+                        BigDecimal discountMultiplier = BigDecimal.ONE.subtract(discountPercent.divide(BigDecimal.valueOf(100)));
+
+                        return price.multiply(quantity).multiply(discountMultiplier);
+                    })
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        } else {
+            cartItems = Collections.emptyList();
+        }
+
+        model.addAttribute("cartItems", cartItems);
+        model.addAttribute("totalAmount", totalAmount);
 
         // Truyền danh sách sản phẩm vào model để hiển thị trong view
         model.addAttribute("topSellingProducts", topSellingProducts);

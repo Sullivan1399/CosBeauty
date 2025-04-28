@@ -2,6 +2,8 @@ package vn.cosbeauty.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import vn.cosbeauty.entity.CartID;
 import vn.cosbeauty.entity.CartItem;
 import vn.cosbeauty.entity.Customer;
@@ -25,6 +27,39 @@ public class CartService {
     private ProductRepository productRepository;
     @Autowired
     private CustomerRepository customerRepository;
+    @Transactional
+    public void addToCart(Long customerId, Long productId, int quantity) {
+        // Tìm sản phẩm
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại: " + productId));
+
+        // Kiểm tra số lượng tồn kho
+        if (product.getQuantity() < quantity) {
+            throw new IllegalArgumentException("Số lượng yêu cầu vượt quá tồn kho: " + product.getQuantity());
+        }
+
+        // Tạo CartID để tìm CartItem
+        CartID cartID = new CartID(customerId, productId);
+        Optional<CartItem> existingItem = cartItemRepository.findById(cartID);
+
+        if (existingItem.isPresent()) {
+            // Nếu sản phẩm đã có trong giỏ hàng, tăng số lượng
+            CartItem item = existingItem.get();
+            int newQuantity = item.getQuantity() + quantity;
+            if (newQuantity > product.getQuantity()) {
+                throw new IllegalArgumentException("Tổng số lượng vượt quá tồn kho: " + product.getQuantity());
+            }
+            item.setQuantity(newQuantity);
+            cartItemRepository.save(item);
+        } else {
+            // Nếu sản phẩm chưa có, tạo mới CartItem
+            CartItem newItem = new CartItem();
+            newItem.setCustomerID(customerId);
+            newItem.setProductID(productId);
+            newItem.setQuantity(quantity);
+            cartItemRepository.save(newItem);
+        }
+    }
     public void clearCartByCustomerId(Long customerId) {
         cartItemRepository.deleteCartByCustomerId(customerId);
     }

@@ -649,7 +649,7 @@
                                 <div class="latest-product__slider owl-carousel">
                                     <!-- Lặp qua danh sách sản phẩm bán chạy nhất -->
                                     <div th:each="product : ${topSellingProducts}" class="latest-prdouct__slider__item">
-                                        <a href="#" class="latest-product__item">
+                                        <a th:href="@{/web/product/{id}(id=${product.getProductID()})}" class="latest-product__item">
                                             <div class="latest-product__item__pic">
                                                 <!-- Hiển thị ảnh sản phẩm -->
                                                 <img th:src="@{'/images/' + ${product.imageUrl}}" alt="Product Image">
