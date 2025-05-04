@@ -144,6 +144,15 @@ public class CustomerController {
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid phone number"));
         }
 
+        // Kiểm tra số điện thoại trùng lặp
+        if (request.getPhone() != null && !request.getPhone().trim().isEmpty()) {
+            Customer existingCustomerWithPhone = customerRepository.findByPhone(request.getPhone().trim());
+            if (existingCustomerWithPhone != null && !existingCustomerWithPhone.getCustomerID().equals(customer.getCustomerID())) {
+                logger.warn("Số điện thoại {} đã được sử dụng", request.getPhone());
+                return ResponseEntity.badRequest().body(Map.of("message", "Số điện thoại đã được sử dụng"));
+            }
+        }
+
         customer.setName(request.getName().trim());
         customer.setAddress(request.getAddress() != null ? request.getAddress().trim() : "");
         customer.setPhone(request.getPhone() != null ? request.getPhone().trim() : "");

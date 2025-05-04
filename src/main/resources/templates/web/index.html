@@ -448,6 +448,7 @@
                             </li>
                         </ul>
                         <div class="header__cart__price" th:text="${@formatter.formatPrice(totalAmount)}"></div>
+
                     </div>
                 </div>
             </div>
@@ -536,7 +537,11 @@
                             	<img th:src="@{'/images/' + ${product.imageUrl}}" alt="" style="width: auto; height: 250px; object-fit: contain; padding: 0.5px;">
                             </div>
                             <h5 class="product-title mt-2" th:text="${product.getProductName()}"></h5>
-                            <p class="product-price" th:text="${'Giá: '+@formatter.formatPrice(product.getPrice())} " style="color: black; font-weight: bold"></p>
+                                <p class="product-price" th:text="${'Giá: '+@formatter.formatPrice(product.getPrice())} " style="color: black; font-weight: bold; text-decoration: line-through;"></p>
+                                <p class="product-price"
+                                   th:text="'Giá: ' + ${@formatter.formatPrice(product.price * (1 - product.discount / 100.0))}"
+                                   style="color: black; font-weight: bold">
+                                </p>
                             </a>
                         </div>
                     </div>
@@ -581,7 +586,11 @@
                         </a>
                         <div class="featured__item__text">
                             <h6><a href="#" th:text="${product.getProductName()}"></a></h6>
-                            <h5 th:text="${'Giá: '+@formatter.formatPrice(product.getPrice())}"></h5>
+                            <p class="product-price" th:text="${'Giá: '+@formatter.formatPrice(product.getPrice())} " style="color: black; font-weight: bold; text-decoration: line-through;"></p>
+                            <p class="product-price"
+                               th:text="'Giá: ' + ${@formatter.formatPrice(product.price * (1 - product.discount / 100.0))}"
+                               style="color: black; font-weight: bold">
+                            </p>
                         </div>
                     </div>
                 </div>

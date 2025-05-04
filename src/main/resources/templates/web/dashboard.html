@@ -228,21 +228,21 @@
 <body>
 <div class="container-fluid">
     <!-- Sidebar -->
-     <div class="sidebar" id="sidebar">
-         <div class="sidebar-header">
-             Admin Dashboard
-         </div>
-         <div class="sidebar-nav">
-             <a th:href="@{/admin/dashboard}" ><i class="fas fa-home"></i> Tổng Quan</a>
-             <a th:href="@{/admin/manage-admin}" ><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
-             <a th:href="@{/admin/manage-offline}"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Offline</a>
-             <a th:href="@{/admin/import-orders}"><i class="fas fa-warehouse"></i> Quản Lý Đơn Hàng Nhập</a>
-             <a th:href="@{/admin/accounts}" ><i class="fas fa-users"></i> Quản Lý Tài Khoản</a>
-             <a th:href="@{/admin/ManageProducts}" ><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
-             <a th:href="@{/}" ><i class="fas fa-cog"></i>Quay về trang Home</a>
-             <a th:href="@{/logout}" method="post"><i class="fa fa-sign-out"></i> Đăng xuất</a>
-         </div>
-     </div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            Admin Dashboard
+        </div>
+        <div class="sidebar-nav">
+            <a th:href="@{/admin/dashboard}" ><i class="fas fa-home"></i> Tổng Quan</a>
+            <a th:href="@{/admin/manage-admin}" ><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Online</a>
+            <a th:href="@{/admin/manage-offline}"><i class="fas fa-shopping-cart"></i> Quản Lý Đơn Hàng Offline</a>
+            <a th:href="@{/admin/import-orders}"><i class="fas fa-warehouse"></i> Quản Lý Đơn Hàng Nhập</a>
+            <a th:href="@{/admin/accounts}" ><i class="fas fa-users"></i> Quản Lý Tài Khoản</a>
+            <a th:href="@{/admin/ManageProducts}" ><i class="fas fa-box"></i> Quản Lý Sản Phẩm</a>
+            <a th:href="@{/}" ><i class="fas fa-cog"></i>Quay về trang Home</a>
+            <a th:href="@{/logout}" method="post"><i class="fa fa-sign-out"></i> Đăng xuất</a>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -442,6 +442,9 @@
             sectionId = 'overview';
         }
         showSection(sectionId);
+        // Bắt đầu cập nhật dữ liệu
+        fetchDashboardData();
+        setInterval(fetchDashboardData, 1000); // Cập nhật mỗi giây
     });
 
     window.addEventListener('popstate', (event) => {
@@ -459,57 +462,80 @@
         bsToast.show();
     }
 
-    // Show loading spinner
-    const loading = document.getElementById('loading');
-    const error = document.getElementById('error');
-    const orderStats = document.getElementById('order-stats');
-    const charts = document.getElementById('charts');
-    loading.style.display = 'block';
-    orderStats.style.display = 'none';
-    charts.style.display = 'none';
+    // Hàm lấy và cập nhật dữ liệu dashboard
+    function fetchDashboardData() {
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const orderStats = document.getElementById('order-stats');
+        const charts = document.getElementById('charts');
 
-    // Fetch dashboard data
-    fetch('/admin/dashboard/data')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Dashboard data:', JSON.stringify(data, null, 2));
+        // Chỉ hiển thị loading spinner lần đầu
+        if (!fetchDashboardData.hasRun) {
+            loading.style.display = 'block';
+            orderStats.style.display = 'none';
+            charts.style.display = 'none';
+        }
 
-            // Hide loading spinner and show content
-            loading.style.display = 'none';
-            orderStats.style.display = 'flex';
-            charts.style.display = 'grid';
-
-            // Update order statistics
-            try {
-                document.getElementById('pending-count').textContent = data.orderStats.pending?.count || 0;
-                document.getElementById('confirmed-count').textContent = data.orderStats.confirmed?.count || 0;
-                document.getElementById('canceled-count').textContent = data.orderStats.canceled?.count || 0;
-                document.getElementById('processing-count').textContent = data.orderStats.processing?.count || 0;
-                document.getElementById('delivering-count').textContent = data.orderStats.delivering?.count || 0;
-                document.getElementById('success-count').textContent = data.orderStats.success?.count || 0;
-                document.getElementById('failed-count').textContent = data.orderStats.failed?.count || 0;
-            } catch (e) {
-                console.error('Error updating order stats:', e);
-                showToast('Lỗi khi hiển thị thống kê đơn hàng', 'danger');
-            }
-
-            // Top Categories Chart (Horizontal Bar, 1-10 Labels)
-            const topCategoriesCanvas = document.getElementById('topCategoriesChart');
-            const topCategoriesNoData = document.getElementById('topCategoriesNoData');
-            if (data.topCategories && Array.isArray(data.topCategories) && data.topCategories.length > 0) {
-                topCategoriesNoData.style.display = 'none';
-                topCategoriesCanvas.style.display = 'block';
-                // Pad data to ensure 10 bars
-                const topCatData = data.topCategories.slice(0, 10);
-                while (topCatData.length < 10) {
-                    topCatData.push({ name: 'N/A', sales: 0 });
+        fetch('/admin/dashboard/data')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
                 }
-                new Chart(topCategoriesCanvas.getContext('2d'), {
+                return response.json();
+            })
+            .then(data => {
+                console.log('Dashboard data:', JSON.stringify(data, null, 2));
+
+                // Ẩn loading spinner và hiển thị nội dung
+                loading.style.display = 'none';
+                orderStats.style.display = 'flex';
+                charts.style.display = 'grid';
+
+                // Cập nhật thống kê đơn hàng
+                try {
+                    document.getElementById('pending-count').textContent = data.orderStats.pending?.count || 0;
+                    document.getElementById('confirmed-count').textContent = data.orderStats.confirmed?.count || 0;
+                    document.getElementById('canceled-count').textContent = data.orderStats.canceled?.count || 0;
+                    document.getElementById('processing-count').textContent = data.orderStats.processing?.count || 0;
+                    document.getElementById('delivering-count').textContent = data.orderStats.delivering?.count || 0;
+                    document.getElementById('success-count').textContent = data.orderStats.success?.count || 0;
+                    document.getElementById('failed-count').textContent = data.orderStats.failed?.count || 0;
+                } catch (e) {
+                    console.error('Error updating order stats:', e);
+                    showToast('Lỗi khi hiển thị thống kê đơn hàng', 'danger');
+                }
+
+                // Cập nhật biểu đồ
+                updateCharts(data);
+                fetchDashboardData.hasRun = true;
+            })
+            .catch(error => {
+                console.error('Error fetching dashboard data:', error);
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                showToast('Lỗi khi tải dữ liệu dashboard. Kiểm tra kết nối cơ sở dữ liệu.', 'danger');
+            });
+    }
+
+    fetchDashboardData.hasRun = false;
+
+    // Hàm cập nhật biểu đồ
+    function updateCharts(data) {
+        // Top Categories Chart
+        const topCategoriesCanvas = document.getElementById('topCategoriesChart');
+        const topCategoriesNoData = document.getElementById('topCategoriesNoData');
+        if (data.topCategories && Array.isArray(data.topCategories) && data.topCategories.length > 0) {
+            topCategoriesNoData.style.display = 'none';
+            topCategoriesCanvas.style.display = 'block';
+            const topCatData = data.topCategories.slice(0, 10);
+            while (topCatData.length < 10) {
+                topCatData.push({ name: 'N/A', sales: 0 });
+            }
+            if (topCategoriesCanvas.chart) {
+                topCategoriesCanvas.chart.data.datasets[0].data = topCatData.map(item => item.sales);
+                topCategoriesCanvas.chart.update();
+            } else {
+                topCategoriesCanvas.chart = new Chart(topCategoriesCanvas.getContext('2d'), {
                     type: 'bar',
                     data: {
                         labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
@@ -547,25 +573,28 @@
                         }
                     }
                 });
-            } else {
-                topCategoriesNoData.style.display = 'block';
-                topCategoriesCanvas.style.display = 'none';
             }
+        } else {
+            topCategoriesNoData.style.display = 'block';
+            topCategoriesCanvas.style.display = 'none';
+        }
 
-            // Bottom Categories Chart (Horizontal Bar, 1-10 Labels)
-            const bottomCategoriesCanvas = document.getElementById('bottomCategoriesChart');
-            const bottomCategoriesNoData = document.getElementById('bottomCategoriesNoData');
-            if (data.bottomCategories && Array.isArray(data.bottomCategories) && data.bottomCategories.length > 0) {
-                bottomCategoriesNoData.style.display = 'none';
-                bottomCategoriesCanvas.style.display = 'block';
-                // Pad data to ensure 10 bars
-                let bottomCatData = data.bottomCategories.slice(0, 10);
-                while (bottomCatData.length < 10) {
-                    bottomCatData.push({ name: 'N/A', sales: 0 });
-                }
-                // Reverse the data so the least-selling category is at the top
-                bottomCatData = bottomCatData.reverse();
-                new Chart(bottomCategoriesCanvas.getContext('2d'), {
+        // Bottom Categories Chart
+        const bottomCategoriesCanvas = document.getElementById('bottomCategoriesChart');
+        const bottomCategoriesNoData = document.getElementById('bottomCategoriesNoData');
+        if (data.bottomCategories && Array.isArray(data.bottomCategories) && data.bottomCategories.length > 0) {
+            bottomCategoriesNoData.style.display = 'none';
+            bottomCategoriesCanvas.style.display = 'block';
+            let bottomCatData = data.bottomCategories.slice(0, 10);
+            while (bottomCatData.length < 10) {
+                bottomCatData.push({ name: 'N/A', sales: 0 });
+            }
+            bottomCatData = bottomCatData.reverse();
+            if (bottomCategoriesCanvas.chart) {
+                bottomCategoriesCanvas.chart.data.datasets[0].data = bottomCatData.map(item => item.sales);
+                bottomCategoriesCanvas.chart.update();
+            } else {
+                bottomCategoriesCanvas.chart = new Chart(bottomCategoriesCanvas.getContext('2d'), {
                     type: 'bar',
                     data: {
                         labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
@@ -603,23 +632,27 @@
                         }
                     }
                 });
-            } else {
-                bottomCategoriesNoData.style.display = 'block';
-                bottomCategoriesCanvas.style.display = 'none';
             }
+        } else {
+            bottomCategoriesNoData.style.display = 'block';
+            bottomCategoriesCanvas.style.display = 'none';
+        }
 
-            // Top Products Chart (Horizontal Bar, 1-10 Labels)
-            const topProductsCanvas = document.getElementById('topProductsChart');
-            const topProductsNoData = document.getElementById('topProductsNoData');
-            if (data.topProducts && Array.isArray(data.topProducts) && data.topProducts.length > 0) {
-                topProductsNoData.style.display = 'none';
-                topProductsCanvas.style.display = 'block';
-                // Pad data to ensure 10 bars
-                const topProdData = data.topProducts.slice(0, 10);
-                while (topProdData.length < 10) {
-                    topProdData.push({ name: 'N/A', sales: 0 });
-                }
-                new Chart(topProductsCanvas.getContext('2d'), {
+        // Top Products Chart
+        const topProductsCanvas = document.getElementById('topProductsChart');
+        const topProductsNoData = document.getElementById('topProductsNoData');
+        if (data.topProducts && Array.isArray(data.topProducts) && data.topProducts.length > 0) {
+            topProductsNoData.style.display = 'none';
+            topProductsCanvas.style.display = 'block';
+            const topProdData = data.topProducts.slice(0, 10);
+            while (topProdData.length < 10) {
+                topProdData.push({ name: 'N/A', sales: 0 });
+            }
+            if (topProductsCanvas.chart) {
+                topProductsCanvas.chart.data.datasets[0].data = topProdData.map(item => item.sales);
+                topProductsCanvas.chart.update();
+            } else {
+                topProductsCanvas.chart = new Chart(topProductsCanvas.getContext('2d'), {
                     type: 'bar',
                     data: {
                         labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
@@ -657,25 +690,28 @@
                         }
                     }
                 });
-            } else {
-                topProductsNoData.style.display = 'block';
-                topProductsCanvas.style.display = 'none';
             }
+        } else {
+            topProductsNoData.style.display = 'block';
+            topProductsCanvas.style.display = 'none';
+        }
 
-            // Bottom Products Chart (Horizontal Bar, 1-10 Labels)
-            const bottomProductsCanvas = document.getElementById('bottomProductsChart');
-            const bottomProductsNoData = document.getElementById('bottomProductsNoData');
-            if (data.bottomProducts && Array.isArray(data.bottomProducts) && data.bottomProducts.length > 0) {
-                bottomProductsNoData.style.display = 'none';
-                bottomProductsCanvas.style.display = 'block';
-                // Pad data to ensure 10 bars
-                let bottomProdData = data.bottomProducts.slice(0, 10);
-                while (bottomProdData.length < 10) {
-                    bottomProdData.push({ name: 'N/A', sales: 0 });
-                }
-                // Reverse the data so the least-selling product is at the top
-                bottomProdData = bottomProdData.reverse();
-                new Chart(bottomProductsCanvas.getContext('2d'), {
+        // Bottom Products Chart
+        const bottomProductsCanvas = document.getElementById('bottomProductsChart');
+        const bottomProductsNoData = document.getElementById('bottomProductsNoData');
+        if (data.bottomProducts && Array.isArray(data.bottomProducts) && data.bottomProducts.length > 0) {
+            bottomProductsNoData.style.display = 'none';
+            bottomProductsCanvas.style.display = 'block';
+            let bottomProdData = data.bottomProducts.slice(0, 10);
+            while (bottomProdData.length < 10) {
+                bottomProdData.push({ name: 'N/A', sales: 0 });
+            }
+            bottomProdData = bottomProdData.reverse();
+            if (bottomProductsCanvas.chart) {
+                bottomProductsCanvas.chart.data.datasets[0].data = bottomProdData.map(item => item.sales);
+                bottomProductsCanvas.chart.update();
+            } else {
+                bottomProductsCanvas.chart = new Chart(bottomProductsCanvas.getContext('2d'), {
                     type: 'bar',
                     data: {
                         labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
@@ -713,18 +749,24 @@
                         }
                     }
                 });
-            } else {
-                bottomProductsNoData.style.display = 'block';
-                bottomProductsCanvas.style.display = 'none';
             }
+        } else {
+            bottomProductsNoData.style.display = 'block';
+            bottomProductsCanvas.style.display = 'none';
+        }
 
-            // Revenue Chart (Line Chart)
-            const revenueCanvas = document.getElementById('revenueChart');
-            const revenueNoData = document.getElementById('revenueNoData');
-            if (data.revenue && Array.isArray(data.revenue) && data.revenue.length > 0) {
-                revenueNoData.style.display = 'none';
-                revenueCanvas.style.display = 'block';
-                new Chart(revenueCanvas.getContext('2d'), {
+        // Revenue Chart
+        const revenueCanvas = document.getElementById('revenueChart');
+        const revenueNoData = document.getElementById('revenueNoData');
+        if (data.revenue && Array.isArray(data.revenue) && data.revenue.length > 0) {
+            revenueNoData.style.display = 'none';
+            revenueCanvas.style.display = 'block';
+            if (revenueCanvas.chart) {
+                revenueCanvas.chart.data.labels = data.revenue.map(item => item.month);
+                revenueCanvas.chart.data.datasets[0].data = data.revenue.map(item => parseFloat(item.amount));
+                revenueCanvas.chart.update();
+            } else {
+                revenueCanvas.chart = new Chart(revenueCanvas.getContext('2d'), {
                     type: 'line',
                     data: {
                         labels: data.revenue.map(item => item.month),
@@ -754,17 +796,12 @@
                         }
                     }
                 });
-            } else {
-                revenueNoData.style.display = 'block';
-                revenueCanvas.style.display = 'none';
             }
-        })
-        .catch(error => {
-            console.error('Error fetching dashboard data:', error);
-            loading.style.display = 'none';
-            error.style.display = 'block';
-            showToast('Lỗi khi tải dữ liệu dashboard. Kiểm tra kết nối cơ sở dữ liệu.', 'danger');
-        });
+        } else {
+            revenueNoData.style.display = 'block';
+            revenueCanvas.style.display = 'none';
+        }
+    }
 </script>
 </body>
 </html>

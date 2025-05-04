@@ -658,7 +658,11 @@
                                                 <!-- Hiển thị tên sản phẩm -->
                                                 <h6 style="font-weight: normal" th:text="${product.productName}"></h6>
                                                 <!-- Hiển thị giá sản phẩm -->
-                                                <span style="font-weight: bold" th:text="${@formatter.formatPrice(product.price)}"></span>
+                                                <p class="product-price" th:text="${'Giá: '+@formatter.formatPrice(product.getPrice())} " style="color: black; font-weight: bold; text-decoration: line-through;"></p>
+                                                <p class="product-price"
+                                                   th:text="'Giá: ' + ${@formatter.formatPrice(product.price * (1 - product.discount / 100.0))}"
+                                                   style="color: black; font-weight: bold">
+                                                </p>
                                             </div>
                                         </a>
                                     </div>
@@ -695,7 +699,11 @@
                             </div>
                                 <div class="product__item__text">
                                     <h5 th:text="${product.getProductName()}"></h5>
-                                    <h6  th:text="${'Giá: ' + @formatter.formatPrice(product.getPrice())}"></h6>
+                                    <p class="product-price" th:text="${'Giá: '+@formatter.formatPrice(product.getPrice())} " style="color: black; font-weight: bold; text-decoration: line-through;"></p>
+                                    <p class="product-price"
+                                       th:text="'Giá: ' + ${@formatter.formatPrice(product.price * (1 - product.discount / 100.0))}"
+                                       style="color: black; font-weight: bold">
+                                    </p>
                                 </div>
                             </a>
                             </div>
