@@ -50,7 +50,7 @@ public class DashboardController {
                     "failed", Map.of("label", "Thất bại", "count", statusCounts.get("failed"))
             );
 
-            // Top 10 and Bottom 10 Categories by Sales (unchanged)
+            // Top 10 and Bottom 10 Categories by Sales
             List<Object[]> categorySales;
             try {
                 categorySales = entityManager.createNativeQuery(
@@ -108,8 +108,7 @@ public class DashboardController {
                     .map(row -> Map.of("name", row[0] != null ? row[0] : "Unknown", "sales", ((Number) row[1]).longValue()))
                     .collect(Collectors.toList());
 
-
-            // Revenue by Month (unchanged)
+            // Revenue by Month
             List<Object[]> revenue;
             try {
                 revenue = entityManager.createNativeQuery(
@@ -151,8 +150,8 @@ public class DashboardController {
                     "orderStats", orderStats,
                     "topCategories", topCategories,
                     "bottomCategories", bottomCategories,
-                    "topProducts", topProducts,      // Add this
-                    "bottomProducts", bottomProducts, // Add this
+                    "topProducts", topProducts,
+                    "bottomProducts", bottomProducts,
                     "revenue", revenueData
             );
         } catch (Exception e) {
